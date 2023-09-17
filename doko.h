@@ -7,17 +7,11 @@
 #include <X11/Xlib.h>
 
 #include <Imlib2.h>
+
 #include <stdint.h>
+#include <stdbool.h>
 
-
-
-#define ATOM_COUNT 1
-
-enum {
-    ATOM_WM_DELETE_WINDOW = 0
-};
-
-extern Atom atoms[ATOM_COUNT];
+#define MAX(a, b) a > b ? a : b
 
 typedef union {
   struct {
@@ -30,7 +24,7 @@ typedef union {
   uint32_t decimal;
 } rgba_t;
 
-typedef struct {
+typedef struct win_env{
     Display* dsp;
 	int scr;
 	int scrw, scrh;
@@ -40,7 +34,7 @@ typedef struct {
 } win_env_t;
 
 
-struct win {
+typedef struct {
     
     Window xwin;
 
@@ -60,16 +54,63 @@ struct win {
         int h;
         Pixmap pm;
     } buf;
+} win_t;
+
+
+typedef struct {
+	const char *name; /* as given by user */
+	const char *path; /* always absolute */
+} file_t;
+
+
+
+#pragma region DOKO_WINDOW_H
+
+#define ATOM_COUNT 1
+
+enum {
+    ATOM_WM_DELETE_WINDOW = 0
 };
 
-
-typedef struct win win_t;
-
-
-
+extern Atom atoms[ATOM_COUNT];
 
 void win_init(win_t* win);
 void win_create(win_t* win);
 void win_close(win_t* win);
+bool win_configure(win_t *win, XConfigureEvent *c);
+void win_clear(win_t *win);
+void win_draw(win_t *win);
+
+#pragma endregion
+
+
+#pragma region DOKO_IMAGE_H
+
+typedef struct img {
+  
+  Imlib_Image im;
+  int w;
+  int h;
+
+  win_t* win;
+  float x;
+  float y;
+  
+  bool aa;
+  bool dirty;
+
+} img_t;
+
+
+void img_close(img_t* img, bool decache);
+bool img_load(file_t* file, img_t* img);
+Imlib_Image img_open(file_t* file);
+void img_init(img_t *img, win_t *win);
+void img_draw(img_t *img, win_t *win);
+
+#pragma endregion
+
+
+
 
 #endif

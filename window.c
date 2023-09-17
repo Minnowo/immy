@@ -4,6 +4,7 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +38,9 @@ void win_init(win_t* win) {
     e->cmap = DefaultColormap(e->dsp, e->scr);
     e->depth = DefaultDepth(e->dsp, e->scr);
     
+    printf("Screen dims %d x %d\n", e->scrw, e->scrh);
+    printf("Primary screen dims %d x %d\n", DisplayWidth(e->dsp, e->scr), DisplayHeight(e->dsp, e->scr));
+
     atoms[ATOM_WM_DELETE_WINDOW] = XInternAtom(e->dsp, "WM_DELETE_WINDOW", False);
 }
 
@@ -48,11 +52,11 @@ void win_create(win_t *win) {
     e = &win->env;
 
     parent = RootWindow(e->dsp, e->scr);
-    
+
     win->w = 200;
     win->h = 200;
-    win->x = e->scrw / 2;
-    win->y = e->scrh / 2;
+    win->x = (DisplayWidth(e->dsp, e->scr) - win->w ) / 2;
+    win->y = (DisplayHeight(e->dsp, e->scr) - win->h) / 2;
 	win->buf.w = e->scrw;
 	win->buf.h = e->scrh;
 
@@ -68,9 +72,7 @@ void win_create(win_t *win) {
 	win->buf.pm = XCreatePixmap(e->dsp, win->xwin,
 	                            win->buf.w, win->buf.h, e->depth);
 
-    XSelectInput(e->dsp, win->xwin,
-                 ButtonPressMask | ButtonReleaseMask | PointerMotionMask |
-                     ExposureMask);
+    XSelectInput(e->dsp, win->xwin, KeyPressMask| ExposureMask | StructureNotifyMask);
 
     XSetWMProtocols(e->dsp, win->xwin, &atoms[ATOM_WM_DELETE_WINDOW], 1);
 
@@ -91,4 +93,49 @@ void win_close(win_t *win)
     XFreeGC(win->env.dsp, gc);
 	XDestroyWindow(win->env.dsp, win->xwin);
 	XCloseDisplay(win->env.dsp);
+}
+
+
+bool win_configure(win_t *win, XConfigureEvent *c)
+{
+	bool changed;
+
+	changed = win->w != c->width || win->h != c->height;
+
+	win->x = c->x;
+	win->y = c->y;
+	win->w = c->width;
+	win->h = c->height;
+
+	return changed;
+}
+
+void win_clear(win_t *win)
+{
+	win_env_t *e;
+
+	e = &win->env;
+
+	if (win->w > win->buf.w || win->h > win->buf.h) {
+
+		XFreePixmap(e->dsp, win->buf.pm);
+
+		win->buf.w = MAX(win->buf.w, win->w);
+
+		win->buf.h = MAX(win->buf.h, win->h);
+
+		win->buf.pm = XCreatePixmap(e->dsp, win->xwin,
+		                            win->buf.w, win->buf.h, e->depth);
+	}
+
+	XSetForeground(e->dsp, gc, win->bg.decimal);
+	XFillRectangle(e->dsp, win->buf.pm, gc, 0, 0, win->buf.w, win->buf.h);
+}
+
+
+void win_draw(win_t *win)
+{
+	XSetWindowBackgroundPixmap(win->env.dsp, win->xwin, win->buf.pm);
+	XClearWindow(win->env.dsp, win->xwin);
+	XFlush(win->env.dsp);
 }
