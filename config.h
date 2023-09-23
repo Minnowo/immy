@@ -10,6 +10,8 @@
 #define MAX_COLOR_USAGE 65510 
 #define DITHER_CONTEXT 1 
 
+#define IMG_MOVE_DELTA 50
+
 /**
  * The amount in which gamma is increase / decreased by hotkeys
 */

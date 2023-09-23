@@ -79,22 +79,22 @@ void on_keypress(XKeyEvent* key) {
 
     case XK_H:
     case XK_h:
-        image.x -= 50;
+        image.x -= IMG_MOVE_DELTA;
         dirty = true;
         break;
     case XK_J:
     case XK_j:
-        image.y += 50;
+        image.y += IMG_MOVE_DELTA;
         dirty = true;
         break;
     case XK_K:
     case XK_k:
-        image.y -= 50;
+        image.y -= IMG_MOVE_DELTA;
         dirty = true;
         break;
     case XK_L:
     case XK_l:
-        image.x += 50;
+        image.x += IMG_MOVE_DELTA;
         dirty = true;
         break;
     }
