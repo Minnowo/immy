@@ -12,6 +12,11 @@
 
 #define IMG_MOVE_DELTA 50
 
+#define WINDOW_W 512
+#define WINDOW_H 512
+#define WINDOW_X 0
+#define WINDOW_Y 0
+
 /**
  * The amount in which gamma is increase / decreased by hotkeys
 */

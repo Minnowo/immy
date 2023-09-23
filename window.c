@@ -55,10 +55,10 @@ void win_create(win_t *win) {
 
     parent = RootWindow(e->dsp, e->scr);
 
-    win->w = 200;
-    win->h = 200;
-    win->x = 0;
-    win->y = 0;
+    win->w = OPTIONS->win_w;
+    win->h = OPTIONS->win_h;
+    win->x = OPTIONS->win_x;
+    win->y = OPTIONS->win_y;
 	win->buf.w = e->scrw;
 	win->buf.h = e->scrh;
 
