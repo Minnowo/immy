@@ -19,6 +19,10 @@ bool parse_start_arguments(int argc, char* argv[]){
     _options.font_cache_size = FONT_CACHE_SIZE;
     _options.image_cache_size = CACHE_SIZE;
     _options.max_color_usage = MAX_COLOR_USAGE;
+    _options.win_w = WINDOW_W;
+    _options.win_h = WINDOW_H;
+    _options.win_x = WINDOW_X;
+    _options.win_y = WINDOW_Y;
     
     for(int i = 1; i < argc; i++) {
         
@@ -44,8 +48,12 @@ bool parse_start_arguments(int argc, char* argv[]){
                }
            } 
         }
+        
+        _options.image.name = arg_str;
         printf("%d : %s\n", i, argv[i]);
     }
+
+    _options.image.path = realpath(_options.image.name, NULL);
 
     return true;
 }

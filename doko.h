@@ -64,6 +64,8 @@ typedef struct {
 
 
 typedef struct {
+  file_t image;
+
   int win_x;
   int win_y;
   int win_w;

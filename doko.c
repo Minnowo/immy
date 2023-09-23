@@ -149,18 +149,11 @@ int main(int argc, char *argv[]) {
     
     parse_start_arguments(argc, argv);
     
-    file_t file;
+    printf("File: %s\n", OPTIONS->image.path);
 
-        file.name = "./test_images/bg.jpg";
-        // file.name = "./test_images/doko.png";
-
-    file.path = realpath(file.name, NULL);
-    
-    printf("File: %s\n", file.path);
-
-    if (access(file.path, R_OK) != 0) { 
+    if (access(OPTIONS->image.path, R_OK) != 0) { 
         
-        fprintf(stderr, "Could not find or read the file %s\n", file.path);
+        fprintf(stderr, "Could not find or read the file %s\n", OPTIONS->image.path);
         return 1;
     }
 
@@ -170,7 +163,7 @@ int main(int argc, char *argv[]) {
    
     img_init(&image, &main_window);
 
-    img_load(&file, &image);
+    img_load(&OPTIONS->image, &image);
    
     run(&main_window);
     
