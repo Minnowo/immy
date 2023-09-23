@@ -137,7 +137,6 @@ void img_invert(img_t* img) {
     if(!img || !img->im) 
         return;
     
-    
     imlib_context_set_image(img->im);
 
     int width = imlib_image_get_width();
