@@ -55,6 +55,14 @@ void on_keypress(XKeyEvent* key) {
 
     switch (ksym) {
 
+    case XK_equal:
+        image.zoom += 0.1;
+        dirty = true;
+        break;
+    case XK_minus:
+        image.zoom -= 0.1;
+        dirty = true;
+        break;
     case XK_Q:
     case XK_q:
         is_running = false;
@@ -120,6 +128,8 @@ void run(win_t *win) {
 
           case Expose:
               redraw();
+                printf("Win buff: %d x %d\n", win->buf.w, win->buf.h);
+                printf("Win size: %d x %d\n", win->w, win->h);
             break;
 
           case KeyPress:

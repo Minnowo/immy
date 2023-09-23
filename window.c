@@ -141,6 +141,7 @@ void win_clear(win_t *win)
 
 void win_draw(win_t *win)
 {
+
 	XSetWindowBackgroundPixmap(win->env.dsp, win->xwin, win->buf.pm);
 	XClearWindow(win->env.dsp, win->xwin);
 	XFlush(win->env.dsp);

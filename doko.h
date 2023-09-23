@@ -119,6 +119,7 @@ typedef struct img {
   win_t* win;
   float x;
   float y;
+  double zoom;
   
   double gamma;
 	Imlib_Color_Modifier cmod;
