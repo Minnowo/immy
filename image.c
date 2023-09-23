@@ -220,6 +220,7 @@ void img_move(img_t* img, direction_t dir, move_type_t mmode) {
 
     switch (mmode) {
 
+    default:
     case MOVE_SCREEN:
         mx = (img->win->w / IMG_MOVE_FRAC);
         my = (img->win->h / IMG_MOVE_FRAC);
