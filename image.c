@@ -217,6 +217,8 @@ void img_move(img_t* img, direction_t dir, move_type_t mmode) {
 
     int mx;
     int my;
+    int ox = img->x;
+    int oy = img->y;
 
     switch (mmode) {
 
@@ -247,18 +249,26 @@ void img_move(img_t* img, direction_t dir, move_type_t mmode) {
             img->x += mx;
             break;
     }
+
+    if (-img->x > img->win->w) {
+
+        img->x = 1 - (int)img->win->w;
+
+    } else if (img->x > img->w / img->zoom) {
+
+        img->x = img->w / img->zoom - 1;
+
+    }
+
+    if (-img->y > img->win->h) {
+
+        img->y = 1 - (int)img->win->h;
+
+    } else if (img->y > img->h / img->zoom) {
+
+        img->y = img->h / img->zoom - 1;
+
+    }
     
-    if(-img->x > img->win->w) {
-        img->x = 1 -(int)img->win->w;
-    }
-    else if(img->x > img->w / img->zoom) {
-       img->x =  img->w / img->zoom - 1; 
-    }
-    
-    if( -img->y > img->win->h) {
-        img->y = 1 -(int)img->win->h;
-    }
-    else if(img->y > img->h / img->zoom) {
-       img->y =  img->h / img->zoom - 1; 
-    }
+    img->dirty = img->x != ox || img->y != oy;
 }

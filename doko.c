@@ -120,24 +120,22 @@ void on_keypress(XKeyEvent* key) {
     case XK_H:
     case XK_h:
         img_move(&image, DIR_RIGHT, OPTIONS->image_move_mode);
-        dirty = true;
         break;
     case XK_J:
     case XK_j:
         img_move(&image, DIR_UP, OPTIONS->image_move_mode);
-        dirty = true;
         break;
     case XK_K:
     case XK_k:
         img_move(&image, DIR_DOWN, OPTIONS->image_move_mode);
-        dirty = true;
         break;
     case XK_L:
     case XK_l:
         img_move(&image, DIR_LEFT, OPTIONS->image_move_mode);
-        dirty = true;
         break;
     }
+    
+    dirty = dirty || image.dirty;
 
     if(dirty && is_running) {
         redraw();
