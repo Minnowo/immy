@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "doko.h"
 #include "config.h"
@@ -28,6 +29,19 @@ void redraw(){
     win_draw(&main_window);
 }
 
+void update_gamma_by(double amt) {
+
+    image.gamma += amt;
+
+    if(image.gamma <= 0) 
+        image.gamma = 0.01;
+    
+    if(image.gamma > 10)
+        image.gamma = 10;
+
+    img_apply_gamma(&image);
+}
+
 void on_keypress(XKeyEvent* key) {
     
     bool dirty = image.dirty;
@@ -44,6 +58,23 @@ void on_keypress(XKeyEvent* key) {
     case XK_Q:
     case XK_q:
         is_running = false;
+        break;
+    case XK_F:
+    case XK_f:
+        win_toggle_fullscreen(&main_window);
+        break;
+
+    case XK_I:
+    case XK_i:
+        img_invert(&image);
+        break;
+
+    case XK_6:
+        update_gamma_by(GAMMA_DELTA);
+        break;
+
+    case XK_5:
+        update_gamma_by(-GAMMA_DELTA);
         break;
 
     case XK_H:
@@ -115,18 +146,29 @@ void run(win_t *win) {
 }
 
 int main(int argc, char *argv[]) {
+    
+    parse_start_arguments(argc, argv);
+    
+    file_t file;
+
+        file.name = "./test_images/bg.jpg";
+        // file.name = "./test_images/doko.png";
+
+    file.path = realpath(file.name, NULL);
+    
+    printf("File: %s\n", file.path);
+
+    if (access(file.path, R_OK) != 0) { 
+        
+        fprintf(stderr, "Could not find or read the file %s\n", file.path);
+        return 1;
+    }
 
     win_init(&main_window);
 
     win_create(&main_window);
    
     img_init(&image, &main_window);
-    
-    file_t file;
-    file.name = "./test_images/bg.jpg";
-    file.path = realpath(file.name, NULL);
-    
-    printf("File: %s\n", file.path);
 
     img_load(&file, &image);
    

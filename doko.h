@@ -63,13 +63,34 @@ typedef struct {
 } file_t;
 
 
+typedef struct {
+  int win_x;
+  int win_y;
+  int win_w;
+  int win_h;
+  
+  int max_color_usage;
+  uint64_t image_cache_size;
+  uint64_t font_cache_size;
+
+  bool dither_context;
+  bool anti_alias;
+  bool fullscreen;
+
+} options_t;
+
+extern const options_t* OPTIONS;
 
 #pragma region DOKO_WINDOW_H
 
-#define ATOM_COUNT 1
+#define ATOM_COUNT 3
 
 enum {
-    ATOM_WM_DELETE_WINDOW = 0
+    ATOM_WM_DELETE_WINDOW = 0,
+
+  // https://specifications.freedesktop.org/wm-spec/1.3/ar01s05.html
+    _NET_ATOM_WM_STATE = 1,
+    _NET_WM_STATE_FULLSCREEN = 2,
 };
 
 extern Atom atoms[ATOM_COUNT];
@@ -80,6 +101,7 @@ void win_close(win_t* win);
 bool win_configure(win_t *win, XConfigureEvent *c);
 void win_clear(win_t *win);
 void win_draw(win_t *win);
+void win_toggle_fullscreen(win_t *win);
 
 #pragma endregion
 
@@ -96,6 +118,9 @@ typedef struct img {
   float x;
   float y;
   
+  double gamma;
+	Imlib_Color_Modifier cmod;
+
   bool aa;
   bool dirty;
 
@@ -107,9 +132,19 @@ bool img_load(file_t* file, img_t* img);
 Imlib_Image img_open(file_t* file);
 void img_init(img_t *img, win_t *win);
 void img_draw(img_t *img, win_t *win);
+void img_invert(img_t* img);
+void img_apply_gamma(img_t* img);
 
 #pragma endregion
 
+
+
+#pragma region DOKO_OPTIONS_H
+
+
+bool parse_start_arguments(int argc, char* argv[]);
+
+#pragma endregion
 
 
 

@@ -42,6 +42,8 @@ void win_init(win_t* win) {
     printf("Primary screen dims %d x %d\n", DisplayWidth(e->dsp, e->scr), DisplayHeight(e->dsp, e->scr));
 
     atoms[ATOM_WM_DELETE_WINDOW] = XInternAtom(e->dsp, "WM_DELETE_WINDOW", False);
+    atoms[_NET_ATOM_WM_STATE] = XInternAtom(e->dsp, "_NET_WM_STATE", False);
+    atoms[_NET_WM_STATE_FULLSCREEN] = XInternAtom(e->dsp, "_NET_WM_STATE_FULLSCREEN", False);
 }
 
 void win_create(win_t *win) {
@@ -55,8 +57,8 @@ void win_create(win_t *win) {
 
     win->w = 200;
     win->h = 200;
-    win->x = (DisplayWidth(e->dsp, e->scr) - win->w ) / 2;
-    win->y = (DisplayHeight(e->dsp, e->scr) - win->h) / 2;
+    win->x = 0;
+    win->y = 0;
 	win->buf.w = e->scrw;
 	win->buf.h = e->scrh;
 
@@ -85,6 +87,10 @@ void win_create(win_t *win) {
 
 	XMapWindow(e->dsp, win->xwin);
 	XFlush(e->dsp);
+    
+    if(OPTIONS->fullscreen) {
+        win_toggle_fullscreen(win);
+    }
 }
 
 
@@ -138,4 +144,26 @@ void win_draw(win_t *win)
 	XSetWindowBackgroundPixmap(win->env.dsp, win->xwin, win->buf.pm);
 	XClearWindow(win->env.dsp, win->xwin);
 	XFlush(win->env.dsp);
+}
+
+
+void win_toggle_fullscreen(win_t *win)
+{
+    printf("Toggle fullscreen\n");
+
+	XEvent ev;
+	XClientMessageEvent *cm;
+
+	memset(&ev, 0, sizeof(ev));
+	ev.type = ClientMessage;
+
+	cm = &ev.xclient;
+	cm->window = win->xwin;
+	cm->message_type = atoms[_NET_ATOM_WM_STATE]; 
+	cm->format = 32;
+	cm->data.l[0] = 2; // toggle
+	cm->data.l[1] = atoms[_NET_WM_STATE_FULLSCREEN];
+
+	XSendEvent(win->env.dsp, DefaultRootWindow(win->env.dsp), False,
+	           SubstructureNotifyMask | SubstructureRedirectMask, &ev);
 }

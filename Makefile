@@ -2,7 +2,7 @@
 
 CFLAGS=-lImlib2 -lX11
 
-SRC_FILES=doko.c window.c image.c
+SRC_FILES=doko.c window.c image.c options.c
 
 all:
 
