@@ -13,6 +13,18 @@
 
 #define MAX(a, b) a > b ? a : b
 
+typedef enum {
+  DIR_LEFT = 0,
+  DIR_RIGHT = 1,
+  DIR_UP = 2,
+  DIR_DOWN = 3
+} direction_t;
+
+typedef enum {
+  MOVE_SCREEN = 0,
+  MOVE_VISIBLE_IMG = 1,
+} move_type_t;
+
 typedef union {
   struct {
     uint8_t r;
@@ -71,12 +83,15 @@ typedef struct {
   int win_w;
   int win_h;
   
+  move_type_t image_move_mode;
+  
   int max_color_usage;
   uint64_t image_cache_size;
   uint64_t font_cache_size;
 
   bool dither_context;
   bool anti_alias;
+  bool blend;
   bool fullscreen;
 
 } options_t;
@@ -125,6 +140,8 @@ typedef struct img {
 	Imlib_Color_Modifier cmod;
 
   bool aa;
+  bool dither;
+  bool blend;
   bool dirty;
 
 } img_t;
@@ -137,6 +154,8 @@ void img_init(img_t *img, win_t *win);
 void img_draw(img_t *img, win_t *win);
 void img_invert(img_t* img);
 void img_apply_gamma(img_t* img);
+void img_center(img_t* img);
+void img_move(img_t* img, direction_t dir, move_type_t mmode);
 
 #pragma endregion
 

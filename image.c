@@ -1,4 +1,6 @@
 
+#include <X11/X.h>
+#include <time.h>
 #include <Imlib2.h>
 
 #include <X11/Xlib.h>
@@ -23,7 +25,9 @@ void img_init(img_t *img, win_t *win) {
 
 	img->im = NULL;
 	img->win = win;
-	img->aa = ANTI_ALIAS;
+	img->aa = OPTIONS->anti_alias;
+    img->blend = OPTIONS->blend;
+    img->dither =  OPTIONS->dither_context;
     img->dirty = false;
     img->gamma = 1.0;
     img->zoom = 1.0;
@@ -102,12 +106,11 @@ void img_draw(img_t* img, win_t* win) {
     
     imlib_context_set_image(img->im);
 	imlib_context_set_anti_alias(img->aa);
+    imlib_context_set_dither(img->dither);
+    imlib_context_set_blend(img->blend);
 	imlib_context_set_drawable(win->buf.pm);
-
-    imlib_context_set_blend(0);
     
-    
-    double zoom = 1 / img->zoom;
+    double zoom = img->zoom;
     int ix = img->x;
     int iy = img->y;
     int wx = 0;
@@ -163,41 +166,98 @@ void img_invert(img_t* img) {
     if(!img || !img->im) 
         return;
     
+    uint8_t red_table[256];
+    uint8_t green_table[256];
+    uint8_t blue_table[256];
+    uint8_t alpha_table[256];
+
+    for (int i = 0; i < 256; i++) {
+        red_table[i] = 255 - i;
+        green_table[i] = 255 - i;
+        blue_table[i] = 255 - i;
+        alpha_table[i] = i;
+    }
+
     imlib_context_set_image(img->im);
 
-    int width = imlib_image_get_width();
-    int height = imlib_image_get_height();
-    int len = width * height;
-    
-    Imlib_Color color;
-    for (int i = 0; i < len; i++) {
+    Imlib_Color_Modifier cmod = imlib_create_color_modifier();
+    imlib_context_set_color_modifier(cmod);
+    imlib_set_color_modifier_tables(red_table, green_table, blue_table, alpha_table);
+    imlib_apply_color_modifier();
+    imlib_free_color_modifier();
 
-        int x = i % width;
-        int y = i / width;
-
-        imlib_image_query_pixel(x, y, &color);
-        imlib_context_set_color(255 - color.red, 255 - color.green,
-                                255 - color.blue, color.alpha);
-        imlib_image_draw_pixel(x, y, 0);
-    }
-
-    /*
-     * https://docs.enlightenment.org/api/imlib2/html/imlib2_8c.html#17817446139a645cc017e9f79124e5a2
-     * probably faster, but will invalidate the cache
-     
-    DATA32 *im_data = imlib_image_get_data ();
-    rgba_t *c = im_data;
-    
-    for (int y = 0; y < len; y++) {
-
-        c->rgba.r = 255 - c->rgba.r;
-        c->rgba.g = 255 - c->rgba.g;
-        c->rgba.b = 255 - c->rgba.b;
-        
-        c++;
-    }
-    */
+    imlib_context_set_color_modifier(img->cmod);
 
     img->dirty = true;
+}
+
+
+void img_center(img_t* img) {
     
+    double visW = img->w / img->zoom;
+    double visH = img->h / img->zoom;
+    int winW = img->win->w;
+    int winH = img->win->h;
+
+    if(visW > winW) {
+        img->x = (visW / 2.0) - (winW /2.0);
+    } else {
+        img->x = -(winW / 2.0) + (visW / 2.0);
+    }
+
+    if(visH > winH) {
+        img->y = (visH / 2.0) - (winH /2.0);
+    } else {
+        img->y = -(winH / 2.0) + (visH / 2.0);
+    }
+}
+
+
+void img_move(img_t* img, direction_t dir, move_type_t mmode) {
+
+    int mx;
+    int my;
+
+    switch (mmode) {
+
+    case MOVE_SCREEN:
+        mx = (img->win->w / IMG_MOVE_FRAC);
+        my = (img->win->h / IMG_MOVE_FRAC);
+        break;
+
+    case MOVE_VISIBLE_IMG:
+        mx = (img->w / img->zoom / IMG_MOVE_FRAC) - IMG_MOVE_DELTA;
+        my = (img->h / img->zoom / IMG_MOVE_FRAC) - IMG_MOVE_DELTA;
+        break;
+    }
+
+    switch (dir) {
+        
+        case DIR_UP:
+            img->y -= my;
+            break;
+        case DIR_DOWN:
+            img->y += my;
+            break;
+        case DIR_LEFT:
+            img->x -= mx;
+            break;
+        case DIR_RIGHT:
+            img->x += mx;
+            break;
+    }
+    
+    if(-img->x > img->win->w) {
+        img->x = 1 -(int)img->win->w;
+    }
+    else if(img->x > img->w / img->zoom) {
+       img->x =  img->w / img->zoom - 1; 
+    }
+    
+    if( -img->y > img->win->h) {
+        img->y = 1 -(int)img->win->h;
+    }
+    else if(img->y > img->h / img->zoom) {
+       img->y =  img->h / img->zoom - 1; 
+    }
 }

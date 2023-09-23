@@ -42,25 +42,57 @@ void update_gamma_by(double amt) {
     img_apply_gamma(&image);
 }
 
+
 void on_keypress(XKeyEvent* key) {
     
     bool dirty = image.dirty;
 	KeySym ksym;
 	char kc;
+    double before;
 
 	XLookupString(key, &kc, 1, &ksym, NULL);
     
     if(IsModifierKey(ksym))
         return;
 
+    printf("Image x y : %f %f\n", image.x, image.y);
+
     switch (ksym) {
 
+        case XK_A:
+        case XK_a:
+            image.aa = !image.aa;
+            dirty = true;
+            break;
+        case XK_D:
+        case XK_d:
+            image.dither = !image.dither;
+            dirty = true;
+            break;
+        case XK_B:
+        case XK_b:
+            image.blend = !image.blend;
+            dirty = true;
+            break;
+        case XK_V:
+        case XK_v:
+    image.x = 0;
+    image.y = 0;
+    dirty=true;
+        break;
+    case XK_C:
+    case XK_c:
+        img_center(&image);
+        dirty =true;
+        break;
     case XK_equal:
-        image.zoom += 0.1;
+        before = image.zoom;
+        image.zoom -= 0.1;
         dirty = true;
         break;
     case XK_minus:
-        image.zoom -= 0.1;
+        before = image.zoom;
+        image.zoom += 0.1;
         dirty = true;
         break;
     case XK_Q:
@@ -87,22 +119,22 @@ void on_keypress(XKeyEvent* key) {
 
     case XK_H:
     case XK_h:
-        image.x += IMG_MOVE_DELTA;
+        img_move(&image, DIR_RIGHT, OPTIONS->image_move_mode);
         dirty = true;
         break;
     case XK_J:
     case XK_j:
-        image.y -= IMG_MOVE_DELTA;
+        img_move(&image, DIR_UP, OPTIONS->image_move_mode);
         dirty = true;
         break;
     case XK_K:
     case XK_k:
-        image.y += IMG_MOVE_DELTA;
+        img_move(&image, DIR_DOWN, OPTIONS->image_move_mode);
         dirty = true;
         break;
     case XK_L:
     case XK_l:
-        image.x -= IMG_MOVE_DELTA;
+        img_move(&image, DIR_LEFT, OPTIONS->image_move_mode);
         dirty = true;
         break;
     }
