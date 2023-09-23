@@ -105,7 +105,6 @@ void img_draw(img_t* img, win_t* win) {
 	imlib_context_set_drawable(win->buf.pm);
 
     imlib_context_set_blend(0);
-    // imlib_render_image_on_drawable(img->x, img->y);
     
     
     double zoom = 1 / img->zoom;
@@ -115,18 +114,23 @@ void img_draw(img_t* img, win_t* win) {
     int wy = 0;
     
     if(ix < 0) {
-        wx = -ix;
+        wx = -ix ;
         ix = 0;
+    } else {
+        ix *= zoom;
     }
 
     if(iy < 0) {
-        wy = -iy;
+        wy = -iy ;
         iy = 0;
+    } else {
+        iy *= zoom;
     }
 
-    imlib_render_image_part_on_drawable_at_size(ix, iy, img->win->w * zoom,
-                                                img->win->h * zoom, wx, wy,
-                                                img->win->w, img->win->h);
+    imlib_render_image_part_on_drawable_at_size(
+        ix, iy, img->win->w * zoom,
+        img->win->h * zoom, wx, wy,
+        img->win->w, img->win->h);
 }
 
 

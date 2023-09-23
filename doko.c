@@ -87,22 +87,22 @@ void on_keypress(XKeyEvent* key) {
 
     case XK_H:
     case XK_h:
-        image.x -= IMG_MOVE_DELTA;
+        image.x += IMG_MOVE_DELTA;
         dirty = true;
         break;
     case XK_J:
     case XK_j:
-        image.y += IMG_MOVE_DELTA;
+        image.y -= IMG_MOVE_DELTA;
         dirty = true;
         break;
     case XK_K:
     case XK_k:
-        image.y -= IMG_MOVE_DELTA;
+        image.y += IMG_MOVE_DELTA;
         dirty = true;
         break;
     case XK_L:
     case XK_l:
-        image.x += IMG_MOVE_DELTA;
+        image.x -= IMG_MOVE_DELTA;
         dirty = true;
         break;
     }
@@ -115,43 +115,60 @@ void on_keypress(XKeyEvent* key) {
 void run(win_t *win) {
 
     win_env_t *e;
-    XEvent ev;
+    XEvent ev, nextev;
+    bool discard;
 
     e = &win->env;
 
     while (is_running) {
 
         do {
-          XNextEvent(e->dsp, &ev);
+          discard = false;
+
+          XNextEvent(win->env.dsp, &ev);
+
+          if (XEventsQueued(win->env.dsp, QueuedAlready) <= 0)
+            break;
+
+          XPeekEvent(win->env.dsp, &nextev);
 
           switch (ev.type) {
-
-          case Expose:
-              redraw();
-                printf("Win buff: %d x %d\n", win->buf.w, win->buf.h);
-                printf("Win size: %d x %d\n", win->w, win->h);
-            break;
-
-          case KeyPress:
-            on_keypress(&ev.xkey);
-            break;
-
-          case ClientMessage:
-
-            if ((Atom)ev.xclient.data.l[0] == atoms[ATOM_WM_DELETE_WINDOW])
-
-              is_running = false;
-
-            break;
-
           case ConfigureNotify:
-            if (win_configure(win, &ev.xconfigure)) {
-            }
+          case MotionNotify:
+            discard = ev.type == nextev.type;
+            break;
+          case KeyPress:
+            discard = (nextev.type == KeyPress || nextev.type == KeyRelease) &&
+                      ev.xkey.keycode == nextev.xkey.keycode;
+            break;
           }
+        } while (discard);
 
-        } while (XPending(e->dsp));
-        
+        switch (ev.type) {
 
+        case Expose:
+          redraw();
+          break;
+
+        case KeyPress:
+          on_keypress(&ev.xkey);
+          break;
+
+        case ClientMessage:
+
+          if ((Atom)ev.xclient.data.l[0] == atoms[ATOM_WM_DELETE_WINDOW])
+
+            is_running = false;
+
+          break;
+
+        case ConfigureNotify:
+          if (win_configure(win, &ev.xconfigure)) {
+            printf("Win buff: %d x %d\n", win->buf.w, win->buf.h);
+            printf("Win size: %d x %d\n", win->w, win->h);
+          }
+          break;
+        }
     }
 }
 
