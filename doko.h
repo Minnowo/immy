@@ -76,6 +76,8 @@ typedef struct {
 
 
 typedef struct {
+  int file_count;
+  char** filenames;
   file_t image;
 
   int win_x;
@@ -89,6 +91,7 @@ typedef struct {
   uint64_t image_cache_size;
   uint64_t font_cache_size;
 
+  bool read_stdin;
   bool dither_context;
   bool anti_alias;
   bool blend;
@@ -148,9 +151,9 @@ typedef struct img {
 
 
 void img_close(img_t* img, bool decache);
-bool img_load(file_t* file, img_t* img);
-Imlib_Image img_open(file_t* file);
-void img_init(img_t *img, win_t *win);
+bool img_load(const file_t* file, img_t* img);
+Imlib_Image img_open(const file_t* file);
+void img_init(img_t *img, const win_t *win);
 void img_draw(img_t *img, win_t *win);
 void img_invert(img_t* img);
 void img_apply_gamma(img_t* img);
@@ -169,5 +172,13 @@ bool parse_start_arguments(int argc, char* argv[]);
 #pragma endregion
 
 
+#pragma region DOKO_UTIL_H
+
+void error(int status, int error, const char *fmt, ...);
+void* emalloc(size_t size);
+void* erealloc(void *ptr, size_t size);
+char* estrdup(const char *s);
+
+#pragma endregion
 
 #endif

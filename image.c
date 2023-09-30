@@ -7,12 +7,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "doko.h"
 #include "config.h"
 
 
-void img_init(img_t *img, win_t *win) {
+void img_init(img_t *img, const win_t *win) {
 
     imlib_set_cache_size(OPTIONS->image_cache_size);
     imlib_set_font_cache_size(OPTIONS->font_cache_size);
@@ -36,27 +37,26 @@ void img_init(img_t *img, win_t *win) {
 }
 
 
-Imlib_Image img_open(file_t* file) {
+Imlib_Image img_open(const file_t* file) {
     
-    Imlib_Image img;
+    Imlib_Image img = NULL;
 
     if (access(file->path, R_OK) != 0) {
 
-        fprintf(stderr, "The file %s does not exist or is missing read permission\n", file->path);
+        error(0, errno, "The file %s does not exist or is missing read permission", file->path);
 
         return img;
     }
 
     img = imlib_load_image(file->path);
     
-    if(!img) {
-        fprintf(stderr, "Could not load image %s\n", file->path);
-    } 
+    if(img == NULL) 
+        error(0, errno, "Could not load image %s", file->path);
     
     return img;
 }
 
-bool img_load(file_t* file, img_t* img) {
+bool img_load(const file_t* file, img_t* img) {
     
     Imlib_Image i = img_open(file);
     
@@ -79,21 +79,21 @@ bool img_load(file_t* file, img_t* img) {
 
 void img_close(img_t* img, bool decache) {
     
-    if(img->im) {
+    if(img->im == NULL)
+        return;
 
-        imlib_context_set_image(img->im);
+    imlib_context_set_image(img->im);
 
-		if (decache) {
+    if (decache) {
 
-			imlib_free_image_and_decache();
-        }
-		else {
-
-			imlib_free_image();
-        }
-
-		img->im = NULL;
+        imlib_free_image_and_decache();
     }
+    else {
+
+        imlib_free_image();
+    }
+
+    img->im = NULL;
 }
 
 

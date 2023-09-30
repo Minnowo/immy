@@ -23,34 +23,55 @@ bool parse_start_arguments(int argc, char* argv[]){
     _options.win_h = WINDOW_H;
     _options.win_x = WINDOW_X;
     _options.win_y = WINDOW_Y;
+    _options.image_move_mode = IMAGE_MOVE_MODE;
+    _options.read_stdin = 0;
     
-    for(int i = 1; i < argc; i++) {
+    size_t optind ;
+    
+    for(optind = 1; optind < argc; optind++) {
         
-        const char* arg_str = argv[i];
+        const char* arg_str = argv[optind];
         const int arg_str_len = strlen(arg_str);
-
-        if (arg_str_len < 2) {
-          fprintf(stderr, "Argument %d has invalid length\n", i);
-          continue;
-        }
         
-        const int is_short_arg = arg_str[0] == ARG_PREFIX && arg_str[1] != ARG_PREFIX;
+        if(arg_str_len <= 0)
+            continue;
 
-        if(is_short_arg) {
+        if(arg_str[0] != ARG_PREFIX)
+            break;
 
-           for(int c = 1; c < arg_str_len; c++) {
-               
-               switch (arg_str[c]) {
-                   
-                   case 'a': _options.anti_alias = 0; break;
-                   case 'd': _options.dither_context = 0; break;
-                   case 'f': _options.fullscreen = 1; break;
-               }
-           } 
+        if(arg_str[1] == ARG_PREFIX) {
+            
+            if(arg_str_len == 2)
+                break;
+            
+            continue;
         }
+
+        for (int c = 1; c < arg_str_len; c++) {
+
+            switch (arg_str[c]) {
+
+            case 'a':
+              _options.anti_alias = 0;
+              break;
+            case 'd':
+              _options.dither_context = 0;
+              break;
+            case 'f':
+              _options.fullscreen = 1;
+              break;
+            }
+        }
+    }
+    
+    _options.filenames = argv + optind;
+    _options.file_count = argc - optind;
+    
+    if(_options.file_count == 1 && strcmp(_options.filenames[0], "-") == 0) {
         
-        _options.image.name = arg_str;
-        printf("%d : %s\n", i, argv[i]);
+        _options.read_stdin = true;
+        _options.file_count--;
+
     }
 
     _options.image.path = realpath(_options.image.name, NULL);

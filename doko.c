@@ -1,14 +1,15 @@
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 #include <Imlib2.h>
 
-#include <X11/Xutil.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <unistd.h>
 
 #include "doko.h"
@@ -20,7 +21,82 @@ win_t main_window;
 
 img_t image;
 
+file_t* files;
+size_t files_len = 0;
+size_t files_size = 0;
+size_t file_idx = 0;
+
 static bool is_running = true;
+
+
+void check_add_file(const char* filename) {
+    
+    char* path = realpath(filename, NULL);
+    
+    if (path == NULL || access(path, R_OK) != 0) {
+        
+        error(0, errno, "The file %s does not exist or is missing read permission\n", filename);
+
+        return;
+    }
+    
+    if(files_size + 1 >= files_len) {
+
+        files_len *= 2;
+        files = erealloc(files, sizeof(*files) * files_len);
+        memset(files + files_len / 2, 0, sizeof(*files) * files_len / 2);
+    }
+    
+    files[files_size].name = estrdup(filename);
+    files[files_size].path = path;
+    
+    files_size++;
+}
+
+void remove_n_file(int n) {
+    
+    if(n < 0 || n > files_size) 
+        return;
+
+    file_t* file = &files[n];
+    
+    if(file->name != file->path)
+        free((void*)file->path);
+    
+    free((void*)file->name);
+    
+    files_size--;
+
+    if(n == files_size) 
+        return;
+    
+    memmove(files + n, files + n + 1, (files_size - n ) * sizeof(file_t));
+}
+
+void load_n_img(int n) {
+
+    if(n < 0 || n >= files_size) 
+        return;
+    
+    bool prev = n < file_idx;
+    
+    img_close(&image, false);
+
+    while(!img_load(&files[n], &image)) {
+        
+        error(0, 0, "Could not load image: %d\n", files[n].path);
+
+        remove_n_file(n);
+        
+        if(n == files_size)
+            n--;
+
+        if(n < 0)
+            error(EXIT_FAILURE, 0, "No more images to read.");
+    }
+    
+    file_idx = n;
+}
 
 void redraw(){
 
@@ -59,6 +135,12 @@ void on_keypress(XKeyEvent* key) {
 
     switch (ksym) {
 
+        case XK_Left:
+            load_n_img(file_idx - 1 % files_size);
+        break;
+        case XK_Right:
+            load_n_img(file_idx + 1 % files_size);
+        break;
         case XK_A:
         case XK_a:
             image.aa = !image.aa;
@@ -202,17 +284,73 @@ void run(win_t *win) {
     }
 }
 
-int main(int argc, char *argv[]) {
+void init_files_array(size_t s){
+    
+    files_len = s;
+
+    files = emalloc(sizeof(*files) * files_len);
+
+    memset(files, 0, sizeof(*files) * files_len);
+}
+
+void free_files_array(){
+
+    file_t* file;
+
+    for(int i = 0; i < files_size; i++) {
+        
+        file = &files[i];
+        
+        if(file->name != file->path)
+            free((void*)file->path);
+        
+        free((void*)file->name);
+    }
+    
+    free(files);
+}
+
+int main(int argc, char **argv) {
+    
+    char* filename;
+    size_t n;
+    ssize_t len;
     
     parse_start_arguments(argc, argv);
     
-    printf("File: %s\n", OPTIONS->image.path);
-
-    if (access(OPTIONS->image.path, R_OK) != 0) { 
+    init_files_array(OPTIONS->file_count);
+    
+    
+    if(OPTIONS->read_stdin) {
+        printf("Reading form stdin\n");
         
-        fprintf(stderr, "Could not find or read the file %s\n", OPTIONS->image.path);
-        return 1;
+        n = 0;
+        filename = NULL;
+        
+        while ((len = getline(&filename, &n, stdin)) > 0) {
+
+            if (filename[len-1] == '\n')
+                filename[len-1] = '\0';
+
+            check_add_file(filename);
+        }
+
+        free(filename);
+
+    } else {
+        
+        
+        for(int i = 0; i < OPTIONS->file_count; i++) {
+            
+            filename = OPTIONS->filenames[i];
+            
+            check_add_file(filename);
+            
+        }
     }
+    
+    if(files_size == 0)
+        error(EXIT_FAILURE, 0, "No files to read... aborting.");
 
     win_init(&main_window);
 
@@ -220,13 +358,15 @@ int main(int argc, char *argv[]) {
    
     img_init(&image, &main_window);
 
-    img_load(&OPTIONS->image, &image);
+    load_n_img(0);
    
     run(&main_window);
     
     img_close(&image, true);
 
     win_close(&main_window);
+    
+    free_files_array();
 
     return 0;
 }
