@@ -35,7 +35,7 @@ void check_add_file(const char* filename) {
     
     if (path == NULL || access(path, R_OK) != 0) {
         
-        error(0, errno, "The file %s does not exist or is missing read permission\n", filename);
+        error(0, errno, "The file %s does not exist or is missing read permission", filename);
 
         return;
     }
@@ -78,13 +78,11 @@ void load_n_img(int n) {
     if(n < 0 || n >= files_size) 
         return;
     
-    bool prev = n < file_idx;
-    
     img_close(&image, false);
 
     while(!img_load(&files[n], &image)) {
         
-        error(0, 0, "Could not load image: %d\n", files[n].path);
+        error(0, 0, "Could not load image: %d", files[n].path);
 
         remove_n_file(n);
         
