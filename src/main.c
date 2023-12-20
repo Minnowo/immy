@@ -34,6 +34,8 @@ void add_file(const char* path_) {
         .nameOffset = _ - path_,
         .rayim = NULL,
         .scale = 1,
+        .rotation = 0,
+        .rebuildBuff = 0,
         .status = IMAGE_STATUS_NOT_LOADED,
         .srcRect = 0,
         .dstPos = 0,
@@ -72,15 +74,17 @@ void do_input() {
             } else if (IsKeyDown(KEY_J)) {
                 doko_zoomImageOnPointFromClosest(im, false, GetScreenWidth() / 2,
                                       GetScreenHeight() / 2);
+            } else if (IsKeyDown(KEY_L)) {
+                selected_file = (selected_file + 1) % image_files.size;
+            } else if (IsKeyDown(KEY_H)) {
+                selected_file = (selected_file + image_files.size - 1) % image_files.size;
             } else {
                 keyPressedTime = 0;
             }
         } 
         else if(IsKeyDown(KEY_LEFT_CONTROL)) {
             if (IsKeyDown(KEY_H)) {
-                selected_file = (selected_file + image_files.size - 1) % image_files.size;
             } else if (IsKeyDown(KEY_L)) {
-                selected_file = (selected_file + 1) % image_files.size;
             } else {
                 keyPressedTime = 0;
             }
@@ -110,6 +114,15 @@ void do_input() {
                 doko_moveScrFracImage(im, 1 / 5.0, 0);
             } else if (IsKeyDown(KEY_C)) {
                 doko_centerImage(im);
+            } else if (IsKeyDown(KEY_M)) {
+                ImageFlipHorizontal(&im->rayim);
+                im->rebuildBuff = 1;
+            } else if (IsKeyDown(KEY_V)) {
+                ImageFlipVertical(&im->rayim);
+                im->rebuildBuff = 1;
+            } else if (IsKeyDown(KEY_U)) {
+                ImageColorInvert(&im->rayim);
+                im->rebuildBuff = 1;
             } else {
                 keyPressedTime = 0;
             }
@@ -178,6 +191,7 @@ int main(int argc, char* argv[])
 
         ui_renderBackground();
         ui_renderImage(image_files.buffer + selected_file);
+        ui_renderPixelGrid(image_files.buffer + selected_file);
         ui_renderInfoBar(image_files.buffer + selected_file);
 
         EndDrawing();

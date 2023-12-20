@@ -61,6 +61,17 @@ void doko_centerImage(doko_image_t* image) {
     image->dstPos.y = (sh / 2.0) - (ih * image->scale) / 2.0;
 }
 
+void doko_moveImageCenter(doko_image_t* image) {
+
+    int sw = ImageViewWidth;
+    int sh = ImageViewHeight;
+    int iw = image->srcRect.width;
+    int ih = image->srcRect.height;
+
+    image->dstPos.x = (sw / 2.0) - (iw * image->scale) / 2.0;
+    image->dstPos.y = (sh / 2.0) - (ih * image->scale) / 2.0;
+}
+
 void doko_ensureImageNotLost(doko_image_t *image) {
 
     int sw = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;

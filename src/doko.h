@@ -22,6 +22,9 @@ typedef struct doko_image {
     Vector2 dstPos;
 
     double scale;
+    double rotation;
+
+    int rebuildBuff; // updates the Texture2D
 
 } doko_image_t;
 
@@ -41,6 +44,11 @@ int doko_loadImage(doko_image_t* im);
  * Sets the image position and scale so that it centers on the screen.
  */
 void doko_centerImage(doko_image_t* im);
+
+/**
+ * Sets the image position so that it centers on the screen.
+ */
+void doko_moveImageCenter(doko_image_t* im);
 
 /**
  * Ensures the image is not lost offscreen by moving it within IMAGE_INVERSE_MARGIN.
@@ -66,6 +74,12 @@ void doko_zoomImageCenterFromClosest(doko_image_t* im, bool zoomIn);
  * Scales the image at the given (x, y) point to the next closest zoom in ZOOM_LEVELS.
  */
 void doko_zoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int y);
+
+/**
+ * Moves the image by the given xFrac and yFrac fractions of the screen.
+ * xFrac = 1/5 moves the image 1/5th of the horizontal screen.
+ */
+void doko_moveScrFracImage(doko_image_t *im, double xFrac, double yFrac);
 
 /**
  * Moves the image by the given xFrac and yFrac fractions of the screen.

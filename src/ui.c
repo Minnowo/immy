@@ -1,6 +1,7 @@
 
 
 
+#include <math.h>
 #include <raylib.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,8 @@ char* imageBufPath;
 Texture2D imageBuf;
 Texture2D backgroundBuf;
 
+Color pixelGridColor;
+
 void ui_init() {
 
     InitWindow(START_WIDTH, START_HEIGHT, WINDOW_TITLE);
@@ -27,6 +30,8 @@ void ui_init() {
     backgroundBuf = ui_loadBackgroundTile(BACKGROUND_TILE_W, BACKGROUND_TILE_H,
                                        (Color)BACKGROUND_TILE_COLOR_A_RGBA,
                                        (Color)BACKGROUND_TILE_COLOR_B_RGBA);
+
+    pixelGridColor = (Color)PIXEL_GRID_COLOR_RGBA;
 
     imageBuf.id = -10;
     imageBufPath = NULL;
@@ -95,8 +100,14 @@ void ui_renderImage(doko_image_t* image) {
         imageBufPath = image->path;
         imageBuf = nimageBuf;
     }
+    else if (image->rebuildBuff) {
 
-    DrawTextureEx(imageBuf,image->dstPos,0, image->scale, WHITE);
+        image->rebuildBuff = 0;
+        UpdateTexture(imageBuf,image->rayim.data);
+    }
+
+    DrawTextureEx(imageBuf, image->dstPos, image->rotation, image->scale,
+                  WHITE);
 }
 
 
@@ -108,10 +119,37 @@ void ui_renderInfoBar(doko_image_t* image) {
     DrawRectangle(0, sh, sw, 32, BLACK);
 
     DrawText(
-        TextFormat("%0.0f x %0.0f   %s",
-         image->srcRect.width,
-                        image->srcRect.height, image->path + image->nameOffset),
-             8, sh, INFO_BAR_HEIGHT, WHITE);
-    // DrawText(image->path,8, sh, INFO_BAR_HEIGHT, WHITE);
-    // DrawText(image->path,8, sh, INFO_BAR_HEIGHT, WHITE);
+        TextFormat(
+            "%0.0f x %0.0f   %s",
+             image->srcRect.width, 
+             image->srcRect.height,
+             image->path + image->nameOffset
+            ),
+             8, sh, INFO_BAR_FONT_SIZE, WHITE);
+}
+
+
+
+void ui_renderPixelGrid(doko_image_t* image) {
+
+    if (image->scale < SHOW_PIXEL_GRID_SCALE_THRESHOLD) {
+        return;
+    }
+
+    float x = image->dstPos.y;
+    float y = image->dstPos.x;
+    float w = ImageViewWidth;
+    float h = ImageViewWidth;
+
+    for (float i = x, j = y; i <= w || j <= h;
+         i += image->scale, j += image->scale) {
+        DrawLine(0, i, w, i, pixelGridColor);
+        DrawLine(j, 0, j, h, pixelGridColor);
+    }
+
+    for (float i = x, j = y; i > 0 || j > 0;
+         i -= image->scale, j -= image->scale) {
+        DrawLine(0, i, w, i, pixelGridColor);
+        DrawLine(j, 0, j, h, pixelGridColor);
+    }
 }

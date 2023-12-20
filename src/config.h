@@ -33,7 +33,14 @@
 #define IMAGE_INVERSE_MARGIN_X 32
 #define IMAGE_INVERSE_MARGIN_Y 32
 
+// define the height of the bar
 #define INFO_BAR_HEIGHT 32
+#define INFO_BAR_FONT_SIZE INFO_BAR_HEIGHT
+
+// show the pixel grid when the scale is bigger than this value
+#define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20
+#define PIXEL_GRID_COLOR_RGBA                                                  \
+    { 200, 200, 200, 255 }
 
 // See the top of doko.c, where this array is defined.
 // It MUST be sorted.

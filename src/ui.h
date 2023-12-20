@@ -40,4 +40,9 @@ void ui_renderImage(doko_image_t* image);
  */
 void ui_renderInfoBar(doko_image_t* image);
 
+/**
+ * Renders the pixel grid.
+ */
+void ui_renderPixelGrid(doko_image_t* image);
+
 #endif
