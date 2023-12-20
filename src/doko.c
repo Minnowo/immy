@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 #include <stdio.h>
+#include <string.h>
 #include "doko.h"
 #include "config.h"
 #include "darray.h"
@@ -172,4 +173,46 @@ void doko_zoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int 
     }
 
     doko_zoomImageOnPoint(im, ZOOM_LEVELS[index], x, y);
+}
+
+char *doko_strdup(const char *str) {
+
+#ifdef _POSIX_C_SOURCE
+
+    return strdup(str);
+
+#else
+
+    const int len = strlen(str);
+
+    char *newstr = malloc(len);
+
+    if (!newstr) {
+        return NULL;
+    }
+
+    memcpy(newstr, str, len);
+
+    return newstr;
+
+#endif
+}
+
+void doko_error(int status, int error, const char *fmt, ...) {
+    va_list ap;
+
+    fflush(stdout);
+
+    va_start(ap, fmt);
+
+    vfprintf(stderr, fmt, ap);
+
+    va_end(ap);
+
+    if (error != 0)
+        fprintf(stderr, "%s%s", fmt != NULL ? ": " : "", strerror(error));
+
+    fputc('\n', stderr);
+
+    if (status != 0) exit(status);
 }

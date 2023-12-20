@@ -7,8 +7,11 @@
 
 #define WINDOW_FPS 24
 
-#define START_WIDTH (2 * 512)
-#define START_HEIGHT (2 * 512)
+#define START_WIDTH 512
+#define START_HEIGHT 512
+
+#define MIN_WINDOW_WIDTH 64
+#define MIN_WINDOW_HEIGHT 64
 
 // Size of the tile pattern
 #define BACKGROUND_TILE_W 128
@@ -34,6 +37,15 @@
 // It MUST be sorted.
 extern const double ZOOM_LEVELS[];
 
+// the smallest scale value in the ZOOM_LEVELS array
 #define SMALLEST_SCALE_VALUE 0.01
+
+// 1 searches directories recursivly
+// 0 does not search directories recursivly
+#define SEARCH_DIRS_RECURSIVE 1
+
+// extension filter, finds these files when searching directory
+#define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm"
+
 
 #endif

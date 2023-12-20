@@ -1,6 +1,7 @@
 
 #include "raylib.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -77,43 +78,64 @@ void doInput() {
     }
 }
 
+
+void add_file(const char* path_) {
+
+    char *path = doko_strdup(path_);
+
+    if (!path) {
+        return doko_error(EXIT_FAILURE, errno,
+                          "Cannot duplicate str '%s'! out of memory.\n", path_);
+    }
+
+    doko_image_t i = {
+        .path = path,
+        .rayim = NULL,
+        .scale = 1,
+        .status = IMAGE_STATUS_NOT_LOADED,
+        .srcRect = 0,
+        .dstPos = 0,
+    };
+
+    DARRAY_APPEND(image_files, i);
+}
+
 void handle_start_args(int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
 
-        if (!FileExists(argv[i]) || DirectoryExists(argv[i])) {
+        if (!FileExists(argv[i])) {
             continue;
         }
 
-        char *path = strdup(argv[i]);
+        if (!DirectoryExists(argv[i])) {
 
-        if(!path) {
-            exit(1);
+            add_file(argv[i]);
+            continue;
         }
 
-        doko_image_t i = {
-            .path = path,
-            .rayim = NULL,
-            .scale = 1
-        };
+        FilePathList fpl = LoadDirectoryFilesEx(argv[i], IMAGE_FILE_FILTER,
+                                                SEARCH_DIRS_RECURSIVE);
 
-        DARRAY_APPEND(image_files, i);
-        printf("Adding file to list, %s, list size is now %zu\n", path, image_files.size);
+        for (size_t j = 0; j < fpl.count; j++) {
+            add_file(fpl.paths[j]);
+        }
+
+        UnloadDirectoryFiles(fpl);
     }
-
 }
 
 int main(int argc, char* argv[])
 {
     if(argc == 1) {
-        fprintf(stderr, "No arguments given\n");
+        doko_error(EXIT_FAILURE, errno, "No start arguments given.");
         return 1;
     }
 
     handle_start_args(argc, argv);
 
     if(image_files.size == 0) {
-        fprintf(stderr, "No files given\n");
+        doko_error(EXIT_FAILURE, errno, "No files given.");
         return 1;
     }
 

@@ -70,4 +70,14 @@ void doko_zoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int 
  */
 void doko_moveScrFracImage(doko_image_t *im, double xFrac, double yFrac);
 
+/**
+ * Implementation of strdup, because yes
+ */
+char* doko_strdup(const char* str);
+
+/**
+ * Prints an error
+ */
+void doko_error(int status, int error, const char *fmt, ...);
+
 #endif

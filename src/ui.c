@@ -19,6 +19,8 @@ Texture2D backgroundBuf;
 void ui_init() {
 
     InitWindow(START_WIDTH, START_HEIGHT, WINDOW_TITLE);
+    SetWindowMinSize(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
+
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(WINDOW_FPS);
 
@@ -82,7 +84,7 @@ void ui_renderImage(doko_image_t* image) {
 
         Texture2D nimageBuf = LoadTextureFromImage(image->rayim);
 
-        if(nimageBuf.id < 0) {
+        if(nimageBuf.id == 0) {
             return;
         }
 
@@ -93,8 +95,6 @@ void ui_renderImage(doko_image_t* image) {
         imageBufPath = image->path;
         imageBuf = nimageBuf;
     }
-
-    Rectangle screen = {0, 0, GetScreenWidth(), GetScreenHeight()};
 
     DrawTextureEx(imageBuf,image->dstPos,0, image->scale, WHITE);
 }
