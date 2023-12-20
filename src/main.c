@@ -38,7 +38,7 @@ void doInput() {
         } 
         else if(IsKeyDown(KEY_LEFT_CONTROL)) {
             if (IsKeyDown(KEY_H)) {
-                selected_file = (selected_file - 1) % image_files.size;
+                selected_file = (selected_file + image_files.size - 1) % image_files.size;
             } else if (IsKeyDown(KEY_L)) {
                 selected_file = (selected_file + 1) % image_files.size;
             } else {
@@ -81,7 +81,7 @@ void handle_start_args(int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
 
-        if (!FileExists(argv[i])) {
+        if (!FileExists(argv[i]) || DirectoryExists(argv[i])) {
             continue;
         }
 
@@ -106,12 +106,14 @@ void handle_start_args(int argc, char* argv[]) {
 int main(int argc, char* argv[])
 {
     if(argc == 1) {
+        fprintf(stderr, "No arguments given\n");
         return 1;
     }
 
     handle_start_args(argc, argv);
 
     if(image_files.size == 0) {
+        fprintf(stderr, "No files given\n");
         return 1;
     }
 
