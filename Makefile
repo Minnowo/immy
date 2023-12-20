@@ -17,7 +17,7 @@ TARGET := ${BUILD_DIR}/doko
 all: doko_ raylib_ ${TARGET}
 
 doko_:
-	$(MAKE) -C $(DOKO_SRC_DIR) BUILD_DIR=$(abspath $(BUILD_DIR)) CFLAGS="$(CFLAGS)" CC="$(CC)"
+	$(MAKE) -C $(DOKO_SRC_DIR) BUILD_DIR=$(abspath $(BUILD_DIR)) CFLAGS="$(CFLAGS)" CC="$(CC)" INCLUDE_PATHS=-I$(abspath $(RAYLIB_SRC_DIR))
 
 raylib_:
 	$(MAKE) -C $(RAYLIB_SRC_DIR)
