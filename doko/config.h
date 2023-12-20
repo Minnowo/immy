@@ -1,0 +1,39 @@
+
+
+#ifndef DOKO_CONFIG_H
+#define DOKO_CONFIG_H
+
+#define WINDOW_TITLE "Doko?"
+
+#define WINDOW_FPS 24
+
+#define START_WIDTH (2 * 512)
+#define START_HEIGHT (2 * 512)
+
+// Size of the tile pattern
+#define BACKGROUND_TILE_W 128
+#define BACKGROUND_TILE_H 128
+
+// Background colors for the tile pattern, (r, g, b, a)
+#define BACKGROUND_TILE_COLOR_A_RGBA                                           \
+    { 32, 32, 32, 255 }
+#define BACKGROUND_TILE_COLOR_B_RGBA                                           \
+    { 64, 64, 64, 255 }
+
+// Time limit for triggering key presses (in seconds)
+// Considering count key presses every KEY_TIME_LIMIT seconds using IsKeyDown.
+#define KEY_TIME_LIMIT (1.0 / 9.0)
+
+// When the image is off-screen, try to keep at least IMAGE_INVERSE_MARGIN
+// visible on the screen. `x` is for the horizontal (left/right of the screen).
+// `y` is for the vertical (top/bottom of the screen).
+#define IMAGE_INVERSE_MARGIN_X 32
+#define IMAGE_INVERSE_MARGIN_Y 32
+
+// See the top of doko.c, where this array is defined.
+// It MUST be sorted.
+extern const double ZOOM_LEVELS[];
+
+#define SMALLEST_SCALE_VALUE 0.01
+
+#endif
