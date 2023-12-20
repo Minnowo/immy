@@ -35,4 +35,9 @@ Texture2D ui_loadBackgroundTile(size_t w, size_t h, Color a, Color b);
  */
 void ui_renderImage(doko_image_t* image);
 
+/**
+ * Renders the info bar.
+ */
+void ui_renderInfoBar(doko_image_t* image);
+
 #endif

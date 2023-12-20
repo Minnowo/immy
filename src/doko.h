@@ -14,6 +14,7 @@ typedef enum {
 
 typedef struct doko_image {
     char* path;
+    size_t nameOffset; // path + this gives name str
 
     image_status status;
     Image rayim;
@@ -27,6 +28,8 @@ typedef struct doko_image {
 
 DARRAY_DEF(dimage_arr, doko_image_t*);
 
+#define ImageViewWidth GetScreenWidth()
+#define ImageViewHeight (GetScreenHeight() - INFO_BAR_HEIGHT)
 
 /**
  * Loads an image and sets some default values.

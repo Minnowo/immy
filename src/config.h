@@ -33,6 +33,8 @@
 #define IMAGE_INVERSE_MARGIN_X 32
 #define IMAGE_INVERSE_MARGIN_Y 32
 
+#define INFO_BAR_HEIGHT 32
+
 // See the top of doko.c, where this array is defined.
 // It MUST be sorted.
 extern const double ZOOM_LEVELS[];

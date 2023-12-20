@@ -74,13 +74,13 @@ void ui_renderBackground() {
 
 void ui_renderImage(doko_image_t* image) {
 
-    if(image->status == IMAGE_STATUS_NOT_LOADED) {
-        if(doko_loadImage(image)) {
-            return;
-        }
-    }
-
     if (imageBufPath != image->path) {
+
+        if (image->status == IMAGE_STATUS_NOT_LOADED) {
+            if (doko_loadImage(image)) {
+                return;
+            }
+        }
 
         Texture2D nimageBuf = LoadTextureFromImage(image->rayim);
 
@@ -97,4 +97,21 @@ void ui_renderImage(doko_image_t* image) {
     }
 
     DrawTextureEx(imageBuf,image->dstPos,0, image->scale, WHITE);
+}
+
+
+void ui_renderInfoBar(doko_image_t* image) {
+
+    int sw = GetScreenWidth();
+    int sh = ImageViewHeight;
+
+    DrawRectangle(0, sh, sw, 32, BLACK);
+
+    DrawText(
+        TextFormat("%0.0f x %0.0f   %s",
+         image->srcRect.width,
+                        image->srcRect.height, image->path + image->nameOffset),
+             8, sh, INFO_BAR_HEIGHT, WHITE);
+    // DrawText(image->path,8, sh, INFO_BAR_HEIGHT, WHITE);
+    // DrawText(image->path,8, sh, INFO_BAR_HEIGHT, WHITE);
 }

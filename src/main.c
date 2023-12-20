@@ -18,7 +18,46 @@ size_t selected_file = 0;
 
 float keyPressedTime = 0.0;
 
-void doInput() {
+void add_file(const char* path_) {
+
+    char *path = doko_strdup(path_);
+
+    if (!path) {
+        return doko_error(EXIT_FAILURE, errno,
+                          "Cannot duplicate str '%s'! out of memory.\n", path_);
+    }
+
+    char* _= GetFileName(path_);
+
+    doko_image_t i = {
+        .path = path,
+        .nameOffset = _ - path_,
+        .rayim = NULL,
+        .scale = 1,
+        .status = IMAGE_STATUS_NOT_LOADED,
+        .srcRect = 0,
+        .dstPos = 0,
+    };
+
+    DARRAY_APPEND(image_files, i);
+
+    printf("Adding file %s to the list, filename is %s\n", path,
+           i.path + i.nameOffset);
+    printf("Files list now has %zu files with total %zu\n", image_files.size, image_files.length);
+}
+
+void handle_dropped_files() {
+
+    FilePathList fpl = LoadDroppedFiles();
+
+    for (size_t i = 0; i < fpl.count; i++) {
+        add_file(fpl.paths[i]);
+    }
+
+    UnloadDroppedFiles(fpl);
+}
+
+void do_input() {
 
     doko_image_t *im = image_files.buffer + selected_file;
 
@@ -79,26 +118,6 @@ void doInput() {
 }
 
 
-void add_file(const char* path_) {
-
-    char *path = doko_strdup(path_);
-
-    if (!path) {
-        return doko_error(EXIT_FAILURE, errno,
-                          "Cannot duplicate str '%s'! out of memory.\n", path_);
-    }
-
-    doko_image_t i = {
-        .path = path,
-        .rayim = NULL,
-        .scale = 1,
-        .status = IMAGE_STATUS_NOT_LOADED,
-        .srcRect = 0,
-        .dstPos = 0,
-    };
-
-    DARRAY_APPEND(image_files, i);
-}
 
 void handle_start_args(int argc, char* argv[]) {
 
@@ -148,12 +167,18 @@ int main(int argc, char* argv[])
             break;
         }
 
-        doInput();
+        if (IsFileDropped()) {
+
+            handle_dropped_files();
+        }
+
+        do_input();
 
         BeginDrawing();
 
         ui_renderBackground();
         ui_renderImage(image_files.buffer + selected_file);
+        ui_renderInfoBar(image_files.buffer + selected_file);
 
         EndDrawing();
     }
@@ -164,6 +189,10 @@ int main(int argc, char* argv[])
 
         if(im.status == IMAGE_STATUS_LOADED) {
             UnloadImage(im.rayim);
+        }
+
+        if(im.path != NULL) {
+            free(im.path);
         }
     }
 

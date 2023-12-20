@@ -1,5 +1,6 @@
 
 
+#include <math.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <string.h>
@@ -49,50 +50,42 @@ int doko_loadImage(doko_image_t* image) {
 
 void doko_centerImage(doko_image_t* image) {
 
-    int sw = GetScreenWidth();
-    int sh = GetScreenHeight();
+    int sw = ImageViewWidth;
+    int sh = ImageViewHeight;
     int iw = image->srcRect.width;
     int ih = image->srcRect.height;
 
-    double aspectRatio;
+    image->scale = fmin((double)sw / iw, (double)sh / ih);
 
-    if (iw > ih) {
-        aspectRatio = (double)sw / iw;
-    } else {
-        aspectRatio = (double)sh / ih;
-    }
-
-    image->scale = aspectRatio;
-
-    image->dstPos.x = (sw / 2.0) - (iw * aspectRatio) / 2.0;
-    image->dstPos.y = (sh / 2.0) - (ih * aspectRatio) / 2.0;
+    image->dstPos.x = (sw / 2.0) - (iw * image->scale) / 2.0;
+    image->dstPos.y = (sh / 2.0) - (ih * image->scale) / 2.0;
 }
 
 void doko_ensureImageNotLost(doko_image_t *image) {
 
-    int sw = GetScreenWidth();
-    int sh = GetScreenHeight();
-    float iw = image->srcRect.width * image->scale;
-    float ih = image->srcRect.height * image->scale;
+    int sw = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;
+    int sh = ImageViewHeight - IMAGE_INVERSE_MARGIN_X;
+    float iw = (-(image->srcRect.width * image->scale)) + IMAGE_INVERSE_MARGIN_X;
+    float ih = (-(image->srcRect.height * image->scale)) + IMAGE_INVERSE_MARGIN_Y;
 
-    if (image->dstPos.x > sw - IMAGE_INVERSE_MARGIN_X) {
-        image->dstPos.x = sw - IMAGE_INVERSE_MARGIN_X;
-    } else if (image->dstPos.x < -iw + IMAGE_INVERSE_MARGIN_X) {
-        image->dstPos.x = -iw + IMAGE_INVERSE_MARGIN_X;
+    if (image->dstPos.x > sw) {
+        image->dstPos.x = sw;
+    } else if (image->dstPos.x < iw) {
+        image->dstPos.x = iw;
     }
 
-    if (image->dstPos.y > sh - IMAGE_INVERSE_MARGIN_X) {
-        image->dstPos.y = sh - IMAGE_INVERSE_MARGIN_X;
-    } else if (image->dstPos.y < -ih + IMAGE_INVERSE_MARGIN_Y) {
-        image->dstPos.y = -ih + IMAGE_INVERSE_MARGIN_Y;
+    if (image->dstPos.y > sh) {
+        image->dstPos.y = sh;
+    } else if (image->dstPos.y < ih) {
+        image->dstPos.y = ih;
     }
 }
 
 
 void doko_moveScrFracImage(doko_image_t *im, double xFrac, double yFrac) {
 
-    im->dstPos.x += GetScreenWidth() * xFrac;
-    im->dstPos.y += GetScreenHeight() * yFrac;
+    im->dstPos.x += ImageViewWidth * xFrac;
+    im->dstPos.y += ImageViewHeight * yFrac;
     doko_ensureImageNotLost(im);
 }
 
