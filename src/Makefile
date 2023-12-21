@@ -15,6 +15,7 @@ all: $(TARGET)
 
 clean:
 	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGET).exe
 
 $(TARGET_DIR):
 	mkdir -p $(TARGET_DIR)

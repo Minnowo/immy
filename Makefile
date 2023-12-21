@@ -1,6 +1,6 @@
 # Makefile for doko project
 
-.PHONY: all clean clean_raylib clean_doko rebuild
+.PHONY: all clean clean_raylib clean_doko rebuild windows
 
 CC     ?= gcc
 CFLAGS ?= -Wall -Wextra -std=c99
@@ -14,9 +14,18 @@ TARGET     := ${TARGET_DIR}/doko
 # RAYLIB_LIBTYPE ?= STATIC
 # PLATFORM_OS    ?= LINUX
 
+ifeq ($(PLATFORM_OS), WINDOWS)
+	LDFLAGS += -lopengl32 -lgdi32 -lwinmm
+endif
+
 all: ${TARGET}
 
 clean: clean_doko clean_raylib
+
+windows: CC          := x86_64-w64-mingw32-gcc
+windows: PLATFORM_OS := WINDOWS
+windows: LDFLAGS     += -lopengl32 -lgdi32 -lwinmm
+windows: all
 
 rebuild: clean_doko all
 
@@ -45,7 +54,7 @@ ${TARGET}: | $(TARGET_DIR)
 	$(MAKE) -C $(DOKO_SRC_DIR) \
 		CC="$(CC)" \
 		CFLAGS="$(CFLAGS)" \
-		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm" \
+		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm $(LDFLAGS)" \
 		INCLUDE_PATHS="-I\"$(abspath $(RAYLIB_SRC_DIR))\"" \
 		TARGET_DIR="$(abspath $(TARGET_DIR))" 
 
