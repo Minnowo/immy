@@ -33,7 +33,7 @@ void ui_init() {
 
     pixelGridColor = (Color)PIXEL_GRID_COLOR_RGBA;
 
-    imageBuf.id = -10;
+    imageBuf.id = 0;
     imageBufPath = NULL;
     hasInit = 1;
 }
@@ -139,9 +139,9 @@ void ui_renderPixelGrid(doko_image_t* image) {
     float x = image->dstPos.y;
     float y = image->dstPos.x;
     float w = ImageViewWidth;
-    float h = ImageViewWidth;
+    float h = ImageViewHeight;
 
-    for (float i = x, j = y; i <= w || j <= h;
+    for (float i = x, j = y; i <= h || j <= w;
          i += image->scale, j += image->scale) {
         DrawLine(0, i, w, i, pixelGridColor);
         DrawLine(j, 0, j, h, pixelGridColor);
