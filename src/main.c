@@ -27,7 +27,7 @@ void add_file(const char* path_) {
                           "Cannot duplicate str '%s'! out of memory.\n", path_);
     }
 
-    char* _= GetFileName(path_);
+    const char* _= GetFileName(path_);
 
     doko_image_t i = {
         .path = path,
@@ -123,6 +123,10 @@ void do_input() {
             } else if (IsKeyDown(KEY_U)) {
                 ImageColorInvert(&im->rayim);
                 im->rebuildBuff = 1;
+            } else if (IsKeyDown(KEY_UP)) {
+                SetTargetFPS(GetFPS() + 1);
+            } else if (IsKeyDown(KEY_DOWN)) {
+                SetTargetFPS(GetFPS() - 1);
             } else {
                 keyPressedTime = 0;
             }
@@ -174,6 +178,7 @@ int main(int argc, char* argv[])
     ui_init();
 
 
+
     while (!WindowShouldClose()) {
 
         if (IsKeyDown(KEY_Q)) {
@@ -193,6 +198,7 @@ int main(int argc, char* argv[])
         ui_renderImage(image_files.buffer + selected_file);
         ui_renderPixelGrid(image_files.buffer + selected_file);
         ui_renderInfoBar(image_files.buffer + selected_file);
+        DrawFPS(0, 0);
 
         EndDrawing();
     }
