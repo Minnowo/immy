@@ -1,6 +1,6 @@
 # Makefile for doko project
 
-.PHONY: all clean clean_raylib clean_doko
+.PHONY: all clean clean_raylib clean_doko rebuild
 
 CC     ?= gcc
 CFLAGS ?= -Wall -Wextra -std=c99
@@ -14,6 +14,8 @@ TARGET     := ${TARGET_DIR}/doko
 all: ${TARGET}
 
 clean: clean_doko clean_raylib
+
+rebuild: clean_doko all
 
 clean_doko:
 	$(MAKE) -C $(DOKO_SRC_DIR) \
