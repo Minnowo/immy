@@ -11,6 +11,9 @@ RAYLIB_SRC_DIR ?= raylib/raylib-5.0/src
 TARGET_DIR ?= build
 TARGET     := ${TARGET_DIR}/doko
 
+# RAYLIB_LIBTYPE ?= STATIC
+# PLATFORM_OS    ?= LINUX
+
 all: ${TARGET}
 
 clean: clean_doko clean_raylib
@@ -35,12 +38,14 @@ ${TARGET}: | $(TARGET_DIR)
 	$(MAKE) -C $(RAYLIB_SRC_DIR) \
 		CC="$(CC)" \
 		PLATFORM=PLATFORM_DESKTOP \
+		PLATFORM_OS="$(PLATFORM_OS)" \
+		RAYLIB_LIBTYPE="$(RAYLIB_LIBTYPE)" \
 		RAYLIB_RELEASE_PATH="$(abspath $(TARGET_DIR))"
 
 	$(MAKE) -C $(DOKO_SRC_DIR) \
 		CC="$(CC)" \
 		CFLAGS="$(CFLAGS)" \
 		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm" \
-		TARGET_DIR="$(abspath $(TARGET_DIR))" \
-		INCLUDE_PATHS=-I"$(abspath $(RAYLIB_SRC_DIR))"
+		INCLUDE_PATHS="-I\"$(abspath $(RAYLIB_SRC_DIR))\"" \
+		TARGET_DIR="$(abspath $(TARGET_DIR))" 
 
