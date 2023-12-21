@@ -194,11 +194,13 @@ int main(int argc, char* argv[])
 
         BeginDrawing();
 
-        ui_renderBackground();
-        ui_renderImage(image_files.buffer + selected_file);
-        ui_renderPixelGrid(image_files.buffer + selected_file);
-        ui_renderInfoBar(image_files.buffer + selected_file);
-        DrawFPS(0, 0);
+        if (IsWindowFocused()) {
+            ui_renderBackground();
+            ui_renderImage(image_files.buffer + selected_file);
+            ui_renderPixelGrid(image_files.buffer + selected_file);
+            ui_renderInfoBar(image_files.buffer + selected_file);
+            DrawFPS(0, 0);
+        }
 
         EndDrawing();
     }
