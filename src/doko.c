@@ -187,7 +187,7 @@ char *doko_strdup(const char *str) {
 
 #else
 
-    const int len = strlen(str);
+    const int len = strlen(str) + 1;
 
     char *newstr = malloc(len);
 
