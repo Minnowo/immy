@@ -1,37 +1,44 @@
 # Makefile for doko project
 
-# Compiler and flags
-CC := gcc
-CFLAGS := -Wall -Wextra -std=c99
+.PHONY: all clean clean_raylib clean_doko
 
-DOKO_SRC_DIR := src
-RAYLIB_SRC_DIR := raylib/raylib-5.0/src
+CC     ?= gcc
+CFLAGS ?= -Wall -Wextra -std=c99
 
-BUILD_DIR := build
-RAYLIB_TARGET_DIR := ${BUILD_DIR}/raylib
-DOKO_TARGET_DIR := ${BUILD_DIR}/
+DOKO_SRC_DIR   ?= src
+RAYLIB_SRC_DIR ?= raylib/raylib-5.0/src
 
-TARGET := ${BUILD_DIR}/doko
+TARGET_DIR ?= build
+TARGET     := ${TARGET_DIR}/doko
 
+all: ${TARGET}
 
-all: doko_ raylib_ ${TARGET}
-
-doko_:
-	$(MAKE) -C $(DOKO_SRC_DIR) BUILD_DIR=$(abspath $(BUILD_DIR)) CFLAGS="$(CFLAGS)" CC="$(CC)" INCLUDE_PATHS=-I$(abspath $(RAYLIB_SRC_DIR))
-
-raylib_:
-	$(MAKE) -C $(RAYLIB_SRC_DIR)
-	mkdir -p $(RAYLIB_TARGET_DIR)
-	cp $(RAYLIB_SRC_DIR)/*.o $(RAYLIB_TARGET_DIR)
-
-${TARGET}:
-	${CC} -o $@ build/*.o build/raylib/*.o  -lm
+clean: clean_doko clean_raylib
 
 clean_doko:
-	rm -rf $(TARGET) ${BUILD_DIR}/*.o
+	$(MAKE) -C $(DOKO_SRC_DIR) \
+		TARGET_DIR="$(abspath $(TARGET_DIR))" \
+		clean
 
-clean:
-	$(MAKE) -C $(RAYLIB_SRC_DIR) clean
-	rm -rf $(BUILD_DIR)
+clean_raylib:
+	$(MAKE) -C $(RAYLIB_SRC_DIR) \
+		RAYLIB_RELEASE_PATH="$(abspath $(TARGET_DIR))" \
+		clean
 
-.PHONY: all clean
+$(TARGET_DIR):
+	mkdir -p $(TARGET_DIR)
+
+${TARGET}: | $(TARGET_DIR)
+
+	$(MAKE) -C $(RAYLIB_SRC_DIR) \
+		CC="$(CC)" \
+		PLATFORM=PLATFORM_DESKTOP \
+		RAYLIB_RELEASE_PATH="$(abspath $(TARGET_DIR))"
+
+	$(MAKE) -C $(DOKO_SRC_DIR) \
+		CC="$(CC)" \
+		CFLAGS="$(CFLAGS)" \
+		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm" \
+		TARGET_DIR="$(abspath $(TARGET_DIR))" \
+		INCLUDE_PATHS=-I"$(abspath $(RAYLIB_SRC_DIR))"
+
