@@ -45,4 +45,9 @@ void ui_renderInfoBar(doko_image_t* image);
  */
 void ui_renderPixelGrid(doko_image_t* image);
 
+/**
+ * Renders empty image text.
+ */
+void ui_renderTextOnInfoBar(const char* text);
+
 #endif

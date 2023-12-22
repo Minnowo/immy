@@ -71,6 +71,24 @@ Texture2D ui_loadBackgroundTile(size_t w, size_t h, Color a, Color b) {
     return t;
 }
 
+void ui_renderTextOnInfoBar(const char* text) {
+
+    int sw = GetScreenWidth() ;
+    int sh = ImageViewHeight;
+
+    int fontSize = INFO_BAR_FONT_SIZE;
+
+    int textSize;
+
+    do {
+        textSize = MeasureText(text, fontSize);
+    } while (textSize > sw - INFO_BAR_LEFT_MARGIN && --fontSize);
+
+    DrawRectangle(0, sh, sw,  INFO_BAR_HEIGHT, BLACK);
+
+    DrawText(text, INFO_BAR_LEFT_MARGIN, sh,  fontSize, WHITE);
+}
+
 void ui_renderBackground() {
 
     DrawTextureRec(backgroundBuf,
@@ -115,25 +133,11 @@ void ui_renderImage(doko_image_t* image) {
                   WHITE);
 }
 
-
-void ui_renderInfoBar(doko_image_t* image) {
-
-    int sw = GetScreenWidth();
-    int sh = ImageViewHeight;
-
-    DrawRectangle(0, sh, sw, 32, BLACK);
-
-    DrawText(
-        TextFormat(
-            "%0.0f x %0.0f   %s",
-             image->srcRect.width, 
-             image->srcRect.height,
-             image->path + image->nameOffset
-            ),
-             8, sh, INFO_BAR_FONT_SIZE, WHITE);
+void ui_renderInfoBar(doko_image_t *image) {
+    ui_renderTextOnInfoBar(
+        TextFormat("%0.0f x %0.0f   %s", image->srcRect.width,
+                   image->srcRect.height, image->path + image->nameOffset));
 }
-
-
 
 void ui_renderPixelGrid(doko_image_t* image) {
 

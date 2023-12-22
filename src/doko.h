@@ -33,10 +33,12 @@ DARRAY_DEF(dimage_arr, doko_image_t*);
 
 typedef struct doko_control {
         dimage_arr_t image_files;
-        size_t selected_file;
+        doko_image_t* selected_image;
+        size_t selected_index;
         double keyPressedTime;
         Vector2 lastMouseClick;
         int renderFrames;
+        size_t frame;
 
 } doko_control_t;
 
@@ -106,5 +108,11 @@ char* doko_strdup(const char* str);
  * Prints an error
  */
 void doko_error(int status, int error, const char *fmt, ...);
+
+
+/**
+ * Sets the image to this index if possible
+*/
+void set_image(doko_control_t* ctrl, size_t index);
 
 #endif

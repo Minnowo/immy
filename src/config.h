@@ -13,6 +13,10 @@
 
 #define WINDOW_FPS 24
 
+// forces a redraw everytime the frame count
+// becomes a multiple of this number
+#define REDRAW_ON_FRAME WINDOW_FPS*3
+
 #define START_WIDTH 512
 #define START_HEIGHT 512
 
@@ -39,6 +43,7 @@
 // define the height of the bar
 #define INFO_BAR_HEIGHT 32
 #define INFO_BAR_FONT_SIZE INFO_BAR_HEIGHT
+#define INFO_BAR_LEFT_MARGIN 8
 
 // show the pixel grid when the scale is bigger than this value
 #define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20

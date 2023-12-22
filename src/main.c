@@ -15,6 +15,7 @@
 
 struct doko_control this;
 
+
 void add_file(const char* path_) {
 
     char *path = doko_strdup(path_);
@@ -38,7 +39,13 @@ void add_file(const char* path_) {
         .dstPos = 0,
     };
 
+    int setim = this.image_files.size == 0;
+
     DARRAY_APPEND(this.image_files, i);
+
+    if(setim) {
+        set_image(&this, 0);
+    }
 }
 
 #ifdef ENABLE_FILE_DROP
@@ -164,26 +171,31 @@ void handle_start_args(int argc, char* argv[]) {
 
 int main(int argc, char* argv[])
 {
-    if(argc == 1) {
-        doko_error(EXIT_FAILURE, errno, "No start arguments given.");
-        return 1;
-    }
+    // if(argc == 1) {
+    //     doko_error(EXIT_FAILURE, errno, "No start arguments given.");
+    //     return 1;
+    // }
 
     memset(&this, 0, sizeof(this));
 
     handle_start_args(argc, argv);
 
-    if(this.image_files.size == 0) {
-        doko_error(EXIT_FAILURE, errno, "No files given.");
-        return 1;
-    }
+    // if(this.image_files.size == 0) {
+    //     doko_error(EXIT_FAILURE, errno, "No files given.");
+    //     return 1;
+    // }
 
+    if(this.image_files.size > 0) {
+        this.selected_image = this.image_files.buffer;
+    }
     this.renderFrames = 5;
 
     ui_init();
 
 
     while (!WindowShouldClose()) {
+
+        ++this.frame;
 
 #ifdef ENABLE_FILE_DROP
         if (IsFileDropped()) {
@@ -206,15 +218,24 @@ int main(int argc, char* argv[])
 
         BeginDrawing();
 
-        if (this.renderFrames > 0 || IsWindowResized()) {
+        if (this.renderFrames > 0 || IsWindowResized() ||
+            !(this.frame % REDRAW_ON_FRAME)) {
 
             ui_renderBackground();
-            ui_renderImage(this.image_files.buffer + this.selected_file);
-            ui_renderPixelGrid(this.image_files.buffer + this.selected_file);
-            ui_renderInfoBar(this.image_files.buffer + this.selected_file);
+
+            if (this.selected_image != NULL) {
+
+                ui_renderImage(this.selected_image);
+                ui_renderPixelGrid(this.selected_image);
+                ui_renderInfoBar(this.selected_image);
+            } else {
+                ui_renderTextOnInfoBar(
+                    "There is no image selected! Drag an image to view.");
+            }
+
             DrawFPS(0, 0);
 
-            --this.renderFrames;
+            this.renderFrames -= 1 - (this.renderFrames <= 0);
         }
 
         EndDrawing();

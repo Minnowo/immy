@@ -2,37 +2,53 @@
 
 #include "input.h"
 #include "doko.h"
-#include "config.h"
 #include <raylib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#define IM(controller)                                                         \
-    ((controller)->image_files.buffer + (controller)->selected_file)
+#define _NO_IMAGE_WARN(c)                                                      \
+    if ((c)->selected_image == NULL) {                                         \
+        doko_error(EXIT_SUCCESS, 0, "There is no image!");                     \
+        return;                                                                \
+    }
 
 void keybind_zoomInCenterImage(doko_control_t *ctrl) {
-    doko_zoomImageOnPointFromClosest(IM(ctrl), true, GetScreenWidth() / 2,
+    _NO_IMAGE_WARN(ctrl);
+    doko_zoomImageOnPointFromClosest(ctrl->selected_image, true, GetScreenWidth() / 2,
                                      GetScreenHeight() / 2);
 }
 
 void keybind_zoomOutCenterImage(doko_control_t *ctrl) {
-    doko_zoomImageOnPointFromClosest(IM(ctrl), false, GetScreenWidth() / 2,
+    _NO_IMAGE_WARN(ctrl);
+    doko_zoomImageOnPointFromClosest(ctrl->selected_image, false, GetScreenWidth() / 2,
                                      GetScreenHeight() / 2);
 }
 
 void keybind_zoomInMousePosition(doko_control_t *ctrl) {
-    doko_zoomImageOnPointFromClosest(IM(ctrl), true, GetMouseX(), GetMouseY());
+    _NO_IMAGE_WARN(ctrl);
+    doko_zoomImageOnPointFromClosest(ctrl->selected_image, true, GetMouseX(), GetMouseY());
 }
 void keybind_zoomOutMousePosition(doko_control_t *ctrl) {
-    doko_zoomImageOnPointFromClosest(IM(ctrl), false, GetMouseX(), GetMouseY());
+    _NO_IMAGE_WARN(ctrl);
+    doko_zoomImageOnPointFromClosest(ctrl->selected_image, false, GetMouseX(), GetMouseY());
 }
 
 void keybind_nextImage(doko_control_t *ctrl) {
-    ctrl->selected_file = (ctrl->selected_file + 1) % ctrl->image_files.size;
+    if(ctrl->image_files.size == 0) {
+        ctrl->selected_image = NULL;
+    }
+    _NO_IMAGE_WARN(ctrl);
+
+    set_image(ctrl, (ctrl->selected_index + 1) % ctrl->image_files.size);
 }
 
 void keybind_PrevImage(doko_control_t *ctrl) {
-    ctrl->selected_file = (ctrl->selected_file + ctrl->image_files.size - 1) %
-                          ctrl->image_files.size;
+    if(ctrl->image_files.size == 0) {
+        ctrl->selected_image = NULL;
+    }
+    _NO_IMAGE_WARN(ctrl);
+    set_image(ctrl, (ctrl->selected_index + ctrl->image_files.size - 1) %
+                        ctrl->image_files.size);
 }
 
 void keybind_printDebugInfo(doko_control_t *ctrl) {
@@ -46,9 +62,11 @@ void keybind_printDebugInfo(doko_control_t *ctrl) {
         printf("%zu: %s\n", i, im->path);
     }
 
-    im = IM(ctrl);
+    im = ctrl->selected_image;
 
-    printf("Image[%zu]:\n", ctrl->selected_file);
+    _NO_IMAGE_WARN(ctrl);
+
+    printf("Image[%zu]:\n", ctrl->selected_index);
     printf("   Size     %0.1f %0.1f\n", im->srcRect.width, im->srcRect.height);
     printf("   Visible  %0.1f %0.1f\n", im->srcRect.width * im->scale,
            im->srcRect.height * im->scale);
@@ -57,24 +75,30 @@ void keybind_printDebugInfo(doko_control_t *ctrl) {
 }
 
 void keybind_moveImageUp(doko_control_t *ctrl) {
-    doko_moveScrFracImage(IM(ctrl), 0, -1 / 5.0);
+    _NO_IMAGE_WARN(ctrl);
+    doko_moveScrFracImage(ctrl->selected_image, 0, -1 / 5.0);
 }
 
 void keybind_moveImageDown(doko_control_t *ctrl) {
-    doko_moveScrFracImage(IM(ctrl), 0, 1 / 5.0);
+    _NO_IMAGE_WARN(ctrl);
+    doko_moveScrFracImage(ctrl->selected_image, 0, 1 / 5.0);
 }
 
 void keybind_moveImageLeft(doko_control_t *ctrl) {
-    doko_moveScrFracImage(IM(ctrl), -1 / 5.0, 0);
+    _NO_IMAGE_WARN(ctrl);
+    doko_moveScrFracImage(ctrl->selected_image, -1 / 5.0, 0);
 }
 
 void keybind_moveImageRight(doko_control_t *ctrl) {
-    doko_moveScrFracImage(IM(ctrl), 1 / 5.0, 0);
+    _NO_IMAGE_WARN(ctrl);
+    doko_moveScrFracImage(ctrl->selected_image, 1 / 5.0, 0);
 }
 
 void keybind_moveImageByMouseDelta(doko_control_t *ctrl) {
 
-    doko_image_t *im = IM(ctrl);
+    _NO_IMAGE_WARN(ctrl);
+
+    doko_image_t *im = ctrl->selected_image;
 
     // // ctrl->lastMouseClick is set after taking input now
     // // so we don't need to set it here, and this can work with any input
@@ -93,29 +117,31 @@ void keybind_moveImageByMouseDelta(doko_control_t *ctrl) {
 }
 
 void keybind_centerImage(doko_control_t *ctrl) {
-    doko_centerImage(IM(ctrl));
+    _NO_IMAGE_WARN(ctrl);
+    doko_centerImage(ctrl->selected_image);
 }
 
 void keybind_fitCenterImage(doko_control_t *ctrl) {
-    doko_fitCenterImage(IM(ctrl));
+    _NO_IMAGE_WARN(ctrl);
+    doko_fitCenterImage(ctrl->selected_image);
 }
 
 void keybind_flipVertical(doko_control_t *ctrl) {
-    doko_image_t *im = IM(ctrl);
-    ImageFlipVertical(&im->rayim);
-    im->rebuildBuff = 1;
+    _NO_IMAGE_WARN(ctrl);
+    ImageFlipVertical(&ctrl->selected_image->rayim);
+    ctrl->selected_image->rebuildBuff = 1;
 }
 
 void keybind_flipHorizontal(doko_control_t *ctrl) {
-    doko_image_t *im = IM(ctrl);
-    ImageFlipHorizontal(&im->rayim);
-    im->rebuildBuff = 1;
+    _NO_IMAGE_WARN(ctrl);
+    ImageFlipHorizontal(&ctrl->selected_image->rayim);
+    ctrl->selected_image->rebuildBuff = 1;
 }
 
 void keybind_colorInvert(doko_control_t *ctrl) {
-    doko_image_t *im = IM(ctrl);
-    ImageColorInvert(&im->rayim);
-    im->rebuildBuff = 1;
+    _NO_IMAGE_WARN(ctrl);
+    ImageColorInvert(&ctrl->selected_image->rayim);
+    ctrl->selected_image->rebuildBuff = 1;
 }
 
 void keybind_increaseFPS(doko_control_t *ctrl) {

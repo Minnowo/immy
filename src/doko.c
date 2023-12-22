@@ -221,3 +221,18 @@ void doko_error(int status, int error, const char *fmt, ...) {
 
     if (status != 0) exit(status);
 }
+
+
+
+void set_image(doko_control_t* ctrl, size_t index) {
+
+    if(index >= ctrl->image_files.size) {
+        return doko_error(EXIT_SUCCESS, 0,
+                          "Cannot set index %zu, which is out of bounds",
+                          index);
+    }
+
+    ctrl->selected_image = ctrl->image_files.buffer + index;
+    ctrl->selected_index = index;
+    ++ctrl->renderFrames;
+}
