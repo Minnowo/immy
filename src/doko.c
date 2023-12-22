@@ -31,7 +31,8 @@ int doko_loadImage(doko_image_t* image) {
 
     image->rayim = LoadImage(image->path);
 
-    if(image->rayim.data == NULL) {
+    if (image->rayim.data == NULL) {
+        image->status = IMAGE_STATUS_FAILED;
         return 0;
     }
 
@@ -43,12 +44,12 @@ int doko_loadImage(doko_image_t* image) {
     };
     image->dstPos = (Vector2){0, 0};
     image->status = IMAGE_STATUS_LOADED;
-    doko_centerImage(image);
+    doko_fitCenterImage(image);
 
     return 1;
 }
 
-void doko_centerImage(doko_image_t* image) {
+void doko_fitCenterImage(doko_image_t* image) {
 
     int sw = ImageViewWidth;
     int sh = ImageViewHeight;
@@ -61,7 +62,7 @@ void doko_centerImage(doko_image_t* image) {
     image->dstPos.y = (sh / 2.0) - (ih * image->scale) / 2.0;
 }
 
-void doko_moveImageCenter(doko_image_t* image) {
+void doko_centerImage(doko_image_t* image) {
 
     int sw = ImageViewWidth;
     int sh = ImageViewHeight;

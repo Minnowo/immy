@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <raylib.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -79,10 +80,14 @@ void ui_renderBackground() {
 
 void ui_renderImage(doko_image_t* image) {
 
+    if(image->status == IMAGE_STATUS_FAILED) {
+        return;
+    }
+
     if (imageBufPath != image->path) {
 
         if (image->status == IMAGE_STATUS_NOT_LOADED) {
-            if (doko_loadImage(image)) {
+            if (!doko_loadImage(image)) {
                 return;
             }
         }

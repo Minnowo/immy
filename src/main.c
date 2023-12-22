@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <string.h>
 
 #include "darray.h"
@@ -13,10 +12,7 @@
 #include "config.h"
 #include "doko.h"
 
-dimage_arr_t image_files = {0};
-size_t selected_file = 0;
-
-float keyPressedTime = 0.0;
+struct doko_control this;
 
 void add_file(const char* path_) {
 
@@ -41,11 +37,7 @@ void add_file(const char* path_) {
         .dstPos = 0,
     };
 
-    DARRAY_APPEND(image_files, i);
-
-    printf("Adding file %s to the list, filename is %s\n", path,
-           i.path + i.nameOffset);
-    printf("Files list now has %zu files with total %zu\n", image_files.size, image_files.length);
+    DARRAY_APPEND(this.image_files, i);
 }
 
 void handle_dropped_files() {
@@ -61,80 +53,30 @@ void handle_dropped_files() {
 
 void do_input() {
 
-    doko_image_t *im = image_files.buffer + selected_file;
+    if ((GetTime() - this.keyPressedTime < KEY_TIME_LIMIT)) {
+        return;
+    }
 
-    if ((GetTime() - keyPressedTime >= KEY_TIME_LIMIT)) {
+    int s = !!(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT));
+    int c = !!(IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL));
 
-        keyPressedTime = GetTime();
+    for (size_t i = 0, kc = 0; i < KEYBIND_COUNT; ++i) {
 
-        if (IsKeyDown(KEY_LEFT_SHIFT)) {
-            if (IsKeyDown(KEY_K)) {
-                doko_zoomImageOnPointFromClosest(im,true, GetScreenWidth() / 2,
-                                      GetScreenHeight() / 2);
-            } else if (IsKeyDown(KEY_J)) {
-                doko_zoomImageOnPointFromClosest(im, false, GetScreenWidth() / 2,
-                                      GetScreenHeight() / 2);
-            } else if (IsKeyDown(KEY_L)) {
-                selected_file = (selected_file + 1) % image_files.size;
-            } else if (IsKeyDown(KEY_H)) {
-                selected_file = (selected_file + image_files.size - 1) % image_files.size;
-            } else {
-                keyPressedTime = 0;
-            }
-        } 
-        else if(IsKeyDown(KEY_LEFT_CONTROL)) {
-            if (IsKeyDown(KEY_H)) {
-            } else if (IsKeyDown(KEY_L)) {
-            } else {
-                keyPressedTime = 0;
-            }
+        if (!(c == !!(keybinds[i].key & CONTROL_MASK)) ||
+            !(s == !!(keybinds[i].key & SHIFT_MASK) ) ||
+            !IsKeyDown(keybinds[i].key & KEY_MASK)) {
+            continue;
         }
-        else {
-            if (IsKeyDown(KEY_I)) {
 
-                DARRAY_FOR_EACH_I(image_files, i) {
+        keybinds[i].function(&this);
+        this.keyPressedTime = GetTime();
+        ++this.renderFrames;
 
-                    doko_image_t t = image_files.buffer[i];
-
-                    printf("%zu: %s\n", i, t.path);
-                }
-                printf("Image[%zu]:\n", selected_file);
-                printf("   Size     %0.1f %0.1f\n", im->srcRect.width, im->srcRect.height);
-                printf("   Visible  %0.1f %0.1f\n", im->srcRect.width * im->scale, im->srcRect.height * im->scale);
-                printf("   Position %0.1f %0.1f\n", im->dstPos.x, im->dstPos.y);
-                printf("   Scale %f\n", im->scale);
-
-            } else if (IsKeyDown(KEY_K)) {
-                doko_moveScrFracImage(im, 0, -1 / 5.0);
-            } else if (IsKeyDown(KEY_J)) {
-                doko_moveScrFracImage(im, 0, 1 / 5.0);
-            } else if (IsKeyDown(KEY_H)) {
-                doko_moveScrFracImage(im, -1 / 5.0, 0);
-            } else if (IsKeyDown(KEY_L)) {
-                doko_moveScrFracImage(im, 1 / 5.0, 0);
-            } else if (IsKeyDown(KEY_C)) {
-                doko_centerImage(im);
-            } else if (IsKeyDown(KEY_M)) {
-                ImageFlipHorizontal(&im->rayim);
-                im->rebuildBuff = 1;
-            } else if (IsKeyDown(KEY_V)) {
-                ImageFlipVertical(&im->rayim);
-                im->rebuildBuff = 1;
-            } else if (IsKeyDown(KEY_U)) {
-                ImageColorInvert(&im->rayim);
-                im->rebuildBuff = 1;
-            } else if (IsKeyDown(KEY_UP)) {
-                SetTargetFPS(GetFPS() + 1);
-            } else if (IsKeyDown(KEY_DOWN)) {
-                SetTargetFPS(GetFPS() - 1);
-            } else {
-                keyPressedTime = 0;
-            }
+        if(++kc == KEY_LIMIT) {
+            return;
         }
     }
 }
-
-
 
 void handle_start_args(int argc, char* argv[]) {
 
@@ -168,16 +110,18 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    memset(&this, 0, sizeof(this));
+
     handle_start_args(argc, argv);
 
-    if(image_files.size == 0) {
+    if(this.image_files.size == 0) {
         doko_error(EXIT_FAILURE, errno, "No files given.");
         return 1;
     }
 
+    this.renderFrames = 5;
+
     ui_init();
-
-
 
     while (!WindowShouldClose()) {
 
@@ -194,20 +138,23 @@ int main(int argc, char* argv[])
 
         BeginDrawing();
 
-        if (IsWindowFocused()) {
+        if (this.renderFrames > 0 || IsWindowResized()) {
+
             ui_renderBackground();
-            ui_renderImage(image_files.buffer + selected_file);
-            ui_renderPixelGrid(image_files.buffer + selected_file);
-            ui_renderInfoBar(image_files.buffer + selected_file);
+            ui_renderImage(this.image_files.buffer + this.selected_file);
+            ui_renderPixelGrid(this.image_files.buffer + this.selected_file);
+            ui_renderInfoBar(this.image_files.buffer + this.selected_file);
             DrawFPS(0, 0);
+
+            --this.renderFrames;
         }
 
         EndDrawing();
     }
 
-    DARRAY_FOR_EACH_I(image_files, i) {
+    DARRAY_FOR_EACH_I(this.image_files, i) {
 
-        doko_image_t im = image_files.buffer[i];
+        doko_image_t im = this.image_files.buffer[i];
 
         if(im.status == IMAGE_STATUS_LOADED) {
             UnloadImage(im.rayim);
@@ -218,7 +165,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    DARRAY_FREE(image_files);
+    DARRAY_FREE(this.image_files);
 
     ui_deinit();
 

@@ -3,6 +3,11 @@
 #ifndef DOKO_CONFIG_H
 #define DOKO_CONFIG_H
 
+#include <stddef.h>
+
+#include "doko.h"
+#include "keybind.h"
+
 #define WINDOW_TITLE "Doko?"
 
 #define WINDOW_FPS 24
@@ -56,5 +61,34 @@ extern const double ZOOM_LEVELS[];
 // extension filter, finds these files when searching directory
 #define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm"
 
+// number of keybinds to interpret per render
+#define KEY_LIMIT 3
+
+// define keybinds, you can find more methods in the keybind.h file
+// define any new ones as you see fit
+static const KeyMapping keybinds[] = {
+    {KEY_K, keybind_moveImageUp},
+    {KEY_J, keybind_moveImageDown},
+    {KEY_H, keybind_moveImageLeft},
+    {KEY_L, keybind_moveImageRight},
+
+    {KEY_K | SHIFT_MASK, keybind_zoomInCenterImage},
+    {KEY_J | SHIFT_MASK, keybind_zoomOutCenterImage},
+    {KEY_H | SHIFT_MASK, keybind_moveImageLeft},
+    {KEY_L | SHIFT_MASK, keybind_moveImageRight},
+
+    {KEY_H | CONTROL_MASK, keybind_PrevImage},
+    {KEY_L | CONTROL_MASK, keybind_nextImage},
+
+    {KEY_C, keybind_fitCenterImage},
+    {KEY_I, keybind_colorInvert},
+
+    {KEY_M, keybind_flipHorizontal},
+    {KEY_V, keybind_flipVertical},
+
+    {KEY_I, keybind_printDebugInfo},
+};
+
+#define KEYBIND_COUNT (sizeof(keybinds) / sizeof(keybinds[0]))
 
 #endif

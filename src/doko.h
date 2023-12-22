@@ -9,7 +9,8 @@
 
 typedef enum {
     IMAGE_STATUS_NOT_LOADED,
-    IMAGE_STATUS_LOADED
+    IMAGE_STATUS_LOADED,
+    IMAGE_STATUS_FAILED
 } image_status;
 
 typedef struct doko_image {
@@ -28,8 +29,17 @@ typedef struct doko_image {
 
 } doko_image_t;
 
-
 DARRAY_DEF(dimage_arr, doko_image_t*);
+
+typedef struct doko_control {
+        dimage_arr_t image_files;
+        size_t selected_file;
+        float keyPressedTime;
+        int renderFrames;
+        unsigned long keyPressed;
+
+} doko_control_t;
+
 
 #define ImageViewWidth GetScreenWidth()
 #define ImageViewHeight (GetScreenHeight() - INFO_BAR_HEIGHT)
@@ -43,12 +53,12 @@ int doko_loadImage(doko_image_t* im);
 /**
  * Sets the image position and scale so that it centers on the screen.
  */
-void doko_centerImage(doko_image_t* im);
+void doko_fitCenterImage(doko_image_t* im);
 
 /**
  * Sets the image position so that it centers on the screen.
  */
-void doko_moveImageCenter(doko_image_t* im);
+void doko_centerImage(doko_image_t* im);
 
 /**
  * Ensures the image is not lost offscreen by moving it within IMAGE_INVERSE_MARGIN.
