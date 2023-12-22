@@ -3,10 +3,11 @@
 #ifndef DOKO_CONFIG_H
 #define DOKO_CONFIG_H
 
+#include <raylib.h>
 #include <stddef.h>
 
 #include "doko.h"
-#include "keybind.h"
+#include "input.h"
 
 #define WINDOW_TITLE "Doko?"
 
@@ -28,9 +29,6 @@
 #define BACKGROUND_TILE_COLOR_B_RGBA                                           \
     { 64, 64, 64, 255 }
 
-// Time limit for triggering key presses (in seconds)
-// Considering count key presses every KEY_TIME_LIMIT seconds using IsKeyDown.
-#define KEY_TIME_LIMIT (1.0 / 9.0)
 
 // When the image is off-screen, try to keep at least IMAGE_INVERSE_MARGIN
 // visible on the screen. `x` is for the horizontal (left/right of the screen).
@@ -45,7 +43,7 @@
 // show the pixel grid when the scale is bigger than this value
 #define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20
 #define PIXEL_GRID_COLOR_RGBA                                                  \
-    { 200, 200, 200, 255 }
+    { 200, 200, 200, 200 }
 
 // See the top of doko.c, where this array is defined.
 // It MUST be sorted.
@@ -61,12 +59,29 @@ extern const double ZOOM_LEVELS[];
 // extension filter, finds these files when searching directory
 #define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm"
 
+
+#define ENABLE_KEYBOARD_INPUT          // all keyboard input
+#define ENABLE_KEYBOARD_INPUT_NO_DELAY // keyboard input which ignore
+                                       // KEY_TIME_LIMIT
+
+#define ENABLE_MOUSE_INPUT             // all mouse input
+#define ENABLE_FILE_DROP               // file drop into the app
+
 // number of keybinds to interpret per render
 #define KEY_LIMIT 3
 
+// Time limit for triggering key presses (in seconds)
+// Considering count key presses every KEY_TIME_LIMIT seconds using IsKeyDown.
+#define KEY_TIME_LIMIT (1.0 / 9.0)
+
+// number of mouses inputs to interpret per render
+#define MOUSE_LIMIT 1
+
+#define RAYLIB_QUIT_KEY KEY_Q
+
 // define keybinds, you can find more methods in the keybind.h file
 // define any new ones as you see fit
-static const KeyMapping keybinds[] = {
+static const InputMapping keybinds[] = {
     {KEY_K, keybind_moveImageUp},
     {KEY_J, keybind_moveImageDown},
     {KEY_H, keybind_moveImageLeft},
@@ -86,9 +101,28 @@ static const KeyMapping keybinds[] = {
     {KEY_M, keybind_flipHorizontal},
     {KEY_V, keybind_flipVertical},
 
-    {KEY_I, keybind_printDebugInfo},
+    {KEY_O, keybind_printDebugInfo},
+};
+
+// define keybinds which ignore KEY_TIME_LIMIT
+static const InputMapping keybinds_no_time_limit[] = {
+    {KEY_SPACE, keybind_moveImageByMouseDelta},
+};
+
+// use this to bind a mouse wheel scroll
+#define MOUSE_WHEEL_FORWARD_BUTTON 666
+#define MOUSE_WHEEL_BACKWARD_BUTTON 667
+
+static const InputMapping mousebinds[] = {
+    {MOUSE_WHEEL_FORWARD_BUTTON, keybind_zoomInMousePosition},
+    {MOUSE_WHEEL_BACKWARD_BUTTON, keybind_zoomOutMousePosition},
+    {MOUSE_WHEEL_FORWARD_BUTTON | SHIFT_MASK, keybind_nextImage},
+    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_PrevImage},
+    {MOUSE_BUTTON_LEFT, keybind_moveImageByMouseDelta},
 };
 
 #define KEYBIND_COUNT (sizeof(keybinds) / sizeof(keybinds[0]))
+#define KEYBIND_NO_LIMIT_COUNT (sizeof(keybinds_no_time_limit) / sizeof(keybinds_no_time_limit[0]))
+#define MOUSEBIND_COUNT (sizeof(mousebinds) / sizeof(mousebinds[0]))
 
 #endif

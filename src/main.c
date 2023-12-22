@@ -1,4 +1,5 @@
 
+#include "input.h"
 #include "raylib.h"
 
 #include <errno.h>
@@ -40,6 +41,8 @@ void add_file(const char* path_) {
     DARRAY_APPEND(this.image_files, i);
 }
 
+#ifdef ENABLE_FILE_DROP
+
 void handle_dropped_files() {
 
     FilePathList fpl = LoadDroppedFiles();
@@ -51,32 +54,88 @@ void handle_dropped_files() {
     UnloadDroppedFiles(fpl);
 }
 
-void do_input() {
+#endif
+
+#ifdef ENABLE_MOUSE_INPUT
+
+void do_mouse_input() {
+
+    int s = !!(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT));
+    int c = !!(IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL));
+
+    for (size_t i = 0, kc = 0; i < MOUSEBIND_COUNT; ++i) {
+
+        if (!(c == !!(mousebinds[i].key & CONTROL_MASK)) ||
+            !(s == !!(mousebinds[i].key & SHIFT_MASK))) {
+            continue;
+        }
+
+        if (GetMouseWheelMove() > 0 && (mousebinds[i].key & KEY_MASK) == MOUSE_WHEEL_FORWARD_BUTTON) {
+            mousebinds[i].function(&this);
+            ++this.renderFrames;
+            continue;
+        }
+
+        if(GetMouseWheelMove() < 0 &&  (mousebinds[i].key & KEY_MASK) == MOUSE_WHEEL_BACKWARD_BUTTON ) {
+            mousebinds[i].function(&this);
+            ++this.renderFrames;
+            continue;
+        }
+
+        if (!IsMouseButtonDown(mousebinds[i].key & KEY_MASK)) {
+            continue;
+        }
+
+        mousebinds[i].function(&this);
+        ++this.renderFrames;
+
+        if(++kc == MOUSE_LIMIT) {
+            return;
+        }
+    }
+}
+
+#endif
+
+#ifdef ENABLE_KEYBOARD_INPUT
+
+#define _DO_KEYBOARD_INPUT(map, size)                                          \
+    do {                                                                       \
+        int s = !!(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT));   \
+        int c =                                                                \
+            !!(IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL));   \
+                                                                               \
+        for (size_t i = 0, kc = 0; i < (size); ++i) {                          \
+            if (!(c == !!((map)[i].key & CONTROL_MASK)) ||                     \
+                !(s == !!((map)[i].key & SHIFT_MASK)) ||                       \
+                !IsKeyDown((map)[i].key & KEY_MASK)) {                         \
+                continue;                                                      \
+            }                                                                  \
+                                                                               \
+            (map)[i].function(&this);                                          \
+            this.keyPressedTime = GetTime();                                   \
+            ++this.renderFrames;                                               \
+                                                                               \
+            if (++kc == KEY_LIMIT) {                                           \
+                return;                                                        \
+            }                                                                  \
+        }                                                                      \
+    } while (0)
+
+void do_keyboard_input() {
+
+#ifdef ENABLE_KEYBOARD_INPUT_NO_DELAY
+    _DO_KEYBOARD_INPUT(keybinds_no_time_limit, KEYBIND_NO_LIMIT_COUNT);
+#endif
 
     if ((GetTime() - this.keyPressedTime < KEY_TIME_LIMIT)) {
         return;
     }
 
-    int s = !!(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT));
-    int c = !!(IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL));
-
-    for (size_t i = 0, kc = 0; i < KEYBIND_COUNT; ++i) {
-
-        if (!(c == !!(keybinds[i].key & CONTROL_MASK)) ||
-            !(s == !!(keybinds[i].key & SHIFT_MASK) ) ||
-            !IsKeyDown(keybinds[i].key & KEY_MASK)) {
-            continue;
-        }
-
-        keybinds[i].function(&this);
-        this.keyPressedTime = GetTime();
-        ++this.renderFrames;
-
-        if(++kc == KEY_LIMIT) {
-            return;
-        }
-    }
+    _DO_KEYBOARD_INPUT(keybinds, KEYBIND_COUNT);
 }
+
+#endif
 
 void handle_start_args(int argc, char* argv[]) {
 
@@ -123,18 +182,27 @@ int main(int argc, char* argv[])
 
     ui_init();
 
+
     while (!WindowShouldClose()) {
 
-        if (IsKeyDown(KEY_Q)) {
-            break;
-        }
-
+#ifdef ENABLE_FILE_DROP
         if (IsFileDropped()) {
 
             handle_dropped_files();
         }
+#endif
 
-        do_input();
+#ifdef ENABLE_KEYBOARD_INPUT
+        do_keyboard_input();
+#endif
+
+#ifdef ENABLE_MOUSE_INPUT
+        do_mouse_input();
+#endif
+
+#if defined(ENABLE_MOUSE_INPUT) || defined(ENABLE_KEYBOARD_INPUT)
+        this.lastMouseClick = GetMousePosition();
+#endif
 
         BeginDrawing();
 

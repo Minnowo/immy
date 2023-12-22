@@ -4,20 +4,23 @@
 #define DOKO_KEYBINDS_H
 
 #include "doko.h"
+#include <raylib.h>
 
 #define SHIFT_MASK   0x80000000  // 1000 0000 0000 0000 0000 0000 0000 0000
 #define CONTROL_MASK 0x40000000  // 0100 0000 0000 0000 0000 0000 0000 0000
 #define KEY_MASK ~(SHIFT_MASK | CONTROL_MASK)
 
-typedef void (*KeyPressFunction)(doko_control_t*);
+typedef void (*InputCallback)(doko_control_t*);
 
 typedef struct {
     unsigned long key;
-    KeyPressFunction function;
-} KeyMapping;
+    InputCallback function;
+} InputMapping;
 
 void keybind_zoomInCenterImage(doko_control_t* ctrl);
 void keybind_zoomOutCenterImage(doko_control_t* ctrl);
+void keybind_zoomInMousePosition(doko_control_t* ctrl);
+void keybind_zoomOutMousePosition(doko_control_t* ctrl);
 
 void keybind_nextImage(doko_control_t* ctrl);
 void keybind_PrevImage(doko_control_t* ctrl);
@@ -28,6 +31,7 @@ void keybind_moveImageUp(doko_control_t* ctrl);
 void keybind_moveImageDown(doko_control_t* ctrl);
 void keybind_moveImageLeft(doko_control_t* ctrl);
 void keybind_moveImageRight(doko_control_t* ctrl);
+void keybind_moveImageByMouseDelta(doko_control_t *ctrl);
 
 void keybind_centerImage(doko_control_t* ctrl);
 void keybind_fitCenterImage(doko_control_t* ctrl);

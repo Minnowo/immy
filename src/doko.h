@@ -34,9 +34,9 @@ DARRAY_DEF(dimage_arr, doko_image_t*);
 typedef struct doko_control {
         dimage_arr_t image_files;
         size_t selected_file;
-        float keyPressedTime;
+        double keyPressedTime;
+        Vector2 lastMouseClick;
         int renderFrames;
-        unsigned long keyPressed;
 
 } doko_control_t;
 

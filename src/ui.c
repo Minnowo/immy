@@ -1,7 +1,6 @@
 
 
 
-#include <math.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,6 +26,7 @@ void ui_init() {
 
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(WINDOW_FPS);
+    SetExitKey(RAYLIB_QUIT_KEY);
 
     backgroundBuf = ui_loadBackgroundTile(BACKGROUND_TILE_W, BACKGROUND_TILE_H,
                                        (Color)BACKGROUND_TILE_COLOR_A_RGBA,

@@ -1,7 +1,8 @@
 
 
-#include "keybind.h"
+#include "input.h"
 #include "doko.h"
+#include "config.h"
 #include <raylib.h>
 #include <stdio.h>
 
@@ -16,6 +17,13 @@ void keybind_zoomInCenterImage(doko_control_t *ctrl) {
 void keybind_zoomOutCenterImage(doko_control_t *ctrl) {
     doko_zoomImageOnPointFromClosest(IM(ctrl), false, GetScreenWidth() / 2,
                                      GetScreenHeight() / 2);
+}
+
+void keybind_zoomInMousePosition(doko_control_t *ctrl) {
+    doko_zoomImageOnPointFromClosest(IM(ctrl), true, GetMouseX(), GetMouseY());
+}
+void keybind_zoomOutMousePosition(doko_control_t *ctrl) {
+    doko_zoomImageOnPointFromClosest(IM(ctrl), false, GetMouseX(), GetMouseY());
 }
 
 void keybind_nextImage(doko_control_t *ctrl) {
@@ -62,6 +70,26 @@ void keybind_moveImageLeft(doko_control_t *ctrl) {
 
 void keybind_moveImageRight(doko_control_t *ctrl) {
     doko_moveScrFracImage(IM(ctrl), 1 / 5.0, 0);
+}
+
+void keybind_moveImageByMouseDelta(doko_control_t *ctrl) {
+
+    doko_image_t *im = IM(ctrl);
+
+    // // ctrl->lastMouseClick is set after taking input now
+    // // so we don't need to set it here, and this can work with any input
+
+    // if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    //     ctrl->lastMouseClick = mp;
+    // }
+
+    // if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+
+        im->dstPos.x -= ctrl->lastMouseClick.x - GetMouseX();
+        im->dstPos.y -= ctrl->lastMouseClick.y - GetMouseY();
+
+        // ctrl->lastMouseClick = mp;
+    // }
 }
 
 void keybind_centerImage(doko_control_t *ctrl) {
