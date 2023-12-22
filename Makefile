@@ -24,6 +24,7 @@ clean: clean_doko clean_raylib
 
 windows: CC          := x86_64-w64-mingw32-gcc
 windows: PLATFORM_OS := WINDOWS
+windows: CFLAGS      += -Wl,--subsystem,windows     # remove console on windows
 windows: LDFLAGS     += -lopengl32 -lgdi32 -lwinmm
 windows: all
 
