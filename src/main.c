@@ -79,13 +79,13 @@ void do_mouse_input() {
 
         if (GetMouseWheelMove() > 0 && (mousebinds[i].key & KEY_MASK) == MOUSE_WHEEL_FORWARD_BUTTON) {
             mousebinds[i].function(&this);
-            ++this.renderFrames;
+            this.renderFrames += RENDER_FRAMES;
             continue;
         }
 
         if(GetMouseWheelMove() < 0 &&  (mousebinds[i].key & KEY_MASK) == MOUSE_WHEEL_BACKWARD_BUTTON ) {
             mousebinds[i].function(&this);
-            ++this.renderFrames;
+            this.renderFrames += RENDER_FRAMES;
             continue;
         }
 
@@ -94,7 +94,7 @@ void do_mouse_input() {
         }
 
         mousebinds[i].function(&this);
-        ++this.renderFrames;
+        this.renderFrames += RENDER_FRAMES;
 
         if(++kc == MOUSE_LIMIT) {
             return;
@@ -123,7 +123,7 @@ void do_keyboard_input() {
                                                                                \
             (map)[i].function(&this);                                          \
             this.keyPressedTime = GetTime();                                   \
-            ++this.renderFrames;                                               \
+            this.renderFrames += RENDER_FRAMES;                                \
                                                                                \
             if (++kc == KEY_LIMIT) {                                           \
                 return;                                                        \
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
     if(this.image_files.size > 0) {
         this.selected_image = this.image_files.buffer;
     }
-    this.renderFrames = 5;
+    this.renderFrames = RENDER_FRAMES;
 
     ui_init();
 

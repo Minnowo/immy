@@ -21,6 +21,11 @@
 // this will prevent flickering on some systems
 #define ALWAYS_DO_RENDER
 
+// how many frames to render when being told to render
+// this only applies if ALWAYS_DO_RENDER is not defined
+// if you get flickering, increase this number
+#define RENDER_FRAMES (1+(int)(WINDOW_FPS/4))
+
 #define START_WIDTH 512
 #define START_HEIGHT 512
 
