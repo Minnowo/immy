@@ -234,5 +234,5 @@ void set_image(doko_control_t* ctrl, size_t index) {
 
     ctrl->selected_image = ctrl->image_files.buffer + index;
     ctrl->selected_index = index;
-    ctrl->renderFrames+=RENDER_FRAMES;
+    ctrl->renderFrames = RENDER_FRAMES;
 }

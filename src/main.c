@@ -79,13 +79,13 @@ void do_mouse_input() {
 
         if (GetMouseWheelMove() > 0 && (mousebinds[i].key & KEY_MASK) == MOUSE_WHEEL_FORWARD_BUTTON) {
             mousebinds[i].function(&this);
-            this.renderFrames += RENDER_FRAMES;
+            this.renderFrames = RENDER_FRAMES;
             continue;
         }
 
         if(GetMouseWheelMove() < 0 &&  (mousebinds[i].key & KEY_MASK) == MOUSE_WHEEL_BACKWARD_BUTTON ) {
             mousebinds[i].function(&this);
-            this.renderFrames += RENDER_FRAMES;
+            this.renderFrames = RENDER_FRAMES;
             continue;
         }
 
@@ -94,7 +94,7 @@ void do_mouse_input() {
         }
 
         mousebinds[i].function(&this);
-        this.renderFrames += RENDER_FRAMES;
+        this.renderFrames = RENDER_FRAMES;
 
         if(++kc == MOUSE_LIMIT) {
             return;
@@ -123,7 +123,7 @@ void do_keyboard_input() {
                                                                                \
             (map)[i].function(&this);                                          \
             this.keyPressedTime = GetTime();                                   \
-            this.renderFrames += RENDER_FRAMES;                                \
+            this.renderFrames = RENDER_FRAMES;                                 \
                                                                                \
             if (++kc == KEY_LIMIT) {                                           \
                 return;                                                        \
@@ -219,8 +219,12 @@ int main(int argc, char* argv[])
         BeginDrawing();
 
 #ifndef ALWAYS_DO_RENDER
-        if (this.renderFrames > 0 || IsWindowResized() ||
-            !(this.frame % REDRAW_ON_FRAME)) {
+
+        if (IsWindowResized() || this.frame % REDRAW_ON_FRAME == 0) {
+            this.renderFrames = RENDER_FRAMES;
+        }
+
+        if (this.renderFrames > 0) {
 
 #endif
             ui_renderBackground();
