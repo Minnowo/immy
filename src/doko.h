@@ -11,13 +11,18 @@ typedef enum {
     IMAGE_STATUS_NOT_LOADED,
     IMAGE_STATUS_LOADED,
     IMAGE_STATUS_FAILED
-} image_status;
+} image_status_t;
+
+typedef enum {
+    DOKO_SCREEN_IMAGE,
+    DOKO_SCREEN_FILE_LIST,
+} doko_screen_t;
 
 typedef struct doko_image {
     char* path;
     size_t nameOffset; // path + this gives name str
 
-    image_status status;
+    image_status_t status;
     Image rayim;
     Rectangle srcRect;
     Vector2 dstPos;
@@ -39,6 +44,7 @@ typedef struct doko_control {
         Vector2 lastMouseClick;
         int renderFrames;
         size_t frame;
+        doko_screen_t screen;
 
 } doko_control_t;
 

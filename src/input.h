@@ -10,11 +10,18 @@
 #define CONTROL_MASK 0x40000000  // 0100 0000 0000 0000 0000 0000 0000 0000
 #define KEY_MASK ~(SHIFT_MASK | CONTROL_MASK)
 
+#define HAS_CTRL(k) (CONTROL_MASK == (((long)(k)) & CONTROL_MASK))
+#define HAS_SHIFT(k) (SHIFT_MASK == (((long)(k)) & SHIFT_MASK))
+#define GET_RAYKEY(k) ((k) & KEY_MASK)
+
 typedef void (*InputCallback)(doko_control_t*);
 
 typedef struct {
     unsigned long key;
     InputCallback function;
+    doko_screen_t screen;
+    double lastPressedTime;
+    double keyTriggerRate;
 } InputMapping;
 
 void keybind_zoomInCenterImage(doko_control_t* ctrl);

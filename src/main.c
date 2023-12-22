@@ -67,33 +67,30 @@ void handle_dropped_files() {
 
 void do_mouse_input() {
 
-    int s = !!(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT));
-    int c = !!(IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL));
+    int s = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    int c = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
 
     for (size_t i = 0, kc = 0; i < MOUSEBIND_COUNT; ++i) {
 
-        if (!(c == !!(mousebinds[i].key & CONTROL_MASK)) ||
-            !(s == !!(mousebinds[i].key & SHIFT_MASK))) {
+        if (!(c == HAS_CTRL(mousebinds[i].key)) ||
+            !(s == HAS_SHIFT(mousebinds[i].key)) || 
+            GetTime() - mousebinds[i].lastPressedTime < mousebinds[i].keyTriggerRate
+            ) {
             continue;
         }
 
-        if (GetMouseWheelMove() > 0 && (mousebinds[i].key & KEY_MASK) == MOUSE_WHEEL_FORWARD_BUTTON) {
-            mousebinds[i].function(&this);
-            this.renderFrames = RENDER_FRAMES;
-            continue;
-        }
-
-        if(GetMouseWheelMove() < 0 &&  (mousebinds[i].key & KEY_MASK) == MOUSE_WHEEL_BACKWARD_BUTTON ) {
-            mousebinds[i].function(&this);
-            this.renderFrames = RENDER_FRAMES;
-            continue;
-        }
-
-        if (!IsMouseButtonDown(mousebinds[i].key & KEY_MASK)) {
+        if (GetMouseWheelMove() > 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_FORWARD_BUTTON) { 
+            // fallthrough
+        } 
+        else if (GetMouseWheelMove() < 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_BACKWARD_BUTTON) { 
+            // fallthrough
+        } 
+        else if (!IsMouseButtonDown(GET_RAYKEY(mousebinds[i].key))) {
             continue;
         }
 
         mousebinds[i].function(&this);
+        mousebinds[i].lastPressedTime = GetTime();
         this.renderFrames = RENDER_FRAMES;
 
         if(++kc == MOUSE_LIMIT) {
@@ -108,38 +105,28 @@ void do_mouse_input() {
 
 void do_keyboard_input() {
 
-#define _DO_KEYBOARD_INPUT(map, size)                                          \
-    do {                                                                       \
-        int s = !!(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT));   \
-        int c =                                                                \
-            !!(IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL));   \
-                                                                               \
-        for (size_t i = 0, kc = 0; i < (size); ++i) {                          \
-            if (!(c == !!((map)[i].key & CONTROL_MASK)) ||                     \
-                !(s == !!((map)[i].key & SHIFT_MASK)) ||                       \
-                !IsKeyDown((map)[i].key & KEY_MASK)) {                         \
-                continue;                                                      \
-            }                                                                  \
-                                                                               \
-            (map)[i].function(&this);                                          \
-            this.keyPressedTime = GetTime();                                   \
-            this.renderFrames = RENDER_FRAMES;                                 \
-                                                                               \
-            if (++kc == KEY_LIMIT) {                                           \
-                return;                                                        \
-            }                                                                  \
-        }                                                                      \
-    } while (0)
 
-#ifdef ENABLE_KEYBOARD_INPUT_NO_DELAY
-    _DO_KEYBOARD_INPUT(keybinds_no_time_limit, KEYBIND_NO_LIMIT_COUNT);
-#endif
+    int s = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    int c = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
 
-    if ((GetTime() - this.keyPressedTime < KEY_TIME_LIMIT)) {
-        return;
+    for (size_t i = 0, kc = 0; i < KEYBIND_COUNT; ++i) {
+
+        if (GetTime() - keybinds[i].lastPressedTime < keybinds[i].keyTriggerRate ||
+            this.screen != keybinds[i].screen ||
+            !(c == HAS_CTRL(keybinds[i].key)) ||
+            !(s == HAS_SHIFT(keybinds[i].key)) ||
+            !IsKeyDown(GET_RAYKEY(keybinds[i].key))) {
+            continue;
+        }
+
+        keybinds[i].function(&this);
+        keybinds[i].lastPressedTime = GetTime();
+        this.renderFrames = RENDER_FRAMES;
+
+        if (++kc == KEY_LIMIT) {
+            return;
+        }
     }
-
-    _DO_KEYBOARD_INPUT(keybinds, KEYBIND_COUNT);
 }
 
 #endif
@@ -206,6 +193,14 @@ int main(int argc, char* argv[])
 
 #ifdef ENABLE_KEYBOARD_INPUT
         do_keyboard_input();
+
+        if(IsKeyPressed(KEY_T)) {
+            if(this.screen==DOKO_SCREEN_FILE_LIST) {
+                this.screen = DOKO_SCREEN_IMAGE;
+            } else {
+                this.screen = DOKO_SCREEN_FILE_LIST;
+            }
+        }
 #endif
 
 #ifdef ENABLE_MOUSE_INPUT
@@ -229,14 +224,23 @@ int main(int argc, char* argv[])
 #endif
             ui_renderBackground();
 
-            if (this.selected_image != NULL) {
+            switch (this.screen) {
 
-                ui_renderImage(this.selected_image);
-                ui_renderPixelGrid(this.selected_image);
-                ui_renderInfoBar(this.selected_image);
-            } else {
-                ui_renderTextOnInfoBar(
-                    "There is no image selected! Drag an image to view.");
+            case DOKO_SCREEN_FILE_LIST:
+                ui_renderFileList(&this);
+                break;
+
+            case DOKO_SCREEN_IMAGE:
+                if (this.selected_image != NULL) {
+
+                    ui_renderImage(this.selected_image);
+                    ui_renderPixelGrid(this.selected_image);
+                    ui_renderInfoBar(this.selected_image);
+                } else {
+                    ui_renderTextOnInfoBar(
+                        "There is no image selected! Drag an image to view.");
+                }
+                break;
             }
 
             DrawFPS(0, 0);

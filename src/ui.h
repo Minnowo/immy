@@ -9,6 +9,8 @@
 
 #include "doko.h"
 
+#define COLOR_INVERT(c)                                                        \
+    ((Color){.r = 255 - (c).r, .g = 255 - (c).g, .b = 255 - (c).b})
 
 /**
  * Initializes and creates the window/UI components. Should always be called first.
@@ -36,6 +38,11 @@ Texture2D ui_loadBackgroundTile(size_t w, size_t h, Color a, Color b);
 void ui_renderImage(doko_image_t* image);
 
 /**
+ * Renders the info bar with this text.
+ */
+void ui_renderTextOnInfoBar(const char* text);
+
+/**
  * Renders the info bar.
  */
 void ui_renderInfoBar(doko_image_t* image);
@@ -46,8 +53,8 @@ void ui_renderInfoBar(doko_image_t* image);
 void ui_renderPixelGrid(doko_image_t* image);
 
 /**
- * Renders empty image text.
+ * Renders the a file list.
  */
-void ui_renderTextOnInfoBar(const char* text);
+void ui_renderFileList(doko_control_t* ctrl);
 
 #endif

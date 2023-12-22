@@ -54,6 +54,9 @@
 #define INFO_BAR_FONT_SIZE INFO_BAR_HEIGHT
 #define INFO_BAR_LEFT_MARGIN 8
 
+#define FILE_LIST_FONT_SIZE 24
+#define FILE_LIST_LEFT_MARGIN INFO_BAR_LEFT_MARGIN
+
 // show the pixel grid when the scale is bigger than this value
 #define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20
 #define PIXEL_GRID_COLOR_RGBA                                                  \
@@ -75,68 +78,72 @@ extern const double ZOOM_LEVELS[];
 
 
 #define ENABLE_KEYBOARD_INPUT          // all keyboard input
-#define ENABLE_KEYBOARD_INPUT_NO_DELAY // keyboard input which ignore
-                                       // KEY_TIME_LIMIT
-
 #define ENABLE_MOUSE_INPUT             // all mouse input
 #define ENABLE_FILE_DROP               // file drop into the app
 
 // number of keybinds to interpret per render
 #define KEY_LIMIT 3
 
-// Time limit for triggering key presses (in seconds)
-// Considering count key presses every KEY_TIME_LIMIT seconds using IsKeyDown.
-#define KEY_TIME_LIMIT (1.0 / 9.0)
 
 // number of mouses inputs to interpret per render
 #define MOUSE_LIMIT 1
 
 #define RAYLIB_QUIT_KEY KEY_Q
 
+// Time limit for triggering key presses (in seconds)
+#define _200MS (0.2)
+#define _110MS (0.11111)
+#define _80MS (0.08)
+
 // define keybinds, you can find more methods in the keybind.h file
 // define any new ones as you see fit
-static const InputMapping keybinds[] = {
-    {KEY_K, keybind_moveImageUp},
-    {KEY_J, keybind_moveImageDown},
-    {KEY_H, keybind_moveImageLeft},
-    {KEY_L, keybind_moveImageRight},
+static InputMapping keybinds[] = {
 
-    {KEY_K | SHIFT_MASK, keybind_zoomInCenterImage},
-    {KEY_J | SHIFT_MASK, keybind_zoomOutCenterImage},
-    {KEY_H | SHIFT_MASK, keybind_moveImageLeft},
-    {KEY_L | SHIFT_MASK, keybind_moveImageRight},
+    // KEY,        KEY_CALLBACK,          SCREEN,     LAST_PRESSED,        KEY_TRIGGER_RATE
 
-    {KEY_H | CONTROL_MASK, keybind_PrevImage},
-    {KEY_L | CONTROL_MASK, keybind_nextImage},
+    // image view
+    {KEY_K, keybind_moveImageUp, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_J, keybind_moveImageDown, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_H, keybind_moveImageLeft, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_L, keybind_moveImageRight, DOKO_SCREEN_IMAGE, 0, _110MS},
 
-    {KEY_C, keybind_fitCenterImage},
-    {KEY_I, keybind_colorInvert},
+    {KEY_K | SHIFT_MASK, keybind_zoomInCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_J | SHIFT_MASK, keybind_zoomOutCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_H | SHIFT_MASK, keybind_moveImageLeft, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_L | SHIFT_MASK, keybind_moveImageRight, DOKO_SCREEN_IMAGE, 0, _110MS},
 
-    {KEY_M, keybind_flipHorizontal},
-    {KEY_V, keybind_flipVertical},
+    {KEY_H | CONTROL_MASK, keybind_PrevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
+    {KEY_L | CONTROL_MASK, keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _200MS},
 
-    {KEY_O, keybind_printDebugInfo},
-};
+    {KEY_C, keybind_fitCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, 0, _110MS},
 
-// define keybinds which ignore KEY_TIME_LIMIT
-static const InputMapping keybinds_no_time_limit[] = {
-    {KEY_SPACE, keybind_moveImageByMouseDelta},
+    {KEY_M, keybind_flipHorizontal, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_V, keybind_flipVertical, DOKO_SCREEN_IMAGE, 0, _110MS},
+
+    {KEY_O, keybind_printDebugInfo, DOKO_SCREEN_IMAGE, 0, _110MS},
+
+    {KEY_SPACE, keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, 0},
+
+    // file list
+    {KEY_K, keybind_PrevImage, DOKO_SCREEN_FILE_LIST, 0, _80MS},
+    {KEY_J, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, _80MS},
+
 };
 
 // use this to bind a mouse wheel scroll
 #define MOUSE_WHEEL_FORWARD_BUTTON 666
 #define MOUSE_WHEEL_BACKWARD_BUTTON 667
 
-static const InputMapping mousebinds[] = {
-    {MOUSE_WHEEL_FORWARD_BUTTON, keybind_zoomInMousePosition},
-    {MOUSE_WHEEL_BACKWARD_BUTTON, keybind_zoomOutMousePosition},
-    {MOUSE_WHEEL_FORWARD_BUTTON | SHIFT_MASK, keybind_nextImage},
-    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_PrevImage},
-    {MOUSE_BUTTON_LEFT, keybind_moveImageByMouseDelta},
+static InputMapping mousebinds[] = {
+    {MOUSE_WHEEL_FORWARD_BUTTON, keybind_zoomInMousePosition, DOKO_SCREEN_IMAGE, 0, 0},
+    {MOUSE_WHEEL_BACKWARD_BUTTON, keybind_zoomOutMousePosition, DOKO_SCREEN_IMAGE, 0, 0},
+    {MOUSE_WHEEL_FORWARD_BUTTON | SHIFT_MASK, keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _80MS},
+    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_PrevImage, DOKO_SCREEN_IMAGE, 0, _80MS},
+    {MOUSE_BUTTON_LEFT, keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, 0},
 };
 
 #define KEYBIND_COUNT (sizeof(keybinds) / sizeof(keybinds[0]))
-#define KEYBIND_NO_LIMIT_COUNT (sizeof(keybinds_no_time_limit) / sizeof(keybinds_no_time_limit[0]))
 #define MOUSEBIND_COUNT (sizeof(mousebinds) / sizeof(mousebinds[0]))
 
 #endif

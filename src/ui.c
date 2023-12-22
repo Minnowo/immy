@@ -8,6 +8,7 @@
 
 #include "ui.h"
 #include "config.h"
+#include "darray.h"
 #include "doko.h"
 
 
@@ -160,5 +161,32 @@ void ui_renderPixelGrid(doko_image_t* image) {
          i -= image->scale, j -= image->scale) {
         DrawLine(0, i, w, i, pixelGridColor);
         DrawLine(j, 0, j, h, pixelGridColor);
+    }
+}
+
+
+void ui_renderFileList(doko_control_t* ctrl) {
+
+    int sw = GetScreenWidth() ;
+    int sh = GetScreenHeight();
+
+    #define FZ FILE_LIST_FONT_SIZE
+
+    int startY = sh - ctrl->image_files.size * FZ;
+
+    DARRAY_FOR_EACH_I(ctrl->image_files, i) {
+
+        doko_image_t *im = ctrl->image_files.buffer + i;
+
+        int y = startY + FZ * i;
+
+        if (ctrl->selected_image == NULL || i != ctrl->selected_index) {
+            DrawRectangle(0, y, sw, FZ, BLACK);
+        } else {
+            DrawRectangle(0, y, sw, FZ, GREEN);
+        }
+
+        DrawText(im->path + im->nameOffset, FILE_LIST_LEFT_MARGIN, y, FZ,
+                 WHITE);
     }
 }
