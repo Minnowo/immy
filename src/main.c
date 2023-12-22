@@ -218,9 +218,11 @@ int main(int argc, char* argv[])
 
         BeginDrawing();
 
+#ifndef ALWAYS_DO_RENDER
         if (this.renderFrames > 0 || IsWindowResized() ||
             !(this.frame % REDRAW_ON_FRAME)) {
 
+#endif
             ui_renderBackground();
 
             if (this.selected_image != NULL) {
@@ -236,7 +238,10 @@ int main(int argc, char* argv[])
             DrawFPS(0, 0);
 
             this.renderFrames -= 1 - (this.renderFrames <= 0);
+
+#ifndef ALWAYS_DO_RENDER
         }
+#endif
 
         EndDrawing();
     }

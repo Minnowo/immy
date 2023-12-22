@@ -15,7 +15,11 @@
 
 // forces a redraw everytime the frame count
 // becomes a multiple of this number
-#define REDRAW_ON_FRAME WINDOW_FPS*3
+#define REDRAW_ON_FRAME (WINDOW_FPS*3)
+
+// when defined always do render
+// this will prevent flickering on some systems
+#define ALWAYS_DO_RENDER
 
 #define START_WIDTH 512
 #define START_HEIGHT 512
