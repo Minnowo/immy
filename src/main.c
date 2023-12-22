@@ -99,6 +99,8 @@ void do_mouse_input() {
 
 #ifdef ENABLE_KEYBOARD_INPUT
 
+void do_keyboard_input() {
+
 #define _DO_KEYBOARD_INPUT(map, size)                                          \
     do {                                                                       \
         int s = !!(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT));   \
@@ -121,8 +123,6 @@ void do_mouse_input() {
             }                                                                  \
         }                                                                      \
     } while (0)
-
-void do_keyboard_input() {
 
 #ifdef ENABLE_KEYBOARD_INPUT_NO_DELAY
     _DO_KEYBOARD_INPUT(keybinds_no_time_limit, KEYBIND_NO_LIMIT_COUNT);
