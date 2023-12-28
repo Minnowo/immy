@@ -142,11 +142,13 @@ void doko_zoomImageCenterFromClosest(doko_image_t* im, bool zoomIn) {
     BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
 
     if (zoomIn) {
-        if (index + 1 < ZOOM_LEVELS_SIZE) {
+        while(index != ZOOM_LEVELS_SIZE && ZOOM_LEVELS[index] <= im->scale) {
             index++;
         }
-    } else if (index != 0) {
-        index--;
+    } else  {
+        while(index != 0 && ZOOM_LEVELS[index] >= im->scale) {
+            index--;
+        }
     }
 
     doko_zoomImageCenter(im, ZOOM_LEVELS[index]);
@@ -158,11 +160,13 @@ void doko_zoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int 
     BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
 
     if (zoomIn) {
-        if (index + 1 < ZOOM_LEVELS_SIZE) {
+        while(index != ZOOM_LEVELS_SIZE && ZOOM_LEVELS[index] <= im->scale) {
             index++;
         }
-    } else if (index != 0) {
-        index--;
+    } else {
+        while(index != 0 && ZOOM_LEVELS[index] >= im->scale) {
+            index--;
+        }
     }
 
     doko_zoomImageOnPoint(im, ZOOM_LEVELS[index], x, y);
