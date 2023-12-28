@@ -8,8 +8,9 @@ CFLAGS ?= -Wall -Wextra -std=c99
 DOKO_SRC_DIR   ?= src
 RAYLIB_SRC_DIR ?= raylib/raylib-5.0/src
 
+NAME       := doko
 TARGET_DIR ?= build
-TARGET     := ${TARGET_DIR}/doko
+TARGET     := ${TARGET_DIR}/$(NAME)
 
 # RAYLIB_LIBTYPE ?= STATIC
 # PLATFORM_OS    ?= LINUX
@@ -39,6 +40,15 @@ clean_raylib:
 	$(MAKE) -C $(RAYLIB_SRC_DIR) \
 		RAYLIB_RELEASE_PATH="$(abspath $(TARGET_DIR))" \
 		clean
+
+install: $(TARGET)
+	mkdir -p /usr/local/bin
+	cp -f $(TARGET) /usr/local/bin/$(NAME)
+	chmod 755 /usr/local/bin/$(NAME)
+
+uninstall:
+	rm -f /usr/local/bin/$(NAME)
+
 
 $(TARGET_DIR):
 	mkdir -p $(TARGET_DIR)
