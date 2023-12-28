@@ -9,8 +9,14 @@
 #include "doko.h"
 #include "input.h"
 
-#define WINDOW_TITLE "Doko?"
 
+
+
+//
+// Define window properties
+//
+
+#define WINDOW_TITLE "Doko?"
 #define WINDOW_FPS 24
 
 // forces a redraw everytime the frame count
@@ -26,67 +32,132 @@
 // if you get flickering, increase this number
 #define RENDER_FRAMES (1+(int)(WINDOW_FPS/4))
 
+// if defined try and detach from the terminal
+#define DETACH_FROM_TERMINAL
+
+// window sizes
 #define START_WIDTH 512
 #define START_HEIGHT 512
-
 #define MIN_WINDOW_WIDTH 64
 #define MIN_WINDOW_HEIGHT 64
 
-// Size of the tile pattern
+// Size of the background tile pattern
 #define BACKGROUND_TILE_W 128
 #define BACKGROUND_TILE_H 128
 
-// Background colors for the tile pattern, (r, g, b, a)
-#define BACKGROUND_TILE_COLOR_A_RGBA                                           \
-    { 32, 32, 32, 255 }
-#define BACKGROUND_TILE_COLOR_B_RGBA                                           \
-    { 64, 64, 64, 255 }
-
-
-// When the image is off-screen, try to keep at least IMAGE_INVERSE_MARGIN
-// visible on the screen. `x` is for the horizontal (left/right of the screen).
-// `y` is for the vertical (top/bottom of the screen).
+// always try and keep this many pixels of the image on screen
 #define IMAGE_INVERSE_MARGIN_X 32
 #define IMAGE_INVERSE_MARGIN_Y 32
 
-
-// the relative path to unifont
-#define UNIFONT_PATH "resources/fonts/unifont-15.1.04.otf"
-#define UNIFONT_SPACING 0
-
-// the codepoints to load for the above font at startup
-#define CODEPOINT_INITIAL                                                      \
-    " !\"#$%&'()*+,-./"                                                        \
-    "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"                       \
-    "abcdefghijklmnopqrstuvwxyz{|}"
-
-// define the height of the bar
+// define the height of the bar 
 #define INFO_BAR_HEIGHT 32
-#define INFO_BAR_FONT_SIZE INFO_BAR_HEIGHT
 #define INFO_BAR_LEFT_MARGIN 8
 
-#define FILE_LIST_FONT_SIZE 24
 #define FILE_LIST_LEFT_MARGIN INFO_BAR_LEFT_MARGIN
 
 // show the pixel grid when the scale is bigger than this value
 #define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20
-#define PIXEL_GRID_COLOR_RGBA                                                  \
-    { 200, 200, 200, 200 }
-
-// See the top of doko.c, where this array is defined.
-// It MUST be sorted.
-extern const double ZOOM_LEVELS[];
-
-// the smallest scale value in the ZOOM_LEVELS array
-#define SMALLEST_SCALE_VALUE 0.01
 
 // 1 searches directories recursivly
 // 0 does not search directories recursivly
 #define SEARCH_DIRS_RECURSIVE 1
 
-// extension filter, finds these files when searching directory
-#define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm"
+// the smallest scale value in the ZOOM_LEVELS array
+#define SMALLEST_SCALE_VALUE 0.01
 
+// Different scale values which provide a decent default experience.
+// Change as you see fit, just MAKE SURE it is sorted.
+static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
+                                     0.04,
+                                     0.07,
+                                     0.10,
+                                     0.15,
+                                     0.20,
+                                     0.25,
+                                     0.30,
+                                     0.50,
+                                     0.70,
+                                     1.00,
+                                     1.50,
+                                     2.00,
+                                     3.00,
+                                     4.00,
+                                     5.00,
+                                     6.00,
+                                     7.00,
+                                     8.00,
+                                     12.00,
+                                     16.00,
+                                     20.00,
+                                     24.00,
+                                     28.00,
+                                     32.00,
+                                     36.00,
+                                     40.00,
+                                     44.00,
+                                     48.00,
+                                     52.00,
+                                     56.00,
+                                     60.00,
+                                     64.00,
+                                     68.00,
+                                     72.00,
+                                     76.00,
+                                     80.00,
+                                     84.00,
+                                     88.00,
+                                     92.00,
+                                     96.00,
+                                     100.00,
+                                     104.00,
+                                     108.00,
+                                     112.00,
+                                     116.00,
+                                     120.00,
+                                     124.00,
+                                     128.00,
+                                     132.00,
+                                     136.00,
+                                     140.00,
+                                     144.00,
+                                     148.00,
+                                     152.00,
+                                     156.00,
+                                     160.00,
+                                     164.00,
+                                     168.00,
+                                     172.00,
+                                     176.00,
+                                     180.00,
+                                     184.00,
+                                     188.00,
+                                     192.00,
+                                     196.00,
+                                     200.00};
+
+
+
+
+
+//
+// Define Colors, (r, g, b, a)
+//
+
+#define BACKGROUND_TILE_COLOR_A_RGBA                                           \
+    (Color){ 32, 32, 32, 255 }
+
+#define BACKGROUND_TILE_COLOR_B_RGBA                                           \
+    (Color){ 64, 64, 64, 255 }
+
+#define PIXEL_GRID_COLOR_RGBA                                                  \
+    (Color){ 200, 200, 200, 200 }
+
+
+
+
+// 
+// Define Input
+//
 
 #define ENABLE_KEYBOARD_INPUT          // all keyboard input
 #define ENABLE_MOUSE_INPUT             // all mouse input
@@ -94,7 +165,6 @@ extern const double ZOOM_LEVELS[];
 
 // number of keybinds to interpret per render
 #define KEY_LIMIT 3
-
 
 // number of mouses inputs to interpret per render
 #define MOUSE_LIMIT 1
@@ -105,6 +175,15 @@ extern const double ZOOM_LEVELS[];
 #define _200MS (0.2)
 #define _110MS (0.11111)
 #define _80MS (0.08)
+
+
+// To find all the keys you can bind see
+//  raylib/raylib-5.0/src/raylib.h about line 550 for keys
+
+// Since raylib doesn't have a key for the scroll wheel delta
+// Use these to bind a mouse wheel scroll
+#define MOUSE_WHEEL_FORWARD_BUTTON 666
+#define MOUSE_WHEEL_BACKWARD_BUTTON 667
 
 // define keybinds, you can find more methods in the keybind.h file
 // define any new ones as you see fit
@@ -142,10 +221,7 @@ static InputMapping keybinds[] = {
 
 };
 
-// use this to bind a mouse wheel scroll
-#define MOUSE_WHEEL_FORWARD_BUTTON 666
-#define MOUSE_WHEEL_BACKWARD_BUTTON 667
-
+// define mouse input mappings
 static InputMapping mousebinds[] = {
     {MOUSE_WHEEL_FORWARD_BUTTON, keybind_zoomInMousePosition, DOKO_SCREEN_IMAGE, 0, 0},
     {MOUSE_WHEEL_BACKWARD_BUTTON, keybind_zoomOutMousePosition, DOKO_SCREEN_IMAGE, 0, 0},
@@ -154,7 +230,52 @@ static InputMapping mousebinds[] = {
     {MOUSE_BUTTON_LEFT, keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, 0},
 };
 
+
+
+
+//
+// Define resource
+//
+
+// the directory which contains the 'resources' folder
+// when doing `make install` this is set to `/opt/doko/`
+// important that this always ends with a /
+#ifndef RESOURCE_PATH
+    #define RESOURCE_PATH ""
+#endif
+
+// path to unifont
+#define UNIFONT_PATH (RESOURCE_PATH "resources/fonts/unifont-15.1.04.otf")
+
+// the spacing for the above font
+#define UNIFONT_SPACING 0
+
+// the codepoints to load for the above font at startup
+// if the font has utf8 you can put them here
+#define CODEPOINT_INITIAL                                                      \
+    " !\"#$%&'()*+,-./"                                                        \
+    "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"                       \
+    "abcdefghijklmnopqrstuvwxyz{|}"
+
+
+// extension filter, finds these files when searching directory
+#define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm"
+
+
+
+
+
+
+
+// 
+// DO NOT CHANGE
+//
+
+#define ZOOM_LEVELS_SIZE (sizeof((ZOOM_LEVELS)) / sizeof((ZOOM_LEVELS[0])))
+
 #define KEYBIND_COUNT (sizeof(keybinds) / sizeof(keybinds[0]))
+
 #define MOUSEBIND_COUNT (sizeof(mousebinds) / sizeof(mousebinds[0]))
+
 
 #endif

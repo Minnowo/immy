@@ -2,6 +2,9 @@
 #include "input.h"
 #include "raylib.h"
 
+
+#include <stdio.h>
+#include <unistd.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -156,8 +159,35 @@ void handle_start_args(int argc, char* argv[]) {
     }
 }
 
+void detach_from_terminal() {
+
+#ifdef __unix__
+
+    int pid = fork();
+
+    if (pid > 0) {
+        exit(EXIT_SUCCESS);
+    }
+
+    if (pid < 0) {
+        doko_error(0, errno, "Could not fork process");
+        return;
+    }
+
+    freopen("/dev/null", "r", stdin);
+    freopen("/dev/null", "w", stdout);
+    freopen("/dev/null", "w", stderr);
+
+#endif
+}
+
 int main(int argc, char* argv[])
 {
+
+#ifdef DETACH_FROM_TERMINAL
+    detach_from_terminal();
+#endif
+
     memset(&this, 0, sizeof(this));
 
     handle_start_args(argc, argv);

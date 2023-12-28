@@ -8,18 +8,6 @@
 #include "config.h"
 #include "darray.h"
 
-// Different scale values which provide a decent default experience.
-// Change as you see fit, just MAKE SURE it is sorted.
-const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE, 0.04, 0.07, 0.10, 0.15, 0.20, 0.25, 0.30, 0.50, 0.70, 1.00,
-                        1.50, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 12.00, 16.00,
-                        20.00, 24.00, 28.00, 32.00, 36.00, 40.00, 44.00, 48.00, 52.00,
-                        56.00, 60.00, 64.00, 68.00, 72.00, 76.00, 80.00, 84.00, 88.00,
-                        92.00, 96.00, 100.00, 104.00, 108.00, 112.00, 116.00, 120.00,
-                        124.00, 128.00, 132.00, 136.00, 140.00, 144.00, 148.00, 152.00,
-                        156.00, 160.00, 164.00, 168.00, 172.00, 176.00, 180.00, 184.00,
-                        188.00, 192.00, 196.00, 200.00};
-
-#define ZOOM_LEVELS_SIZE (sizeof((ZOOM_LEVELS)) / sizeof((ZOOM_LEVELS[0])))
 
 
 

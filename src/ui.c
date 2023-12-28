@@ -28,6 +28,8 @@ dint_arr_t font_codepoints;
 
 void ui_loadUnifont() {
 
+    printf("Loading unifont from %s\n", UNIFONT_PATH);
+
     UnloadFont(unifont);
     unifont = LoadFontEx(UNIFONT_PATH, 32, font_codepoints.buffer,
                          font_codepoints.size);
@@ -143,7 +145,7 @@ void ui_renderTextOnInfoBar(const char* text) {
     int sw = GetScreenWidth() ;
     int sh = ImageViewHeight;
 
-    int fontSize = INFO_BAR_FONT_SIZE;
+    int fontSize = unifont.baseSize;
 
     Vector2 textSize;
 

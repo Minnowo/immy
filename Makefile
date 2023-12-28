@@ -11,6 +11,7 @@ RAYLIB_SRC_DIR ?= raylib/raylib-5.0/src
 NAME       := doko
 TARGET_DIR ?= build
 TARGET     := ${TARGET_DIR}/$(NAME)
+RESOURCES  := resources
 
 # RAYLIB_LIBTYPE ?= STATIC
 # PLATFORM_OS    ?= LINUX
@@ -41,13 +42,21 @@ clean_raylib:
 		RAYLIB_RELEASE_PATH="$(abspath $(TARGET_DIR))" \
 		clean
 
-install: $(TARGET)
-	mkdir -p /usr/local/bin
-	cp -f $(TARGET) /usr/local/bin/$(NAME)
-	chmod 755 /usr/local/bin/$(NAME)
+install: INSTALL_PATH := /opt/doko/
+install: rebuild
+	mkdir -p $(INSTALL_PATH)
+	mkdir -p $(INSTALL_PATH)/resources
+	mkdir -p $(INSTALL_PATH)/resources/fonts
+	cp    -r $(RESOURCES) /opt/doko/
+	cp    -f $(TARGET)    /opt/doko/$(NAME)
+	chmod 755 $(INSTALL_PATH)/$(NAME)
+	rm -f /usr/bin/$(NAME)
+	ln $(INSTALL_PATH)/$(NAME) /usr/bin/$(NAME)
 
 uninstall:
-	rm -f /usr/local/bin/$(NAME)
+	rm -f /usr/bin/$(NAME)
+	rm -f  $(INSTALL_PATH)/$(NAME)
+	rm -rf $(INSTALL_PATH)/resources
 
 
 $(TARGET_DIR):
@@ -65,7 +74,9 @@ ${TARGET}: | $(TARGET_DIR)
 	$(MAKE) -C $(DOKO_SRC_DIR) \
 		CC="$(CC)" \
 		CFLAGS="$(CFLAGS)" \
+		CPPFLAGS="-DINSTALL_PATH='\"$(INSTALL_PATH)\"'" \
 		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm $(LDFLAGS)" \
 		INCLUDE_PATHS="-I\"$(abspath $(RAYLIB_SRC_DIR))\"" \
 		TARGET_DIR="$(abspath $(TARGET_DIR))" 
 
+	cp -r $(RESOURCES) $(TARGET_DIR)
