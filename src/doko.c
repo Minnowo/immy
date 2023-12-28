@@ -3,12 +3,90 @@
 #include <math.h>
 #include <raylib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include "doko.h"
 #include "config.h"
 #include "darray.h"
+#include <sys/wait.h>
 
+#include <unistd.h>
 
+int doko_load_with_magick_stdout(const char* path, Image* im) {
+
+    #define READ_S 0
+    #define WRITE_S 1
+
+    printf("Using stdout format of " MAGICK_CONVERT_MIDDLE_FMT "\n");
+
+    int pipefd[2];
+
+    if (pipe(pipefd) < 0) {
+        doko_error(0, errno, "MAGICK: Could not create a pipe");
+        return NULL;
+    }
+
+    pid_t child = fork();
+
+    if (child < 0) {
+        doko_error(0, errno, "MAGICK: Could not create a pipe");
+        return NULL;
+    }
+
+    if (child == 0) {
+        // in child process
+
+        if (dup2(pipefd[WRITE_S], STDOUT_FILENO) < 0) {
+            doko_error(EXIT_FAILURE, errno, "MAGICK CHILD: could not reopen write end of pipe as stdout");
+            return NULL;
+        }
+
+        close(pipefd[READ_S]);
+
+        int ret = execlp("convert", "convert", path, MAGICK_CONVERT_MIDDLE_FMT ":-", NULL);
+
+        if (ret < 0) {
+            doko_error(EXIT_FAILURE, errno, "MAGICK CHILD: could not run Convert as a child process");
+            return NULL;
+        }
+
+        exit(1);
+        return NULL;
+    }
+
+    if (close(pipefd[WRITE_S]) < 0) {
+        doko_error(0, errno, "MAGICK: Could not close write stream");
+    }
+
+    ssize_t bytesRead;
+
+    dbyte_arr_t data;
+
+    DARRAY_INIT(data, 1024*1024*4);
+
+    while ((bytesRead = read(pipefd[0], data.buffer + data.size,
+                             data.length - data.size)) > 0) {
+
+        data.size += bytesRead;
+
+        if(data.size == data.length) {
+            DARRAY_APPEND(data, 0);
+            data.size--;
+        }
+    }
+
+    printf("stdout from magick was %zu bytes\n", data.size);
+
+    wait(NULL);
+    close(pipefd[0]);
+
+    *im = LoadImageFromMemory("." MAGICK_CONVERT_MIDDLE_FMT, data.buffer, data.size);
+
+    DARRAY_FREE(data);
+
+    return 1;
+}
 
 
 int doko_loadImage(doko_image_t* image) {
@@ -17,11 +95,14 @@ int doko_loadImage(doko_image_t* image) {
         return 1;
     }
 
-    image->rayim = LoadImage(image->path);
+    if (!USE_MAGICK_CONVERT || !doko_load_with_magick_stdout(image->path, &image->rayim)) {
 
-    if (image->rayim.data == NULL) {
-        image->status = IMAGE_STATUS_FAILED;
-        return 0;
+        image->rayim = LoadImage(image->path);
+
+        if (image->rayim.data == NULL) {
+            image->status = IMAGE_STATUS_FAILED;
+            return 0;
+        }
     }
 
     image->srcRect = (Rectangle){

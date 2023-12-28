@@ -36,6 +36,7 @@ typedef struct doko_image {
 
 DARRAY_DEF(dimage_arr, doko_image_t*);
 DARRAY_DEF(dint_arr, int*);
+DARRAY_DEF(dbyte_arr, unsigned char*);
 
 typedef struct doko_control {
         dimage_arr_t image_files;

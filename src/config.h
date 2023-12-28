@@ -35,6 +35,16 @@
 // if defined try and detach from the terminal
 #define DETACH_FROM_TERMINAL
 
+// if 1 load images using image magick convert
+// by piping data from stdout
+// this should enable a lot more formats to be supported
+#define USE_MAGICK_CONVERT 0
+// the middle-man image format,
+// image magick will convert the original image into this format
+// before passing it through stdout, bmp and qoi are decent options
+// this must be supported both by magick and raylib
+#define MAGICK_CONVERT_MIDDLE_FMT "qoi"
+
 // window sizes
 #define START_WIDTH 512
 #define START_HEIGHT 512
@@ -259,7 +269,7 @@ static InputMapping mousebinds[] = {
 
 
 // extension filter, finds these files when searching directory
-#define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm"
+#define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;"
 
 
 
