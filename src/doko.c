@@ -6,12 +6,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
+
 #include "doko.h"
 #include "config.h"
 #include "darray.h"
-#include <sys/wait.h>
 
-#include <unistd.h>
+
+#ifdef __unix__
+
+#include <sys/wait.h>
 
 int doko_load_with_magick_stdout(const char* path, Image* im) {
 
@@ -87,6 +91,14 @@ int doko_load_with_magick_stdout(const char* path, Image* im) {
 
     return 1;
 }
+
+#else
+
+int doko_load_with_magick_stdout(const char* path, Image* im) {
+    return 0;
+}
+
+#endif
 
 
 int doko_loadImage(doko_image_t* image) {
