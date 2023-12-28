@@ -49,6 +49,17 @@
 #define IMAGE_INVERSE_MARGIN_X 32
 #define IMAGE_INVERSE_MARGIN_Y 32
 
+
+// the relative path to unifont
+#define UNIFONT_PATH "resources/fonts/unifont-15.1.04.otf"
+#define UNIFONT_SPACING 0
+
+// the codepoints to load for the above font at startup
+#define CODEPOINT_INITIAL                                                      \
+    " !\"#$%&'()*+,-./"                                                        \
+    "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"                       \
+    "abcdefghijklmnopqrstuvwxyz{|}"
+
 // define the height of the bar
 #define INFO_BAR_HEIGHT 32
 #define INFO_BAR_FONT_SIZE INFO_BAR_HEIGHT

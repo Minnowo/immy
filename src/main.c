@@ -158,19 +158,9 @@ void handle_start_args(int argc, char* argv[]) {
 
 int main(int argc, char* argv[])
 {
-    // if(argc == 1) {
-    //     doko_error(EXIT_FAILURE, errno, "No start arguments given.");
-    //     return 1;
-    // }
-
     memset(&this, 0, sizeof(this));
 
     handle_start_args(argc, argv);
-
-    // if(this.image_files.size == 0) {
-    //     doko_error(EXIT_FAILURE, errno, "No files given.");
-    //     return 1;
-    // }
 
     if(this.image_files.size > 0) {
         this.selected_image = this.image_files.buffer;
@@ -179,6 +169,7 @@ int main(int argc, char* argv[])
 
     ui_init();
 
+    ui_loadCodepointsFromFileList(&this);
 
     while (!WindowShouldClose()) {
 
@@ -195,10 +186,9 @@ int main(int argc, char* argv[])
         do_keyboard_input();
 
         if(IsKeyPressed(KEY_T)) {
-            if(this.screen==DOKO_SCREEN_FILE_LIST) {
+            this.screen ++;
+            if(this.screen > DOKO_SCREEN_FILE_LIST) {
                 this.screen = DOKO_SCREEN_IMAGE;
-            } else {
-                this.screen = DOKO_SCREEN_FILE_LIST;
             }
         }
 #endif

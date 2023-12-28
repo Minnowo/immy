@@ -23,6 +23,26 @@ void ui_init();
 void ui_deinit();
 
 /**
+ * Unload and reload Unifont with the codepoints stored
+ */
+void ui_loadUnifont();
+
+/*
+ * Sets the initial codepoints 
+ */
+void ui_setInitialCodePoints(const char* text);
+
+/*
+ *  Adds codepoints from the filelist
+ */
+void ui_loadCodepointsFromFileList(doko_control_t* ctrl);
+
+/*
+ *  Add codepoints from the given string
+ */
+void ui_loadCodepoints(const char* text, bool reloadFont);
+
+/**
  * Renders the background tile.
  */
 void ui_renderBackground();

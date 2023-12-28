@@ -20,6 +20,71 @@ Texture2D backgroundBuf;
 
 Color pixelGridColor;
 
+Font unifont;
+
+dint_arr_t font_codepoints;
+
+
+
+void ui_loadUnifont() {
+
+    UnloadFont(unifont);
+    unifont = LoadFontEx(UNIFONT_PATH, 32, font_codepoints.buffer,
+                         font_codepoints.size);
+}
+
+void ui_setInitialCodePoints(const char* text) {
+
+    int codep_count;
+    int *codep = LoadCodepoints(text, &codep_count);
+
+    for (size_t c = 0; c < codep_count; c++) {
+        DARRAY_APPEND(font_codepoints, codep[c]);
+    }
+
+    UnloadCodepoints(codep);
+    ui_loadUnifont();
+}
+
+void ui_loadCodepoints(const char* text, bool reload) {
+
+    int codep_count;
+    int *codep;
+
+    int BAD_C = GetGlyphIndex(unifont, '?');
+
+    codep = LoadCodepoints(text, &codep_count);
+
+    for (size_t c = 0; c < codep_count; c++) {
+
+        int g = GetGlyphIndex(unifont, codep[c]);
+
+        if (g == BAD_C && codep[c] != '?') {
+            DARRAY_APPEND(font_codepoints, codep[c]);
+        }
+    }
+
+    UnloadCodepoints(codep);
+
+    if (reload) {
+        ui_loadUnifont();
+    }
+}
+
+
+void ui_loadCodepointsFromFileList(doko_control_t* ctrl){
+
+    DARRAY_FOR_EACH_I(ctrl->image_files, i) {
+
+        doko_image_t *im = ctrl->image_files.buffer + i;
+
+        ui_loadCodepoints(im->path + im->nameOffset, false);
+    }
+
+    ui_loadUnifont();
+}
+
+
 void ui_init() {
 
     InitWindow(START_WIDTH, START_HEIGHT, WINDOW_TITLE);
@@ -32,6 +97,9 @@ void ui_init() {
     backgroundBuf = ui_loadBackgroundTile(BACKGROUND_TILE_W, BACKGROUND_TILE_H,
                                        (Color)BACKGROUND_TILE_COLOR_A_RGBA,
                                        (Color)BACKGROUND_TILE_COLOR_B_RGBA);
+
+    DARRAY_INIT(font_codepoints, 128);
+    ui_setInitialCodePoints(CODEPOINT_INITIAL);
 
     pixelGridColor = (Color)PIXEL_GRID_COLOR_RGBA;
 
@@ -47,11 +115,9 @@ void ui_deinit() {
         return;
     }
 
+    UnloadTexture(imageBuf);
     UnloadTexture(backgroundBuf);
-
-    if (imageBuf.id > 0) {
-        UnloadTexture(imageBuf);
-    }
+    UnloadFont(unifont);
 
     CloseWindow();
 
@@ -79,15 +145,16 @@ void ui_renderTextOnInfoBar(const char* text) {
 
     int fontSize = INFO_BAR_FONT_SIZE;
 
-    int textSize;
+    Vector2 textSize;
 
     do {
-        textSize = MeasureText(text, fontSize);
-    } while (textSize > sw - INFO_BAR_LEFT_MARGIN && --fontSize);
+        textSize = MeasureTextEx(unifont, text, fontSize, UNIFONT_SPACING);
+    } while (textSize.x > sw - INFO_BAR_LEFT_MARGIN && --fontSize);
 
     DrawRectangle(0, sh, sw,  INFO_BAR_HEIGHT, BLACK);
 
-    DrawText(text, INFO_BAR_LEFT_MARGIN, sh,  fontSize, WHITE);
+    DrawTextEx(unifont, text, (Vector2){INFO_BAR_LEFT_MARGIN, sh}, fontSize, UNIFONT_SPACING,
+               WHITE);
 }
 
 void ui_renderBackground() {
@@ -135,9 +202,9 @@ void ui_renderImage(doko_image_t* image) {
 }
 
 void ui_renderInfoBar(doko_image_t *image) {
-    ui_renderTextOnInfoBar(
-        TextFormat("%0.0f x %0.0f   %s", image->srcRect.width,
-                   image->srcRect.height, image->path + image->nameOffset));
+    ui_renderTextOnInfoBar(TextFormat(
+        "%0.0f x %0.0f  %0.0f%%  %s", image->srcRect.width, image->srcRect.height,
+        image->scale*100, image->path + image->nameOffset));
 }
 
 void ui_renderPixelGrid(doko_image_t* image) {
@@ -170,7 +237,7 @@ void ui_renderFileList(doko_control_t* ctrl) {
     int sw = GetScreenWidth() ;
     int sh = GetScreenHeight();
 
-    #define FZ FILE_LIST_FONT_SIZE
+    #define FZ unifont.baseSize
 
     int startY = sh - ctrl->image_files.size * FZ;
 
@@ -186,7 +253,8 @@ void ui_renderFileList(doko_control_t* ctrl) {
             DrawRectangle(0, y, sw, FZ, GREEN);
         }
 
-        DrawText(im->path + im->nameOffset, FILE_LIST_LEFT_MARGIN, y, FZ,
-                 WHITE);
+        DrawTextEx(unifont,im->path + im->nameOffset, (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ,UNIFONT_SPACING, WHITE);
     }
 }
+
+

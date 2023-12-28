@@ -41,6 +41,17 @@
     } while (0)
 
 
+#define DARRAY_INIT(darray, size_initial)                                      \
+    do {                                                                       \
+        (darray).size = 0;                                                     \
+        (darray).length = (size_initial);                                      \
+        (darray).buffer = malloc(sizeof((darray).buffer[0]) * (size_initial)); \
+        if ((darray).buffer == NULL) {                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    } while (0);
+
+
 #define DARRAY_APPEND(darray, item)                                            \
     do {                                                                       \
         if ((darray).size >= (darray).length) {                                \
