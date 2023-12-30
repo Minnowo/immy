@@ -35,13 +35,13 @@ void add_file(const char* path_) {
     doko_image_t i = {
         .path = path,
         .nameOffset = _ - path_,
-        .rayim = NULL,
+        .rayim = {0},
         .scale = 1,
         .rotation = 0,
         .rebuildBuff = 0,
         .status = IMAGE_STATUS_NOT_LOADED,
-        .srcRect = 0,
-        .dstPos = 0,
+        .srcRect = {0},
+        .dstPos = {0},
     };
 
     int setim = this.image_files.size == 0;
