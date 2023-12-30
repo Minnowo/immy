@@ -48,7 +48,7 @@
         (darray).length = (size_initial);                                      \
         (darray).buffer = malloc(sizeof((darray).buffer[0]) * (size_initial)); \
         if ((darray).buffer == NULL) {                                         \
-            sprintf(stderr, "Cannot malloc dynamic array: %s",                 \
+            fprintf(stderr, "Cannot malloc dynamic array: %s",                 \
                     strerror(errno));                                          \
             exit(1);                                                           \
         }                                                                      \
@@ -64,7 +64,7 @@
                         sizeof((darray).buffer[0]) * (darray).length);         \
                                                                                \
             if ((darray).buffer == NULL) {                                     \
-                sprintf(stderr, "Cannot realloc dynamic array: %s",            \
+                fprintf(stderr, "Cannot realloc dynamic array: %s",            \
                         strerror(errno));                                      \
                 exit(1);                                                       \
             }                                                                  \
