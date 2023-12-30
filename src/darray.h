@@ -4,11 +4,13 @@
 #define DOKO_DARRAY_H
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
 
 
 #define BINARY_SEARCH_INSERT_INDEX(arr, size, target, index)                   \
     do {                                                                       \
-        size_t low = 0, high = (size)-1, mid = 0;                              \
+        size_t low = 0, high = (size_t)(size)-1, mid = 0;                              \
         while (low <= high) {                                                  \
             mid = low + (high - low) / 2;                                      \
             if ((arr)[mid] == (target)) {                                      \
@@ -40,17 +42,17 @@
         }                                                                      \
     } while (0)
 
-
 #define DARRAY_INIT(darray, size_initial)                                      \
     do {                                                                       \
         (darray).size = 0;                                                     \
         (darray).length = (size_initial);                                      \
         (darray).buffer = malloc(sizeof((darray).buffer[0]) * (size_initial)); \
         if ((darray).buffer == NULL) {                                         \
+            sprintf(stderr, "Cannot malloc dynamic array: %s",                 \
+                    strerror(errno));                                          \
             exit(1);                                                           \
         }                                                                      \
     } while (0);
-
 
 #define DARRAY_APPEND(darray, item)                                            \
     do {                                                                       \
@@ -62,13 +64,13 @@
                         sizeof((darray).buffer[0]) * (darray).length);         \
                                                                                \
             if ((darray).buffer == NULL) {                                     \
+                sprintf(stderr, "Cannot realloc dynamic array: %s",            \
+                        strerror(errno));                                      \
                 exit(1);                                                       \
             }                                                                  \
         }                                                                      \
         (darray).buffer[(darray).size++] = (item);                             \
     } while (0)
-
-
 
 #define DARRAY_FOR_EACH_I(darray, iter)                                        \
     for (size_t iter = 0; iter < (darray).size; ++iter)

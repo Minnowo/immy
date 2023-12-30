@@ -17,50 +17,63 @@
 
 #include <sys/wait.h>
 
-int doko_load_with_magick_stdout(const char* path, Image* im) {
+#define PIPE_READ 0
+#define PIPE_WRITE 1
 
-    #define READ_S 0
-    #define WRITE_S 1
 
-    printf("Using stdout format of " MAGICK_CONVERT_MIDDLE_FMT "\n");
+int doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
+
+    L_I("About to read image using FFMPEG");
+    L_D("FFMPEG decode format is " FFMPEG_CONVERT_MIDDLE_FMT);
 
     int pipefd[2];
 
     if (pipe(pipefd) < 0) {
-        doko_error(0, errno, "MAGICK: Could not create a pipe");
-        return NULL;
+
+        L_W("Load with FFMPEG: Could not create a pipe: %s", strerror(errno));
+        return false;
     }
 
     pid_t child = fork();
 
     if (child < 0) {
-        doko_error(0, errno, "MAGICK: Could not create a pipe");
-        return NULL;
+        L_W("Load With FFMPEG: Could not create fork: %s", strerror(errno));
+        return false;
     }
 
     if (child == 0) {
         // in child process
 
-        if (dup2(pipefd[WRITE_S], STDOUT_FILENO) < 0) {
-            doko_error(EXIT_FAILURE, errno, "MAGICK CHILD: could not reopen write end of pipe as stdout");
-            return NULL;
+        if (dup2(pipefd[PIPE_WRITE], STDOUT_FILENO) < 0) {
+
+            L_C("Load With FFMPEG (in child): Could not open write end of pipe as stdout: %s", strerror(errno));
+
+            exit(EXIT_FAILURE);
+
+            return false;
         }
 
-        close(pipefd[READ_S]);
+        close(pipefd[PIPE_READ]);
 
-        int ret = execlp("convert", "convert", path, MAGICK_CONVERT_MIDDLE_FMT ":-", NULL);
+        int ret =
+            execlp("ffmpeg", "ffmpeg", "-v", FFMPEG_VERBOSITY, "-nostdin",
+                   "-hide_banner", "-i", path, "-c:v",
+                   FFMPEG_CONVERT_MIDDLE_FMT, "-f", "image2pipe", "-", NULL);
 
         if (ret < 0) {
-            doko_error(EXIT_FAILURE, errno, "MAGICK CHILD: could not run Convert as a child process");
-            return NULL;
+            L_C("Load With FFMPEG (in child): FFMPEG Could not be run: %s",
+                strerror(errno));
+
+            exit(EXIT_FAILURE);
         }
 
-        exit(1);
-        return NULL;
+        exit(EXIT_SUCCESS);
+
+        return false;
     }
 
-    if (close(pipefd[WRITE_S]) < 0) {
-        doko_error(0, errno, "MAGICK: Could not close write stream");
+    if (close(pipefd[PIPE_WRITE]) < 0) {
+        L_W("Load With FFMPEG: Could not close write stream: %s", strerror(errno));
     }
 
     ssize_t bytesRead;
@@ -78,23 +91,133 @@ int doko_load_with_magick_stdout(const char* path, Image* im) {
             DARRAY_APPEND(data, 0);
             data.size--;
         }
-    }
 
-    printf("stdout from magick was %zu bytes\n", data.size);
+        L_D("Load With FFMPEG: Read %f megabytes from stdout", BYTES_TO_MB(data.size));
+    }
+    L_I("Load With FFMPEG: Read %f megabytes from stdout", BYTES_TO_MB(data.size));
 
     wait(NULL);
     close(pipefd[0]);
 
-    *im = LoadImageFromMemory("." MAGICK_CONVERT_MIDDLE_FMT, data.buffer, data.size);
+    if (data.size > 0) {
+        *im = LoadImageFromMemory("." FFMPEG_CONVERT_MIDDLE_FMT, data.buffer,
+                                  data.size);
+    }
 
     DARRAY_FREE(data);
 
-    return 1;
+    return im->data != NULL;
+}
+
+
+
+int doko_load_with_magick_stdout(const char* path, Image* im) {
+
+    L_I("About to read image using ImageMagick Convert");
+    L_D("ImageMagick Convert decode format is " MAGICK_CONVERT_MIDDLE_FMT);
+
+    int pipefd[2];
+
+    if (pipe(pipefd) < 0) {
+        L_W("Load with ImageMagick Convert: Could not create a pipe: %s", strerror(errno));
+        return false;
+    }
+
+    pid_t child = fork();
+
+    if (child < 0) {
+        L_W("Load With ImageMagick Convert: Could not create fork: %s", strerror(errno));
+        return false;
+    }
+
+    if (child == 0) {
+        // in child process
+
+        if (dup2(pipefd[PIPE_WRITE], STDOUT_FILENO) < 0) {
+            L_C("Load With ImageMagick Convert (in child): Could not open write end of pipe as stdout: %s", strerror(errno));
+
+            exit(EXIT_FAILURE);
+
+            return false;
+        }
+
+        close(pipefd[PIPE_READ]);
+
+        size_t n;
+        char* new_path = doko_strdupn(path, 3, &n);
+
+        if(new_path == NULL) {
+            L_C("Could not copy filename to append [0]. Assuming no memory: %s", strerror(errno));
+
+            exit(EXIT_FAILURE);
+
+            return false;
+        }
+
+        // since convert doesn't have any other method to tell it you only want the first image
+        // we have to do it like this
+        new_path[n - 1] = ']';
+        new_path[n - 2] = '0';
+        new_path[n - 3] = '[';
+
+        int ret = execlp("convert", "convert", "-quiet", new_path,
+                         MAGICK_CONVERT_MIDDLE_FMT ":-", NULL);
+
+        free(new_path);
+
+        if (ret < 0) {
+            L_C("Load With Image Magick Convert (in child): FFMPEG Could not be run: %s", strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+
+        exit(EXIT_SUCCESS);
+        return false;
+    }
+
+    if (close(pipefd[PIPE_WRITE]) < 0) {
+        L_W("Load With Image Magick Convert: Could not close write stream: %s", strerror(errno));
+    }
+
+    ssize_t bytesRead;
+
+    dbyte_arr_t data;
+
+    DARRAY_INIT(data, 1024*1024*4);
+
+    while ((bytesRead = read(pipefd[0], data.buffer + data.size,
+                             data.length - data.size)) > 0) {
+
+        data.size += bytesRead;
+
+        if(data.size == data.length) {
+            DARRAY_APPEND(data, 0);
+            data.size--;
+        }
+
+        L_D("Load With Image Magick Convert: Read %f megabytes from stdout", BYTES_TO_MB(data.size));
+    }
+    L_I("Load With Image Magick Convert: Read %f megabytes from stdout", BYTES_TO_MB(data.size));
+
+    wait(NULL);
+    close(pipefd[0]);
+
+    if (data.size > 0) {
+        *im = LoadImageFromMemory("." MAGICK_CONVERT_MIDDLE_FMT, data.buffer,
+                                  data.size);
+    }
+
+    DARRAY_FREE(data);
+
+    return im->data != NULL;
 }
 
 #else
 
 int doko_load_with_magick_stdout(const char* path, Image* im) {
+    return 0;
+}
+
+int doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
     return 0;
 }
 
@@ -107,14 +230,16 @@ int doko_loadImage(doko_image_t* image) {
         return 1;
     }
 
-    if (!USE_MAGICK_CONVERT || !doko_load_with_magick_stdout(image->path, &image->rayim)) {
+    if (!(USE_MAGICK_CONVERT && doko_load_with_magick_stdout(image->path, &image->rayim)) &&
+        !(USE_FFMPEG_CONVERT && doko_load_with_ffmpeg_stdout(image->path, &image->rayim))) {
 
         image->rayim = LoadImage(image->path);
+    }
 
-        if (image->rayim.data == NULL) {
-            image->status = IMAGE_STATUS_FAILED;
-            return 0;
-        }
+    if (image->rayim.data == NULL) {
+        image->status = IMAGE_STATUS_FAILED;
+        L_W("Could not load image %s", image->path);
+        return 0;
     }
 
     image->srcRect = (Rectangle){
@@ -265,6 +390,25 @@ void doko_zoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int 
     doko_zoomImageOnPoint(im, ZOOM_LEVELS[index], x, y);
 }
 
+char *doko_strdupn(const char *str, size_t n, size_t* len_) {
+
+    const size_t len = strlen(str);
+
+    char *newstr = malloc(len + n + 1);
+
+    if (!newstr) {
+        return NULL;
+    }
+
+    memcpy(newstr, str, len);
+    memset(newstr + len, 0, n);
+
+    if (len_ != NULL) {
+        *len_ = len + n;
+    }
+
+    return newstr;
+}
 char *doko_strdup(const char *str) {
 
 #ifdef _POSIX_C_SOURCE
@@ -273,51 +417,83 @@ char *doko_strdup(const char *str) {
 
 #else
 
-    const int len = strlen(str) + 1;
-
-    char *newstr = malloc(len);
-
-    if (!newstr) {
-        return NULL;
-    }
-
-    memcpy(newstr, str, len);
-
-    return newstr;
+    return doko_strdupn(str, 0, NULL);
 
 #endif
 }
-
-void doko_error(int status, int error, const char *fmt, ...) {
-    va_list ap;
-
-    fflush(stdout);
-
-    va_start(ap, fmt);
-
-    vfprintf(stderr, fmt, ap);
-
-    va_end(ap);
-
-    if (error != 0)
-        fprintf(stderr, "%s%s", fmt != NULL ? ": " : "", strerror(error));
-
-    fputc('\n', stderr);
-
-    if (status != 0) exit(status);
-}
-
 
 
 void set_image(doko_control_t* ctrl, size_t index) {
 
     if(index >= ctrl->image_files.size) {
-        return doko_error(EXIT_SUCCESS, 0,
-                          "Cannot set index %zu, which is out of bounds",
-                          index);
+        L_D("Cannot set the image index to %zu since it is out of bounds", index);
+        return;
     }
 
     ctrl->selected_image = ctrl->image_files.buffer + index;
     ctrl->selected_index = index;
     ctrl->renderFrames = RENDER_FRAMES;
+}
+
+
+void doko_log(log_level_t level, FILE* stream, const char *fmt, ...) {
+
+#if (LOG_LEVEL != __LOG_LEVEL_NOTHING)
+
+    va_list ap;
+
+    switch (level) {
+
+#if (LOG_LEVEL <= __LOG_LEVEL_DEBUG)
+    case LOG_LEVEL_DEBUG:
+        va_start(ap, fmt);
+        printf("[DEBUG] ");
+        vfprintf(stream,  fmt, ap);
+        putc('\n', stream);
+        va_end(ap);
+        break;
+#endif
+
+#if (LOG_LEVEL <= __LOG_LEVEL_INFO)
+    case LOG_LEVEL_INFO:
+        va_start(ap, fmt);
+        printf("[INFO] ");
+        vfprintf(stream,  fmt, ap);
+        putc('\n', stream);
+        va_end(ap);
+        break;
+#endif
+
+#if (LOG_LEVEL <= __LOG_LEVEL_WARN)
+    case LOG_LEVEL_WARN:
+        va_start(ap, fmt);
+        printf("[WARNING] ");
+        vfprintf(stream, fmt, ap);
+        putc('\n', stream);
+        va_end(ap);
+        break;
+#endif
+
+#if (LOG_LEVEL <= __LOG_LEVEL_ERROR)
+    case LOG_LEVEL_ERROR:
+        va_start(ap, fmt);
+        printf("[ERROR] ");
+        vfprintf(stream, fmt, ap);
+        putc('\n', stream);
+        va_end(ap);
+        break;
+#endif
+
+#if (LOG_LEVEL <= __LOG_LEVEL_CRITICAL)
+    case LOG_LEVEL_CRITICAL:
+        va_start(ap, fmt);
+        printf("[CRITICAL] ");
+        vfprintf(stream,  fmt, ap);
+        putc('\n', stream);
+        va_end(ap);
+        break;
+#endif
+    }
+
+#endif
 }

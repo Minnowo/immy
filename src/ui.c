@@ -28,7 +28,7 @@ dint_arr_t font_codepoints;
 
 void ui_loadUnifont() {
 
-    printf("Loading unifont from %s\n", UNIFONT_PATH);
+    L_D("Loading unifont from %s\n", UNIFONT_PATH);
 
     UnloadFont(unifont);
     unifont = LoadFontEx(UNIFONT_PATH, 32, font_codepoints.buffer,
@@ -62,6 +62,9 @@ void ui_loadCodepoints(const char* text, bool reload) {
         int g = GetGlyphIndex(unifont, codep[c]);
 
         if (g == BAD_C && codep[c] != '?') {
+
+            L_D("Adding new codepoint %d", codep[c]);
+
             DARRAY_APPEND(font_codepoints, codep[c]);
         }
     }

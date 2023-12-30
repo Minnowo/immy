@@ -24,11 +24,13 @@ void add_file(const char* path_) {
     char *path = doko_strdup(path_);
 
     if (!path) {
-        return doko_error(EXIT_FAILURE, errno,
-                          "Cannot duplicate str '%s'! out of memory.\n", path_);
+        L_E("Cannot duplicate string '%s'! %s", strerror(errno));
+        return;
     }
 
-    const char* _= GetFileName(path_);
+    L_D("Adding file %s", path);
+
+    const char *_ = GetFileName(path_);
 
     doko_image_t i = {
         .path = path,
@@ -72,12 +74,13 @@ void do_mouse_input() {
 
     int s = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
     int c = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
+    double time = GetTime();
 
     for (size_t i = 0, kc = 0; i < MOUSEBIND_COUNT; ++i) {
 
         if (!(c == HAS_CTRL(mousebinds[i].key)) ||
             !(s == HAS_SHIFT(mousebinds[i].key)) || 
-            GetTime() - mousebinds[i].lastPressedTime < mousebinds[i].keyTriggerRate
+            time - mousebinds[i].lastPressedTime < mousebinds[i].keyTriggerRate
             ) {
             continue;
         }
@@ -111,10 +114,11 @@ void do_keyboard_input() {
 
     int s = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
     int c = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
+    double time = GetTime();
 
     for (size_t i = 0, kc = 0; i < KEYBIND_COUNT; ++i) {
 
-        if (GetTime() - keybinds[i].lastPressedTime < keybinds[i].keyTriggerRate ||
+        if (time - keybinds[i].lastPressedTime < keybinds[i].keyTriggerRate ||
             this.screen != keybinds[i].screen ||
             !(c == HAS_CTRL(keybinds[i].key)) ||
             !(s == HAS_SHIFT(keybinds[i].key)) ||
@@ -148,6 +152,8 @@ void handle_start_args(int argc, char* argv[]) {
             continue;
         }
 
+        L_I("Scanning directory %s for files", argv[i]);
+
         FilePathList fpl = LoadDirectoryFilesEx(argv[i], IMAGE_FILE_FILTER,
                                                 SEARCH_DIRS_RECURSIVE);
 
@@ -167,10 +173,11 @@ void detach_from_terminal() {
 
     if (pid > 0) {
         exit(EXIT_SUCCESS);
+        return;
     }
 
     if (pid < 0) {
-        doko_error(0, errno, "Could not fork process");
+        L_C("Could not fork process");
         return;
     }
 

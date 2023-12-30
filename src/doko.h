@@ -4,8 +4,33 @@
 #define DOKO_H
 
 #include <raylib.h>
+#include <stdio.h>
 
 #include "darray.h"
+
+#define BYTES_TO_MB(bytes) ((double)(bytes) / (1024 * 1024))
+
+#define __LOG_LEVEL_DEBUG 1
+#define __LOG_LEVEL_INFO 2
+#define __LOG_LEVEL_WARN 3
+#define __LOG_LEVEL_ERROR 4
+#define __LOG_LEVEL_CRITICAL 5
+#define __LOG_LEVEL_NOTHING 6
+
+#define L_D(...) doko_log(__LOG_LEVEL_DEBUG, stdout, __VA_ARGS__)
+#define L_I(...) doko_log(__LOG_LEVEL_INFO, stdout,  __VA_ARGS__)
+#define L_W(...) doko_log(__LOG_LEVEL_WARN, stdout,  __VA_ARGS__)
+#define L_E(...) doko_log(__LOG_LEVEL_ERROR, stderr, __VA_ARGS__)
+#define L_C(...) doko_log(__LOG_LEVEL_CRITICAL, stderr, __VA_ARGS__)
+
+typedef enum {
+    LOG_LEVEL_DEBUG = __LOG_LEVEL_DEBUG,
+    LOG_LEVEL_INFO = __LOG_LEVEL_INFO,
+    LOG_LEVEL_WARN = __LOG_LEVEL_WARN,
+    LOG_LEVEL_ERROR = __LOG_LEVEL_ERROR,
+    LOG_LEVEL_CRITICAL = __LOG_LEVEL_CRITICAL,
+    LOG_LEVEL_NOTHING = __LOG_LEVEL_NOTHING
+} log_level_t;
 
 typedef enum {
     IMAGE_STATUS_NOT_LOADED,
@@ -113,14 +138,19 @@ void doko_moveScrFracImage(doko_image_t *im, double xFrac, double yFrac);
 char* doko_strdup(const char* str);
 
 /**
- * Prints an error
+ * Implementation of strdup but adds n extra bytes to the string
+ * If len_ is passed returns the length of the new string
  */
-void doko_error(int status, int error, const char *fmt, ...);
-
+char *doko_strdupn(const char *str, size_t n, size_t* len_);
 
 /**
  * Sets the image to this index if possible
 */
 void set_image(doko_control_t* ctrl, size_t index);
+
+/**
+ * Prints a message to a stream if the log level is above or equal to the set log level
+ */
+void doko_log(log_level_t level, FILE* stream, const char *fmt, ...);
 
 #endif

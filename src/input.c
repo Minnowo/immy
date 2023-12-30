@@ -8,7 +8,7 @@
 
 #define _NO_IMAGE_WARN(c)                                                      \
     if ((c)->selected_image == NULL) {                                         \
-        doko_error(EXIT_SUCCESS, 0, "There is no image!");                     \
+        L_D("There is no image!");                                             \
         return;                                                                \
     }
 

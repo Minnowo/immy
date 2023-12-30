@@ -10,6 +10,7 @@
 #include "input.h"
 
 
+#define LOG_LEVEL __LOG_LEVEL_INFO
 
 
 //
@@ -35,15 +36,20 @@
 // if defined try and detach from the terminal
 #define DETACH_FROM_TERMINAL
 
-// if 1 load images using image magick convert
-// by piping data from stdout
-// this should enable a lot more formats to be supported
+// if 1 load images using image magick convert before raylib
+// requires image magick's `convert` added to path
 #define USE_MAGICK_CONVERT 0
-// the middle-man image format,
-// image magick will convert the original image into this format
-// before passing it through stdout, bmp and qoi are decent options
-// this must be supported both by magick and raylib
+// have magick convert to this format before raylib loads the image
 #define MAGICK_CONVERT_MIDDLE_FMT "qoi"
+
+// if 1 try and load images using ffmpeg before raylib
+// requires `ffmpeg` added to path
+#define USE_FFMPEG_CONVERT 0
+// have ffmpeg convert to this format before raylib loads the image
+#define FFMPEG_CONVERT_MIDDLE_FMT "qoi"
+// see https://ffmpeg.org/ffmpeg.html
+// this is the value set for the -loglevel and -v flags
+#define FFMPEG_VERBOSITY "error"
 
 // window sizes
 #define START_WIDTH 512
@@ -270,6 +276,13 @@ static InputMapping mousebinds[] = {
 
 // extension filter, finds these files when searching directory
 #define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;"
+
+#if(USE_FFMPEG_CONVERT || USE_MAGICK_CONVERT)
+#undef IMAGE_FILE_FILTER
+#define IMAGE_FILE_FILTER                                                      \
+    ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;."    \
+    "heif;.tiff;"
+#endif
 
 
 
