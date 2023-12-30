@@ -401,7 +401,7 @@ char *doko_strdupn(const char *str, size_t n, size_t* len_) {
     }
 
     memcpy(newstr, str, len);
-    memset(newstr + len, 0, n);
+    memset(newstr + len, 0, n + 1);
 
     if (len_ != NULL) {
         *len_ = len + n;
