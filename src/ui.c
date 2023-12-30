@@ -207,9 +207,39 @@ void ui_renderImage(doko_image_t* image) {
 }
 
 void ui_renderInfoBar(doko_image_t *image) {
-    ui_renderTextOnInfoBar(TextFormat(
-        "%0.0f x %0.0f  %0.0f%%  %s", image->srcRect.width, image->srcRect.height,
-        image->scale*100, image->path + image->nameOffset));
+    // ui_renderTextOnInfoBar(TextFormat(
+    //     "%0.0f x %0.0f  %0.0f%%  %s", image->srcRect.width, image->srcRect.height,
+    //     image->scale*100, image->path + image->nameOffset));
+
+    const char *prefix = TextFormat("%0.0f x %0.0f  %0.0f%%  ", image->srcRect.width,
+                              image->srcRect.height, image->scale * 100);
+
+    char* postfix = image->path + image->nameOffset;
+
+    int sw = GetScreenWidth() ;
+    int sh = ImageViewHeight;
+
+    int fontSize = unifont.baseSize;
+
+    Vector2 pretextSize;
+    Vector2 textSize;
+
+    pretextSize = MeasureTextEx(unifont, prefix, fontSize, UNIFONT_SPACING);
+
+    do {
+        textSize = MeasureTextEx(unifont, postfix, fontSize, UNIFONT_SPACING);
+    } while (textSize.x > (sw - pretextSize.x) &&
+             --fontSize);
+
+    DrawRectangle(0, sh, sw,  INFO_BAR_HEIGHT, BLACK);
+
+    DrawTextEx(unifont, prefix, (Vector2){INFO_BAR_LEFT_MARGIN, sh},
+               unifont.baseSize, UNIFONT_SPACING, WHITE);
+
+    DrawTextEx(unifont, postfix,
+               (Vector2){ pretextSize.x,
+                         sh + (INFO_BAR_HEIGHT - fontSize) / 2.0},
+               fontSize, UNIFONT_SPACING, WHITE);
 }
 
 void ui_renderPixelGrid(doko_image_t* image) {
@@ -239,18 +269,36 @@ void ui_renderPixelGrid(doko_image_t* image) {
 
 void ui_renderFileList(doko_control_t* ctrl) {
 
-    int sw = GetScreenWidth() ;
-    int sh = GetScreenHeight();
-
     #define FZ unifont.baseSize
+    #define BOTTOM_MARGIN 1
 
-    int startY = sh - ctrl->image_files.size * FZ;
+    int sw = GetScreenWidth() ;
+    int sh = GetScreenHeight() - (GetScreenHeight() / 8);
 
-    DARRAY_FOR_EACH_I(ctrl->image_files, i) {
+    int startY; 
+    int scrollOffset; ;
+    int startIndex = 0;
+
+    scrollOffset = (sh / FZ) / 2;
+
+    if (scrollOffset < ctrl->selected_index) {
+        startIndex = ctrl->selected_index - scrollOffset;
+
+        if (startIndex + scrollOffset * 2 > ctrl->image_files.size) {
+            startIndex = ctrl->image_files.size - scrollOffset * 2;
+        }
+    }
+
+    startY = GetScreenHeight() -
+             MIN(ctrl->image_files.size * FZ, (scrollOffset * 2) * FZ) -
+             BOTTOM_MARGIN * FZ;
+
+    size_t i = startIndex;
+    DARRAY_FOR_I(ctrl->image_files, i, startIndex+scrollOffset*2) {
 
         doko_image_t *im = ctrl->image_files.buffer + i;
 
-        int y = startY + FZ * i;
+        int y = startY + FZ * (i-startIndex);
 
         if (ctrl->selected_image == NULL || i != ctrl->selected_index) {
             DrawRectangle(0, y, sw, FZ, BLACK);
@@ -258,8 +306,14 @@ void ui_renderFileList(doko_control_t* ctrl) {
             DrawRectangle(0, y, sw, FZ, GREEN);
         }
 
-        DrawTextEx(unifont,im->path + im->nameOffset, (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ,UNIFONT_SPACING, WHITE);
+        DrawTextEx(unifont,TextFormat("%02d  %s",i, im->path + im->nameOffset), (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ,UNIFONT_SPACING, WHITE);
     }
+
+    DrawRectangle(0, startY + FZ * (i - startIndex), sw, FZ, BLACK);
+    DrawTextEx(unifont,
+               TextFormat("%d more files...", ctrl->image_files.size - i),
+               (Vector2){FILE_LIST_LEFT_MARGIN, startY + FZ * (i - startIndex)},
+               FZ, UNIFONT_SPACING, WHITE);
 }
 
 

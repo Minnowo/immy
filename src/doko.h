@@ -78,6 +78,9 @@ typedef struct doko_control {
 
 #define ImageViewWidth GetScreenWidth()
 #define ImageViewHeight (GetScreenHeight() - INFO_BAR_HEIGHT)
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 
 /**
  * Loads an image and sets some default values.

@@ -75,4 +75,7 @@
 #define DARRAY_FOR_EACH_I(darray, iter)                                        \
     for (size_t iter = 0; iter < (darray).size; ++iter)
 
+#define DARRAY_FOR_I(darray, iter, until)                                        \
+    for (; iter < (darray).size && iter < (until); ++iter)
+
 #endif
