@@ -275,14 +275,18 @@ static InputMapping mousebinds[] = {
 
 
 // extension filter, finds these files when searching directory
-#define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;"
-
-#if(USE_FFMPEG_CONVERT || USE_MAGICK_CONVERT)
-#undef IMAGE_FILE_FILTER
-#define IMAGE_FILE_FILTER                                                      \
-    ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;."    \
-    "heif;.tiff;"
+#if(USE_MAGICK_CONVERT)
+    #define IMAGE_FILE_FILTER                                                      \
+    ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;"     \
+    ".tiff;.heif;"
+#elif(USE_FFMPEG_CONVERT)
+    #define IMAGE_FILE_FILTER                                                      \
+    ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;"     \
+    ".tiff;"
+#else
+    #define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;"
 #endif
+
 
 
 
