@@ -40,7 +40,7 @@ void ui_setInitialCodePoints(const char* text) {
     int codep_count;
     int *codep = LoadCodepoints(text, &codep_count);
 
-    for (size_t c = 0; c < codep_count; c++) {
+    for (int c = 0; c < codep_count; c++) {
         DARRAY_APPEND(font_codepoints, codep[c]);
     }
 
@@ -57,7 +57,7 @@ void ui_loadCodepoints(const char* text, bool reload) {
 
     codep = LoadCodepoints(text, &codep_count);
 
-    for (size_t c = 0; c < codep_count; c++) {
+    for (int c = 0; c < codep_count; c++) {
 
         int g = GetGlyphIndex(unifont, codep[c]);
 

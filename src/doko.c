@@ -444,55 +444,58 @@ void doko_log(log_level_t level, FILE* stream, const char *fmt, ...) {
 
     switch (level) {
 
-#if (LOG_LEVEL <= __LOG_LEVEL_DEBUG)
+    case LOG_LEVEL_NOTHING:
+        break;
+
     case LOG_LEVEL_DEBUG:
+#if (LOG_LEVEL <= __LOG_LEVEL_DEBUG)
         va_start(ap, fmt);
         printf("[DEBUG] ");
         vfprintf(stream,  fmt, ap);
         putc('\n', stream);
         va_end(ap);
-        break;
 #endif
+        break;
 
-#if (LOG_LEVEL <= __LOG_LEVEL_INFO)
     case LOG_LEVEL_INFO:
+#if (LOG_LEVEL <= __LOG_LEVEL_INFO)
         va_start(ap, fmt);
         printf("[INFO] ");
         vfprintf(stream,  fmt, ap);
         putc('\n', stream);
         va_end(ap);
-        break;
 #endif
+        break;
 
-#if (LOG_LEVEL <= __LOG_LEVEL_WARN)
     case LOG_LEVEL_WARN:
+#if (LOG_LEVEL <= __LOG_LEVEL_WARN)
         va_start(ap, fmt);
         printf("[WARNING] ");
         vfprintf(stream, fmt, ap);
         putc('\n', stream);
         va_end(ap);
-        break;
 #endif
+        break;
 
-#if (LOG_LEVEL <= __LOG_LEVEL_ERROR)
     case LOG_LEVEL_ERROR:
+#if (LOG_LEVEL <= __LOG_LEVEL_ERROR)
         va_start(ap, fmt);
         printf("[ERROR] ");
         vfprintf(stream, fmt, ap);
         putc('\n', stream);
         va_end(ap);
-        break;
 #endif
+        break;
 
-#if (LOG_LEVEL <= __LOG_LEVEL_CRITICAL)
     case LOG_LEVEL_CRITICAL:
+#if (LOG_LEVEL <= __LOG_LEVEL_CRITICAL)
         va_start(ap, fmt);
         printf("[CRITICAL] ");
         vfprintf(stream,  fmt, ap);
         putc('\n', stream);
         va_end(ap);
-        break;
 #endif
+        break;
     }
 
 #endif
