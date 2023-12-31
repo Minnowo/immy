@@ -8,9 +8,15 @@
 
 #define _NO_IMAGE_WARN(c)                                                      \
     if ((c)->selected_image == NULL) {                                         \
-        L_D("There is no image!");                                             \
+        L_W("There is no image!");                                             \
         return;                                                                \
     }
+
+#define I_X(i) (i)->selected_image->dstPos.x
+#define I_Y(i) (i)->selected_image->dstPos.y
+#define I_WIDTH(i) (i)->selected_image->srcRect.width
+#define I_HEIGHT(i) (i)->selected_image->srcRect.height
+#define I_SCALE(i) (i)->selected_image->scale
 
 void keybind_zoomInCenterImage(doko_control_t *ctrl) {
     _NO_IMAGE_WARN(ctrl);
@@ -128,12 +134,22 @@ void keybind_fitCenterImage(doko_control_t *ctrl) {
 
 void keybind_flipVertical(doko_control_t *ctrl) {
     _NO_IMAGE_WARN(ctrl);
+
+    float hh = GetScreenHeight() / 2.0;
+
+    I_Y(ctrl) = hh + (hh - I_Y(ctrl)) - (I_SCALE(ctrl) * I_HEIGHT(ctrl));
+
     ImageFlipVertical(&ctrl->selected_image->rayim);
     ctrl->selected_image->rebuildBuff = 1;
 }
 
 void keybind_flipHorizontal(doko_control_t *ctrl) {
     _NO_IMAGE_WARN(ctrl);
+
+    float hw = GetScreenWidth() / 2.0;
+
+    I_X(ctrl) = hw + (hw - I_X(ctrl)) - (I_SCALE(ctrl) * I_WIDTH(ctrl));
+
     ImageFlipHorizontal(&ctrl->selected_image->rayim);
     ctrl->selected_image->rebuildBuff = 1;
 }
