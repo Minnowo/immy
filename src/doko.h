@@ -55,7 +55,9 @@ typedef struct doko_image {
     double scale;
     double rotation;
 
-    int rebuildBuff; // updates the Texture2D
+    bool rebuildBuff; // updates the Texture2D
+    bool applyGrayscaleShader;
+    bool applyInvertShader;
 
 } doko_image_t;
 

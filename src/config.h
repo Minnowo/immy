@@ -12,6 +12,14 @@
 
 #define LOG_LEVEL __LOG_LEVEL_INFO
 
+#ifndef GLSL_VERSION
+    #define GLSL_VERSION 330
+#endif
+
+// if 1, try to load shaders for grayscale and inverting color
+#define ENABLE_SHADERS 1
+
+
 
 //
 // Define window properties
@@ -33,8 +41,8 @@
 // if you get flickering, increase this number
 #define RENDER_FRAMES (1+(int)(WINDOW_FPS/4))
 
-// if defined try and detach from the terminal
-#define DETACH_FROM_TERMINAL
+// if 1, try and detach from the terminal
+#define DETACH_FROM_TERMINAL 1
 
 // if 1 load images using image magick convert before raylib
 // requires image magick's `convert` added to path
@@ -168,6 +176,10 @@ static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
 #define PIXEL_GRID_COLOR_RGBA                                                  \
     (Color){ 200, 200, 200, 200 }
 
+// used in the grayscale gpu shader
+#define GRAYSCALE_COEF_R 0.299
+#define GRAYSCALE_COEF_G 0.587
+#define GRAYSCALE_COEF_B 0.114
 
 
 
@@ -222,7 +234,13 @@ static InputMapping keybinds[] = {
     {KEY_L | CONTROL_MASK, keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _200MS},
 
     {KEY_C, keybind_fitCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
+
+    #if(ENABLE_SHADERS == 1)
+    {KEY_I, keybind_colorInvertShader, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_G, keybind_colorGrayscaleShader, DOKO_SCREEN_IMAGE, 0, _110MS},
+    #else
     {KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, 0, _110MS},
+    #endif
 
     {KEY_M, keybind_flipHorizontal, DOKO_SCREEN_IMAGE, 0, _110MS},
     {KEY_V, keybind_flipVertical, DOKO_SCREEN_IMAGE, 0, _110MS},

@@ -47,6 +47,9 @@ void keybind_flipVertical(doko_control_t* ctrl);
 void keybind_flipHorizontal(doko_control_t* ctrl);
 
 void keybind_colorInvert(doko_control_t* ctrl);
+void keybind_colorInvertShader(doko_control_t* ctrl);
+void keybind_colorGrayscaleShader(doko_control_t* ctrl);
+
 void keybind_increaseFPS(doko_control_t* ctrl);
 void keybind_decreaseFPS(doko_control_t* ctrl);
 

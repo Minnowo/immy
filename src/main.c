@@ -177,7 +177,7 @@ void detach_from_terminal() {
     }
 
     if (pid < 0) {
-        L_C("Could not fork process");
+        L_E("Could not fork process");
         return;
     }
 
@@ -191,7 +191,7 @@ void detach_from_terminal() {
 int main(int argc, char* argv[])
 {
 
-#ifdef DETACH_FROM_TERMINAL
+#if (DETACH_FROM_TERMINAL == 1)
     detach_from_terminal();
 #endif
 

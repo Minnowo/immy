@@ -43,6 +43,7 @@ clean_raylib:
 		clean
 
 install: RESOURCE_PATH := /opt/doko/
+install: CFLAGS        += -O3
 install: rebuild
 	mkdir -p $(RESOURCE_PATH)
 	mkdir -p $(RESOURCE_PATH)/resources

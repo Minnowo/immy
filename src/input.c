@@ -143,6 +143,15 @@ void keybind_colorInvert(doko_control_t *ctrl) {
     ImageColorInvert(&ctrl->selected_image->rayim);
     ctrl->selected_image->rebuildBuff = 1;
 }
+void keybind_colorInvertShader(doko_control_t *ctrl) {
+    _NO_IMAGE_WARN(ctrl);
+    ctrl->selected_image->applyInvertShader = !ctrl->selected_image->applyInvertShader;
+}
+
+void keybind_colorGrayscaleShader(doko_control_t* ctrl) {
+    _NO_IMAGE_WARN(ctrl);
+    ctrl->selected_image->applyGrayscaleShader = !ctrl->selected_image->applyGrayscaleShader;
+}
 
 void keybind_increaseFPS(doko_control_t *ctrl) {
     SetTargetFPS(GetFPS() + 1);

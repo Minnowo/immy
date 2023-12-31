@@ -24,7 +24,7 @@ doko.o: doko.c doko.h darray.h | $(TARGET_DIR)
 main.o: main.c doko.h darray.h ui.h config.h input.h | $(TARGET_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INCLUDE_PATHS)
 
-ui.o: ui.c doko.h ui.h config.h | $(TARGET_DIR)
+ui.o: ui.c doko.h ui.h config.h shaders.h | $(TARGET_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INCLUDE_PATHS)
 
 input.o: input.c doko.h ui.h config.h | $(TARGET_DIR)

@@ -10,6 +10,7 @@
 #include "config.h"
 #include "darray.h"
 #include "doko.h"
+#include "shaders.h"
 
 
 int hasInit = 0;
@@ -17,6 +18,14 @@ int hasInit = 0;
 char* imageBufPath;
 Texture2D imageBuf;
 Texture2D backgroundBuf;
+
+#if(ENABLE_SHADERS == 1)
+Shader grayscaleShader;
+bool applyInvertShaderValue = 0;
+bool applyGrayscaleShaderValue = 1;
+int applyInvertShaderValueLocation;
+int applyGrayscaleShaderValueLocation;
+#endif
 
 Color pixelGridColor;
 
@@ -103,6 +112,15 @@ void ui_init() {
                                        (Color)BACKGROUND_TILE_COLOR_A_RGBA,
                                        (Color)BACKGROUND_TILE_COLOR_B_RGBA);
 
+#if (ENABLE_SHADERS == 1)
+    grayscaleShader =
+        LoadShaderFromMemory(NULL, INVERT_AND_GRAYSCALE_SHADER_CODE);
+    applyInvertShaderValueLocation =
+        GetShaderLocation(grayscaleShader, "applyInvert");
+    applyGrayscaleShaderValueLocation =
+        GetShaderLocation(grayscaleShader, "applyGrayscale");
+#endif
+
     DARRAY_INIT(font_codepoints, 128);
     ui_setInitialCodePoints(CODEPOINT_INITIAL);
 
@@ -123,6 +141,10 @@ void ui_deinit() {
     UnloadTexture(imageBuf);
     UnloadTexture(backgroundBuf);
     UnloadFont(unifont);
+
+#if (ENABLE_SHADERS == 1)
+    UnloadShader(grayscaleShader);
+#endif
 
     CloseWindow();
 
@@ -202,8 +224,28 @@ void ui_renderImage(doko_image_t* image) {
         UpdateTexture(imageBuf,image->rayim.data);
     }
 
+#if (ENABLE_SHADERS == 1)
+    if(image->applyGrayscaleShader || image->applyInvertShader) {
+
+        // these have to be global?? or static for the set value to work
+        applyInvertShaderValue = image->applyInvertShader;
+        applyGrayscaleShaderValue = image->applyGrayscaleShader;
+
+        SetShaderValue(grayscaleShader,applyInvertShaderValueLocation, &applyInvertShaderValue, SHADER_UNIFORM_INT);
+        SetShaderValue(grayscaleShader,applyGrayscaleShaderValueLocation, &applyGrayscaleShaderValue, SHADER_UNIFORM_INT);
+
+        BeginShaderMode(grayscaleShader);
+    }
+#endif
+
     DrawTextureEx(imageBuf, image->dstPos, image->rotation, image->scale,
                   WHITE);
+
+#if (ENABLE_SHADERS == 1)
+    if(image->applyGrayscaleShader| image->applyInvertShader) {
+        EndShaderMode();
+    }
+#endif
 }
 
 void ui_renderInfoBar(doko_image_t *image) {
