@@ -217,7 +217,7 @@ static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
 // define any new ones as you see fit
 static InputMapping keybinds[] = {
 
-    // KEY,        KEY_CALLBACK,          SCREEN,     LAST_PRESSED,        KEY_TRIGGER_RATE
+    // KEY,        KEY_CALLBACK,          SCREEN,     LAST_PRESSED,  KEY_TRIGGER_RATE
 
     // image view
     {KEY_K, keybind_moveImageUp, DOKO_SCREEN_IMAGE, 0, _110MS},
@@ -225,8 +225,10 @@ static InputMapping keybinds[] = {
     {KEY_H, keybind_moveImageLeft, DOKO_SCREEN_IMAGE, 0, _110MS},
     {KEY_L, keybind_moveImageRight, DOKO_SCREEN_IMAGE, 0, _110MS},
 
-    {KEY_K | SHIFT_MASK, keybind_zoomInCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
-    {KEY_J | SHIFT_MASK, keybind_zoomOutCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
+    {KEY_K | SHIFT_MASK, keybind_zoomInCenterImage, DOKO_SCREEN_IMAGE, 0,
+     _110MS},
+    {KEY_J | SHIFT_MASK, keybind_zoomOutCenterImage, DOKO_SCREEN_IMAGE, 0,
+     _110MS},
     {KEY_H | SHIFT_MASK, keybind_moveImageLeft, DOKO_SCREEN_IMAGE, 0, _110MS},
     {KEY_L | SHIFT_MASK, keybind_moveImageRight, DOKO_SCREEN_IMAGE, 0, _110MS},
 
@@ -235,12 +237,12 @@ static InputMapping keybinds[] = {
 
     {KEY_C, keybind_fitCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
 
-    #if(ENABLE_SHADERS == 1)
-    {KEY_I, keybind_colorInvertShader, DOKO_SCREEN_IMAGE, 0, _110MS},
-    {KEY_G, keybind_colorGrayscaleShader, DOKO_SCREEN_IMAGE, 0, _110MS},
-    #else
-    {KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, 0, _110MS},
-    #endif
+#if (ENABLE_SHADERS == 1)
+    {KEY_I, keybind_colorInvertShader, DOKO_SCREEN_IMAGE, 0, _200MS},
+    {KEY_G, keybind_colorGrayscaleShader, DOKO_SCREEN_IMAGE, 0, _200MS},
+#else
+    {KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, 0, _200MS},
+#endif
 
     {KEY_M, keybind_flipHorizontal, DOKO_SCREEN_IMAGE, 0, _110MS},
     {KEY_V, keybind_flipVertical, DOKO_SCREEN_IMAGE, 0, _110MS},
@@ -250,8 +252,10 @@ static InputMapping keybinds[] = {
     {KEY_SPACE, keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, 0},
 
     // file list
-    {KEY_K, keybind_PrevImage, DOKO_SCREEN_FILE_LIST, 0, _80MS},
-    {KEY_J, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, _80MS},
+    {KEY_K, keybind_PrevImage, DOKO_SCREEN_FILE_LIST, 0, _110MS},
+    {KEY_J, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, _110MS},
+    {KEY_K | SHIFT_MASK, keybind_PrevImage, DOKO_SCREEN_FILE_LIST, 0, 0},
+    {KEY_J | SHIFT_MASK, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, 0},
 
 };
 
