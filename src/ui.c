@@ -323,11 +323,14 @@ void ui_renderFileList(doko_control_t* ctrl) {
 
     scrollOffset = (sh / FZ) / 2;
 
-    if (scrollOffset < ctrl->selected_index) {
+    if (scrollOffset < ctrl->selected_index &&
+        ctrl->image_files.size > scrollOffset * 2) {
+
         startIndex = ctrl->selected_index - scrollOffset;
 
         if (startIndex + scrollOffset * 2 > ctrl->image_files.size) {
-            startIndex = ctrl->image_files.size - scrollOffset * 2;
+
+            startIndex = ctrl->image_files.size - (scrollOffset * 2);
         }
     }
 
@@ -348,7 +351,7 @@ void ui_renderFileList(doko_control_t* ctrl) {
             DrawRectangle(0, y, sw, FZ, GREEN);
         }
 
-        DrawTextEx(unifont,TextFormat("%02d  %s",i, im->path + im->nameOffset), (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ,UNIFONT_SPACING, WHITE);
+        DrawTextEx(unifont,TextFormat("%02d  %s",i+1, im->path + im->nameOffset), (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ,UNIFONT_SPACING, WHITE);
     }
 
     DrawRectangle(0, startY + FZ * (i - startIndex), sw, FZ, BLACK);
