@@ -234,6 +234,8 @@ static InputMapping keybinds[] = {
 
     {KEY_H | CONTROL_MASK, keybind_PrevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
     {KEY_L | CONTROL_MASK, keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _200MS},
+    {KEY_P , keybind_PrevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
+    {KEY_N , keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _200MS},
 
     {KEY_C, keybind_fitCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
 
