@@ -1,5 +1,4 @@
 
-
 #include "input.h"
 #include "doko.h"
 #include <raylib.h>
@@ -156,9 +155,43 @@ void keybind_flipHorizontal(doko_control_t *ctrl) {
 
 void keybind_colorInvert(doko_control_t *ctrl) {
     _NO_IMAGE_WARN(ctrl);
-    ImageColorInvert(&ctrl->selected_image->rayim);
-    ctrl->selected_image->rebuildBuff = 1;
+
+    ctrl->selected_image->rebuildBuff = true;
+
+    int bytes = 4;
+
+    switch (ctrl->selected_image->rayim.format) {
+
+    default:
+        ImageColorInvert(&ctrl->selected_image->rayim);
+        break;
+
+    case PIXELFORMAT_UNCOMPRESSED_GRAYSCALE:
+    case PIXELFORMAT_UNCOMPRESSED_R8G8B8:
+        bytes = 3;
+        // fallthrough
+
+    case PIXELFORMAT_UNCOMPRESSED_R8G8B8A8:
+    case PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA: {
+
+        unsigned char* pixels = ctrl->selected_image->rayim.data;
+
+        size_t size = bytes * ctrl->selected_image->rayim.width * ctrl->selected_image->rayim.height;
+
+        for (size_t i = 0; i < size; i += (bytes == 4)) {
+
+            pixels[i] = 255 - pixels[i];
+            ++i;
+            pixels[i] = 255 - pixels[i];
+            ++i;
+            pixels[i] = 255 - pixels[i];
+            ++i;
+        }
+        break;
+    }
+    }
 }
+
 void keybind_colorInvertShader(doko_control_t *ctrl) {
     _NO_IMAGE_WARN(ctrl);
     ctrl->selected_image->applyInvertShader = !ctrl->selected_image->applyInvertShader;
