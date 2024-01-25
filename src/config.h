@@ -197,6 +197,7 @@ static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
 // number of mouses inputs to interpret per render
 #define MOUSE_LIMIT 1
 
+// button which quits the program
 #define RAYLIB_QUIT_KEY KEY_Q
 
 // Time limit for triggering key presses (in seconds)
