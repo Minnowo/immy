@@ -30,11 +30,11 @@ void add_file(const char* path_) {
 
     L_D("Adding file %s", path);
 
-    const char *_ = GetFileName(path_);
+    const char *name = GetFileName(path);
 
     doko_image_t i = {
         .path = path,
-        .nameOffset = _ - path_,
+        .name = name,
         .rayim = {0},
         .scale = 1,
         .rotation = 0,

@@ -10,6 +10,11 @@
 
 #define BYTES_TO_MB(bytes) ((double)(bytes) / (1024 * 1024))
 
+#define ImageViewWidth GetScreenWidth()
+#define ImageViewHeight (GetScreenHeight() - INFO_BAR_HEIGHT)
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 #define __LOG_LEVEL_DEBUG 1
 #define __LOG_LEVEL_INFO 2
 #define __LOG_LEVEL_WARN 3
@@ -43,9 +48,15 @@ typedef enum {
     DOKO_SCREEN_FILE_LIST,
 } doko_screen_t;
 
+// a wrapper around the raylib image
+// holds lots of extra data and the image itself
 typedef struct doko_image {
+
+    // absolute path to the image
     char* path;
-    size_t nameOffset; // path + this gives name str
+
+    // the filename (this is path + some value) DO NOT FREE
+    const char* name;
 
     image_status_t status;
     Image rayim;
@@ -61,27 +72,42 @@ typedef struct doko_image {
 
 } doko_image_t;
 
+
+// define dynamic array types
 DARRAY_DEF(dimage_arr, doko_image_t*);
 DARRAY_DEF(dint_arr, int*);
 DARRAY_DEF(dbyte_arr, unsigned char*);
 
+
+// the main control data
+// a singleton is passed to every keypress callback
 typedef struct doko_control {
-        dimage_arr_t image_files;
-        doko_image_t* selected_image;
-        size_t selected_index;
-        double keyPressedTime;
-        Vector2 lastMouseClick;
-        int renderFrames;
-        size_t frame;
-        doko_screen_t screen;
+
+    // images files loaded or not
+    dimage_arr_t image_files;
+
+    // the current image (points to the image_files above)
+    doko_image_t *selected_image;
+
+    // index of selected_image from image_files
+    size_t selected_index;
+
+    // keeps track of the last mouse location
+    // this is needed for proper dragging of the image with the mouse
+    Vector2 lastMouseClick;
+
+    // renders at least this many frames
+    // before trying to avoid drawing stuff
+    int renderFrames;
+
+    // keeps track of the current frame
+    size_t frame;
+
+    // which screen the user is on
+    doko_screen_t screen;
 
 } doko_control_t;
 
-
-#define ImageViewWidth GetScreenWidth()
-#define ImageViewHeight (GetScreenHeight() - INFO_BAR_HEIGHT)
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 
 /**

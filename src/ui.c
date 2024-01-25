@@ -92,7 +92,7 @@ void ui_loadCodepointsFromFileList(doko_control_t* ctrl){
 
         doko_image_t *im = ctrl->image_files.buffer + i;
 
-        ui_loadCodepoints(im->path + im->nameOffset, false);
+        ui_loadCodepoints(im->path, false);
     }
 
     ui_loadUnifont();
@@ -256,7 +256,7 @@ void ui_renderInfoBar(doko_image_t *image) {
     const char *prefix = TextFormat("%0.0f x %0.0f  %0.0f%%  ", image->srcRect.width,
                               image->srcRect.height, image->scale * 100);
 
-    char* postfix = image->path + image->nameOffset;
+    char* postfix = image->name;
 
     int sw = GetScreenWidth() ;
     int sh = ImageViewHeight;
@@ -318,8 +318,8 @@ void ui_renderFileList(doko_control_t* ctrl) {
     int sh = GetScreenHeight() - (GetScreenHeight() / 8);
 
     int startY; 
-    int scrollOffset; ;
-    int startIndex = 0;
+    size_t scrollOffset; ;
+    size_t startIndex = 0;
 
     scrollOffset = (sh / FZ) / 2;
 
@@ -351,7 +351,7 @@ void ui_renderFileList(doko_control_t* ctrl) {
             DrawRectangle(0, y, sw, FZ, GREEN);
         }
 
-        DrawTextEx(unifont,TextFormat("%02d  %s",i+1, im->path + im->nameOffset), (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ,UNIFONT_SPACING, WHITE);
+        DrawTextEx(unifont,TextFormat("%02d  %s",i+1, im->name), (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ,UNIFONT_SPACING, WHITE);
     }
 
     DrawRectangle(0, startY + FZ * (i - startIndex), sw, FZ, BLACK);
