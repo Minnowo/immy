@@ -1,7 +1,7 @@
 
 ## A Simple Image Viewer
 
-Doko is a simple, keyboard focused image viewer for Linux*. The GUI is powered by [Raylib](https://github.com/raysan5/raylib) which provides a minimal and fast interface.
+Doko is a simple, keyboard focused image viewer for Linux*. Built using [Raylib](https://github.com/raysan5/raylib), it has a minimal and fast interface, and supports most common image formats. Doko can optionally call ImageMagick and FFmpeg to support many more image formats.
 
 It mainly targets Linux but can be cross compiled for Windows as well.
 
