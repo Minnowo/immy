@@ -44,8 +44,13 @@ typedef enum {
 } image_status_t;
 
 typedef enum {
-    DOKO_SCREEN_IMAGE,
+    DOKO_SCREEN_IMAGE = 0,
     DOKO_SCREEN_FILE_LIST,
+
+    DOKO_SCREEN__START = DOKO_SCREEN_IMAGE,
+    DOKO_SCREEN__END = DOKO_SCREEN_FILE_LIST,
+    DOKO_SCREEN__ALL = -1
+
 } doko_screen_t;
 
 // a wrapper around the raylib image

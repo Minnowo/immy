@@ -209,3 +209,23 @@ void keybind_increaseFPS(doko_control_t *ctrl) {
 void keybind_decreaseFPS(doko_control_t *ctrl) {
     SetTargetFPS(GetFPS() - 1);
 }
+
+void keybind_cycleScreen(doko_control_t *ctrl) {
+
+    ctrl->screen++;
+
+    if(ctrl->screen > DOKO_SCREEN__END) {
+
+        ctrl->screen = DOKO_SCREEN__START;
+    }
+}
+
+void keybind_cycleScreenReverse(doko_control_t *ctrl) {
+
+    ctrl->screen--;
+
+    if(ctrl->screen < DOKO_SCREEN__START) {
+
+        ctrl->screen = DOKO_SCREEN__END;
+    }
+}

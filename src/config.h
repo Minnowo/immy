@@ -82,6 +82,9 @@
 // show the pixel grid when the scale is bigger than this value
 #define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20
 
+// draw the fps
+#define DRAW_FPS 1
+
 // 1 searches directories recursivly
 // 0 does not search directories recursivly
 #define SEARCH_DIRS_RECURSIVE 1
@@ -260,6 +263,7 @@ static InputMapping keybinds[] = {
     {KEY_K | SHIFT_MASK, keybind_PrevImage, DOKO_SCREEN_FILE_LIST, 0, 0},
     {KEY_J | SHIFT_MASK, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, 0},
 
+    {KEY_T, keybind_cycleScreen, DOKO_SCREEN__ALL, 0, _200MS },
 };
 
 // define mouse input mappings

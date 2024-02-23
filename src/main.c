@@ -119,7 +119,7 @@ void do_keyboard_input() {
     for (size_t i = 0, kc = 0; i < KEYBIND_COUNT; ++i) {
 
         if (time - keybinds[i].lastPressedTime < keybinds[i].keyTriggerRate ||
-            this.screen != keybinds[i].screen ||
+            (this.screen != keybinds[i].screen && keybinds[i].screen != DOKO_SCREEN__ALL) ||
             !(c == HAS_CTRL(keybinds[i].key)) ||
             !(s == HAS_SHIFT(keybinds[i].key)) ||
             !IsKeyDown(GET_RAYKEY(keybinds[i].key))) {
@@ -221,13 +221,6 @@ int main(int argc, char* argv[])
 
 #ifdef ENABLE_KEYBOARD_INPUT
         do_keyboard_input();
-
-        if(IsKeyPressed(KEY_T)) {
-            this.screen ++;
-            if(this.screen > DOKO_SCREEN_FILE_LIST) {
-                this.screen = DOKO_SCREEN_IMAGE;
-            }
-        }
 #endif
 
 #ifdef ENABLE_MOUSE_INPUT
@@ -253,24 +246,29 @@ int main(int argc, char* argv[])
 
             switch (this.screen) {
 
-            case DOKO_SCREEN_FILE_LIST:
-                ui_renderFileList(&this);
-                break;
+                case DOKO_SCREEN__ALL:
+                    break;
 
-            case DOKO_SCREEN_IMAGE:
-                if (this.selected_image != NULL) {
+                case DOKO_SCREEN_FILE_LIST:
+                    ui_renderFileList(&this);
+                    break;
 
-                    ui_renderImage(this.selected_image);
-                    ui_renderPixelGrid(this.selected_image);
-                    ui_renderInfoBar(this.selected_image);
-                } else {
-                    ui_renderTextOnInfoBar(
-                        "There is no image selected! Drag an image to view.");
-                }
-                break;
+                case DOKO_SCREEN_IMAGE:
+                    if (this.selected_image != NULL) {
+
+                        ui_renderImage(this.selected_image);
+                        ui_renderPixelGrid(this.selected_image);
+                        ui_renderInfoBar(this.selected_image);
+                    } else {
+                        ui_renderTextOnInfoBar(
+                            "There is no image selected! Drag an image to view.");
+                    }
+                    break;
             }
 
+#if DRAW_FPS == 1
             DrawFPS(0, 0);
+#endif
 
             this.renderFrames -= 1 - (this.renderFrames <= 0);
 

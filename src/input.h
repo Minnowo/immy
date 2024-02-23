@@ -53,4 +53,7 @@ void keybind_colorGrayscaleShader(doko_control_t* ctrl);
 void keybind_increaseFPS(doko_control_t* ctrl);
 void keybind_decreaseFPS(doko_control_t* ctrl);
 
+void keybind_cycleScreen(doko_control_t *ctrl);
+void keybind_cycleScreenReverse(doko_control_t *ctrl);
+
 #endif
