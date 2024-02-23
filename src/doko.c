@@ -237,8 +237,11 @@ int doko_loadImage(doko_image_t* image) {
     }
 
     if (image->rayim.data == NULL) {
+
         image->status = IMAGE_STATUS_FAILED;
+
         L_W("Could not load image %s", image->path);
+
         return 0;
     }
 

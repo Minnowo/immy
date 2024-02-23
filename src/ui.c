@@ -225,6 +225,7 @@ void ui_renderImage(doko_image_t* image) {
     }
 
 #if (ENABLE_SHADERS == 1)
+
     if(image->applyGrayscaleShader || image->applyInvertShader) {
 
         // these have to be global?? or static for the set value to work
@@ -236,15 +237,18 @@ void ui_renderImage(doko_image_t* image) {
 
         BeginShaderMode(grayscaleShader);
     }
+
 #endif
 
-    DrawTextureEx(imageBuf, image->dstPos, image->rotation, image->scale,
-                  WHITE);
+    DrawTextureEx(imageBuf, image->dstPos, image->rotation, image->scale, WHITE);
 
 #if (ENABLE_SHADERS == 1)
+
     if(image->applyGrayscaleShader| image->applyInvertShader) {
+
         EndShaderMode();
     }
+
 #endif
 }
 
@@ -256,7 +260,7 @@ void ui_renderInfoBar(doko_image_t *image) {
     const char *prefix = TextFormat("%0.0f x %0.0f  %0.0f%%  ", image->srcRect.width,
                               image->srcRect.height, image->scale * 100);
 
-    char* postfix = image->name;
+    const char* postfix = image->name;
 
     int sw = GetScreenWidth() ;
     int sh = ImageViewHeight;
@@ -318,12 +322,13 @@ void ui_renderFileList(doko_control_t* ctrl) {
     int sh = GetScreenHeight() - (GetScreenHeight() / 8);
 
     int startY; 
-    size_t scrollOffset; ;
+    size_t scrollOffset;
     size_t startIndex = 0;
 
     scrollOffset = (sh / FZ) / 2;
 
     if (scrollOffset < ctrl->selected_index &&
+
         ctrl->image_files.size > scrollOffset * 2) {
 
         startIndex = ctrl->selected_index - scrollOffset;
@@ -339,6 +344,7 @@ void ui_renderFileList(doko_control_t* ctrl) {
              BOTTOM_MARGIN * FZ;
 
     size_t i = startIndex;
+
     DARRAY_FOR_I(ctrl->image_files, i, startIndex+scrollOffset*2) {
 
         doko_image_t *im = ctrl->image_files.buffer + i;
@@ -355,6 +361,7 @@ void ui_renderFileList(doko_control_t* ctrl) {
     }
 
     DrawRectangle(0, startY + FZ * (i - startIndex), sw, FZ, BLACK);
+
     DrawTextEx(unifont,
                TextFormat("%d more files...", ctrl->image_files.size - i),
                (Vector2){FILE_LIST_LEFT_MARGIN, startY + FZ * (i - startIndex)},

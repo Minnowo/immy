@@ -38,22 +38,69 @@ void keybind_zoomOutMousePosition(doko_control_t *ctrl) {
     doko_zoomImageOnPointFromClosest(ctrl->selected_image, false, GetMouseX(), GetMouseY());
 }
 
-void keybind_nextImage(doko_control_t *ctrl) {
+void keybind_nextImageN(doko_control_t *ctrl, int by) {
+
     if(ctrl->image_files.size == 0) {
         ctrl->selected_image = NULL;
     }
+
     _NO_IMAGE_WARN(ctrl);
 
-    set_image(ctrl, (ctrl->selected_index + 1) % ctrl->image_files.size);
+    set_image(ctrl, (ctrl->selected_index + by) % ctrl->image_files.size);
 }
 
-void keybind_PrevImage(doko_control_t *ctrl) {
+
+void keybind_prevImageN(doko_control_t *ctrl, int by) {
+
     if(ctrl->image_files.size == 0) {
         ctrl->selected_image = NULL;
     }
+
     _NO_IMAGE_WARN(ctrl);
-    set_image(ctrl, (ctrl->selected_index + ctrl->image_files.size - 1) %
-                        ctrl->image_files.size);
+
+    set_image(ctrl, (ctrl->selected_index + ctrl->image_files.size - by) % ctrl->image_files.size);
+}
+
+void keybind_nextImage(doko_control_t *ctrl) {
+
+    keybind_nextImageN(ctrl, 1);
+}
+
+void keybind_nextImageBy10(doko_control_t *ctrl) {
+
+    keybind_nextImageN(ctrl, 10);
+}
+
+void keybind_prevImage(doko_control_t *ctrl) {
+
+    keybind_prevImageN(ctrl, 1);
+}
+
+void keybind_prevImageBy10(doko_control_t *ctrl){
+
+    keybind_prevImageN(ctrl, 10);
+}
+
+void keybind_jumpImageN(doko_control_t* ctrl, int to) {
+
+    if(ctrl->image_files.size == 0) {
+        ctrl->selected_image = NULL;
+    }
+
+    _NO_IMAGE_WARN(ctrl);
+
+    set_image(ctrl, to);
+}
+
+void keybind_jumpImageStart(doko_control_t* ctrl) {
+
+    keybind_jumpImageN(ctrl, 0);
+
+}
+
+void keybind_jumpImageEnd(doko_control_t* ctrl) {
+
+    keybind_jumpImageN(ctrl, ctrl->image_files.size - 1);
 }
 
 void keybind_printDebugInfo(doko_control_t *ctrl) {

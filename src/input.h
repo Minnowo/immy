@@ -29,8 +29,16 @@ void keybind_zoomOutCenterImage(doko_control_t* ctrl);
 void keybind_zoomInMousePosition(doko_control_t* ctrl);
 void keybind_zoomOutMousePosition(doko_control_t* ctrl);
 
+void keybind_nextImagebyN(doko_control_t* ctrl, int by);
+void keybind_prevImageByN(doko_control_t* ctrl, int by);
 void keybind_nextImage(doko_control_t* ctrl);
-void keybind_PrevImage(doko_control_t* ctrl);
+void keybind_prevImage(doko_control_t* ctrl);
+void keybind_nextImageBy10(doko_control_t* ctrl);
+void keybind_prevImageBy10(doko_control_t* ctrl);
+
+void keybind_jumpImageN(doko_control_t* ctrl, int to);
+void keybind_jumpImageStart(doko_control_t* ctrl);
+void keybind_jumpImageEnd(doko_control_t* ctrl);
 
 void keybind_printDebugInfo(doko_control_t* ctrl);
 

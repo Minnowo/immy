@@ -236,9 +236,9 @@ static InputMapping keybinds[] = {
     {KEY_H | SHIFT_MASK, keybind_moveImageLeft, DOKO_SCREEN_IMAGE, 0, _110MS},
     {KEY_L | SHIFT_MASK, keybind_moveImageRight, DOKO_SCREEN_IMAGE, 0, _110MS},
 
-    {KEY_H | CONTROL_MASK, keybind_PrevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
+    {KEY_H | CONTROL_MASK, keybind_prevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
     {KEY_L | CONTROL_MASK, keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _200MS},
-    {KEY_P , keybind_PrevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
+    {KEY_P , keybind_prevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
     {KEY_N , keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _200MS},
 
     {KEY_C, keybind_fitCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
@@ -258,10 +258,18 @@ static InputMapping keybinds[] = {
     {KEY_SPACE, keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, 0},
 
     // file list
-    {KEY_K, keybind_PrevImage, DOKO_SCREEN_FILE_LIST, 0, _110MS},
+    {KEY_K, keybind_prevImage, DOKO_SCREEN_FILE_LIST, 0, _110MS},
     {KEY_J, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, _110MS},
-    {KEY_K | SHIFT_MASK, keybind_PrevImage, DOKO_SCREEN_FILE_LIST, 0, 0},
+    {KEY_K | SHIFT_MASK, keybind_prevImage, DOKO_SCREEN_FILE_LIST, 0, 0},
     {KEY_J | SHIFT_MASK, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, 0},
+
+    {KEY_D | CONTROL_MASK, keybind_nextImageBy10, DOKO_SCREEN_FILE_LIST, 0, _110MS},
+    {KEY_U | CONTROL_MASK, keybind_prevImageBy10, DOKO_SCREEN_FILE_LIST, 0, _110MS},
+    {KEY_D | CONTROL_MASK | SHIFT_MASK, keybind_nextImageBy10, DOKO_SCREEN_FILE_LIST, 0, 0},
+    {KEY_U | CONTROL_MASK | SHIFT_MASK, keybind_prevImageBy10, DOKO_SCREEN_FILE_LIST, 0, 0},
+
+    {KEY_G | SHIFT_MASK, keybind_jumpImageEnd, DOKO_SCREEN_FILE_LIST, 0, 0},
+    {KEY_G , keybind_jumpImageStart, DOKO_SCREEN_FILE_LIST, 0, 0},
 
     {KEY_T, keybind_cycleScreen, DOKO_SCREEN__ALL, 0, _200MS },
 };
@@ -271,7 +279,7 @@ static InputMapping mousebinds[] = {
     {MOUSE_WHEEL_FORWARD_BUTTON, keybind_zoomInMousePosition, DOKO_SCREEN_IMAGE, 0, 0},
     {MOUSE_WHEEL_BACKWARD_BUTTON, keybind_zoomOutMousePosition, DOKO_SCREEN_IMAGE, 0, 0},
     {MOUSE_WHEEL_FORWARD_BUTTON | SHIFT_MASK, keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _80MS},
-    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_PrevImage, DOKO_SCREEN_IMAGE, 0, _80MS},
+    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_prevImage, DOKO_SCREEN_IMAGE, 0, _80MS},
     {MOUSE_BUTTON_LEFT, keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, 0},
 };
 
