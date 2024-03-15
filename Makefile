@@ -76,7 +76,7 @@ ${TARGET}: | $(TARGET_DIR)
 		CC="$(CC)" \
 		CFLAGS="$(CFLAGS)" \
 		CPPFLAGS="-DRESOURCE_PATH='\"$(RESOURCE_PATH)\"'" \
-		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm $(LDFLAGS)" \
+		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm -lImlib2 $(LDFLAGS)" \
 		INCLUDE_PATHS="-I\"$(abspath $(RAYLIB_SRC_DIR))\"" \
 		TARGET_DIR="$(abspath $(TARGET_DIR))" 
 

@@ -202,8 +202,7 @@ int doko_load_with_magick_stdout(const char* path, Image* im) {
     close(pipefd[0]);
 
     if (data.size > 0) {
-        *im = LoadImageFromMemory("." MAGICK_CONVERT_MIDDLE_FMT, data.buffer,
-                                  data.size);
+        *im = LoadImageFromMemory("." MAGICK_CONVERT_MIDDLE_FMT, data.buffer, data.size);
     }
 
     DARRAY_FREE(data);
@@ -224,13 +223,89 @@ int doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
 #endif
 
 
+
+int doko_load_with_imlib2(const char* path, Image* im) {
+
+#if (USE_IMLIB2 == 1)
+
+    #include <Imlib2.h>
+
+    L_I("About to read image using Imlib2");
+
+    Imlib_Image image;
+
+    image = imlib_load_image_immediately_without_cache(path);
+
+    if (!image) {
+
+        L_E("Error loading with imlib2: %s", imlib_strerror(imlib_get_error()));
+
+        return 0;
+    }
+
+    imlib_context_set_image(image);
+
+    im->width = imlib_image_get_width();
+    im->height = imlib_image_get_height();
+    im->format  = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+    im->mipmaps = 1;
+
+    size_t pixels = im->width * im->height;
+
+    uint32_t *argb = imlib_image_get_data();
+
+    if(!argb) {
+
+        return 0;
+    }
+
+    // we have to copy the buffer otherwise we can't free from imlib
+    im->data = malloc(pixels * sizeof(Color));
+
+    if(!im->data) {
+
+        L_E("Could not make fake pixel data: %s", strerror(errno));
+
+        return 0;
+    }
+
+    Color* d = (Color*)im->data;
+
+    for(size_t i = 0; i < pixels; i++) {
+
+        d[i] = (Color){
+            .a = (*argb) >> 24,
+            .r = (*argb) >> 16,
+            .g = (*argb) >> 8,
+            .b = (*argb) >> 0,
+        };
+        argb++;
+    }
+
+    imlib_free_image();
+
+
+    L_I("Loaded with imlib2");
+
+    return 1;
+
+#else 
+
+    return 0;
+
+#endif
+}
+
+
+
 int doko_loadImage(doko_image_t* image) {
 
     if(image->status == IMAGE_STATUS_LOADED) {
         return 1;
     }
 
-    if (!(USE_MAGICK_CONVERT && doko_load_with_magick_stdout(image->path, &image->rayim)) &&
+    if (!(USE_IMLIB2 && doko_load_with_imlib2(image->path, &image->rayim)) &&
+        !(USE_MAGICK_CONVERT && doko_load_with_magick_stdout(image->path, &image->rayim)) &&
         !(USE_FFMPEG_CONVERT && doko_load_with_ffmpeg_stdout(image->path, &image->rayim))) {
 
         image->rayim = LoadImage(image->path);

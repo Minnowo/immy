@@ -44,6 +44,10 @@
 // if 1, try and detach from the terminal
 #define DETACH_FROM_TERMINAL 1
 
+// use imlib2
+// you will also need to set -lImlib2 in the LDFLAGS of the makefile
+#define USE_IMLIB2 0
+
 // if 1 load images using image magick convert before raylib
 // requires image magick's `convert` added to path
 #define USE_MAGICK_CONVERT 0
