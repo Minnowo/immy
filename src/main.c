@@ -208,6 +208,19 @@ int main(int argc, char* argv[])
 
     ui_loadCodepointsFromFileList(&this);
 
+
+    // this loads the image and makes sure it is actually center
+    // since my tiling wm spawns the window floating and then unfloats it
+    if (this.selected_image != NULL)
+
+        for(int i = 0; i < 2; i++){
+            BeginDrawing();
+            ui_renderImage(this.selected_image);
+            keybind_fitCenterImage(&this);
+            EndDrawing();
+        }
+
+
     while (!WindowShouldClose()) {
 
         ++this.frame;
