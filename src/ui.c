@@ -57,6 +57,7 @@ void ui_loadUnifont() {
     free_resource_data((void*)data);
 }
 
+
 void ui_setInitialCodePoints(const char* text) {
 
     int codep_count;
@@ -69,6 +70,7 @@ void ui_setInitialCodePoints(const char* text) {
     UnloadCodepoints(codep);
     ui_loadUnifont();
 }
+
 
 void ui_loadCodepoints(const char* text, bool reload) {
 
@@ -332,7 +334,7 @@ void ui_renderFileList(doko_control_t* ctrl) {
     #define BOTTOM_MARGIN 1
 
     int sw = GetScreenWidth() ;
-    int sh = GetScreenHeight() - (GetScreenHeight() / 8);
+    int sh = GetScreenHeight()  - FZ;//- (GetScreenHeight() / 8);
 
     int startY; 
     size_t scrollOffset;
