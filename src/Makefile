@@ -5,7 +5,7 @@ CFLAGS ?= -Wall -Wextra -std=c99
 TARGET_DIR ?= .
 TARGET     ?= "$(TARGET_DIR)/doko"
 
-OBJS := main.o doko.o ui.o input.o
+OBJS := main.o doko.o ui.o input.o external/strnatcmp.o
 
 .PHONY: all clean
 
@@ -30,5 +30,8 @@ ui.o: ui.c doko.h ui.h config.h shaders.h | $(TARGET_DIR)
 input.o: input.c doko.h ui.h config.h | $(TARGET_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INCLUDE_PATHS)
 
-$(TARGET): doko.o ui.o main.o input.o | $(TARGET_DIR)
+external/strnatcmp.o: external/strnatcmp.c | $(TARGET_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INCLUDE_PATHS)
+
+$(TARGET): doko.o ui.o main.o input.o external/strnatcmp.o | $(TARGET_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@ $(INCLUDE_PATHS) $(LDFLAGS)

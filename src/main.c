@@ -18,6 +18,17 @@
 
 struct doko_control this;
 
+static inline void sort_file_list(FilePathList fpl){
+
+    switch(this.filename_cmp){
+        case SORT_ORDER__DEFAULT:
+            qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_strcmp);
+            break;
+        case SORT_ORDER__NATURAL:
+            qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_natstrcmp);
+            break;
+    }
+}
 
 void add_file(const char* path_) {
 
@@ -58,6 +69,8 @@ void add_file(const char* path_) {
 void handle_dropped_files() {
 
     FilePathList fpl = LoadDroppedFiles();
+
+    sort_file_list(fpl);
 
     for (size_t i = 0; i < fpl.count; i++) {
         add_file(fpl.paths[i]);
@@ -157,6 +170,8 @@ void handle_start_args(int argc, char* argv[]) {
         FilePathList fpl = LoadDirectoryFilesEx(argv[i], IMAGE_FILE_FILTER,
                                                 SEARCH_DIRS_RECURSIVE);
 
+        sort_file_list(fpl);
+
         for (size_t j = 0; j < fpl.count; j++) {
             add_file(fpl.paths[j]);
         }
@@ -196,6 +211,8 @@ int main(int argc, char* argv[])
 #endif
 
     memset(&this, 0, sizeof(this));
+
+    this.filename_cmp = DEFAULT_SORT_ORDER;
 
     handle_start_args(argc, argv);
 

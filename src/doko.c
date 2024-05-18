@@ -11,6 +11,7 @@
 #include "doko.h"
 #include "config.h"
 #include "darray.h"
+#include "external/strnatcmp.h"
 
 
 #ifdef __unix__
@@ -503,6 +504,23 @@ char *doko_strdup(const char *str) {
     return doko_strdupn(str, 0, NULL);
 
 #endif
+}
+
+
+int doko_qsort_strcmp(const void *a, const void *b) {
+
+    char const *pa = *(char const **)a;
+    char const *pb = *(char const **)b;
+
+    return strcmp(pa, pb);
+}
+
+int doko_qsort_natstrcmp(const void *a, const void *b) {
+
+    char const *pa = *(char const **)a;
+    char const *pb = *(char const **)b;
+
+    return strnatcmp(pa, pb);
 }
 
 

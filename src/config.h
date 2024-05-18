@@ -69,6 +69,8 @@
 #define MIN_WINDOW_WIDTH 64
 #define MIN_WINDOW_HEIGHT 64
 
+#define DEFAULT_SORT_ORDER SORT_ORDER__NATURAL
+
 // Size of the background tile pattern
 #define BACKGROUND_TILE_W 128
 #define BACKGROUND_TILE_H 128
@@ -316,7 +318,11 @@ static InputMapping mousebinds[] = {
 
 
 // extension filter, finds these files when searching directory
-#if(USE_MAGICK_CONVERT)
+#if(USE_IMLIB2)
+    #define IMAGE_FILE_FILTER                                                      \
+    ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;"     \
+    ".tiff;.heif;"
+#elif(USE_MAGICK_CONVERT)
     #define IMAGE_FILE_FILTER                                                      \
     ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;"     \
     ".tiff;.heif;"

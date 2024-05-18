@@ -10,8 +10,8 @@
 
 #define BYTES_TO_MB(bytes) ((double)(bytes) / (1024 * 1024))
 
-#define ImageViewWidth GetScreenWidth()
-#define ImageViewHeight (GetScreenHeight() - INFO_BAR_HEIGHT)
+#define ImageViewWidth (GetScreenWidth())
+#define ImageViewHeight ((GetScreenHeight()) - INFO_BAR_HEIGHT)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -36,6 +36,12 @@ typedef enum {
     LOG_LEVEL_CRITICAL = __LOG_LEVEL_CRITICAL,
     LOG_LEVEL_NOTHING = __LOG_LEVEL_NOTHING
 } log_level_t;
+
+typedef enum {
+    SORT_ORDER__DEFAULT, // using strcmp
+    SORT_ORDER__NATURAL, // using strnatcmp
+
+} str_compare_t;
 
 typedef enum {
     IMAGE_STATUS_NOT_LOADED,
@@ -111,6 +117,8 @@ typedef struct doko_control {
     // which screen the user is on
     doko_screen_t screen;
 
+    str_compare_t filename_cmp; 
+
 } doko_control_t;
 
 
@@ -183,6 +191,16 @@ char *doko_strdupn(const char *str, size_t n, size_t* len_);
  * Sets the image to this index if possible
 */
 void set_image(doko_control_t* ctrl, size_t index);
+
+/**
+ * Str compare for use with qsort
+*/
+int doko_qsort_strcmp(const void *a, const void *b);
+
+/**
+ * Str natural compare for use with qsort
+*/
+int doko_qsort_natstrcmp(const void *a, const void *b);
 
 /**
  * Prints a message to a stream if the log level is above or equal to the set log level
