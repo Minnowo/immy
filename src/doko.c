@@ -210,18 +210,6 @@ int doko_load_with_magick_stdout(const char* path, Image* im) {
     return im->data != NULL;
 }
 
-#else
-
-int doko_load_with_magick_stdout(const char* path, Image* im) {
-    return 0;
-}
-
-int doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
-    return 0;
-}
-
-#endif
-
 
 
 int doko_load_with_imlib2(const char* path, Image* im) {
@@ -295,6 +283,23 @@ int doko_load_with_imlib2(const char* path, Image* im) {
 
 #endif
 }
+
+
+#else
+
+int doko_load_with_magick_stdout(const char* path, Image* im) {
+    return 0;
+}
+
+int doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
+    return 0;
+}
+
+int doko_load_with_imlib2(const char* path, Image* im) {
+    return 0;
+}
+
+#endif
 
 
 
