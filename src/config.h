@@ -25,7 +25,7 @@
 //
 
 #define WINDOW_TITLE "Doko?"
-#define WINDOW_FPS 24
+#define WINDOW_FPS 60
 
 // forces a redraw everytime the frame count
 // becomes a multiple of this number
@@ -274,6 +274,10 @@ static InputMapping keybinds[] = {
     {KEY_U | CONTROL_MASK             , keybind_prevImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
     {KEY_D | CONTROL_MASK | SHIFT_MASK, keybind_nextImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
     {KEY_U | CONTROL_MASK | SHIFT_MASK, keybind_prevImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {KEY_P | CONTROL_MASK             , keybind_prevImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
+    {KEY_N | CONTROL_MASK             , keybind_nextImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
+    {KEY_P | CONTROL_MASK | SHIFT_MASK, keybind_prevImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {KEY_N | CONTROL_MASK | SHIFT_MASK, keybind_nextImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
     {KEY_G | SHIFT_MASK               , keybind_jumpImageEnd  , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
     {KEY_G                            , keybind_jumpImageStart, DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
 };
