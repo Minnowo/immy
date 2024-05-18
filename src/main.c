@@ -93,16 +93,17 @@ void do_mouse_input() {
 
         if (!(c == HAS_CTRL(mousebinds[i].key)) ||
             !(s == HAS_SHIFT(mousebinds[i].key)) || 
+            (this.screen != mousebinds[i].screen && mousebinds[i].screen != DOKO_SCREEN__ALL) ||
             time - mousebinds[i].lastPressedTime < mousebinds[i].keyTriggerRate
             ) {
             continue;
         }
 
         if (GetMouseWheelMove() > 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_FORWARD_BUTTON) { 
-            // fallthrough
+            FALLTHROUGH;
         } 
         else if (GetMouseWheelMove() < 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_BACKWARD_BUTTON) { 
-            // fallthrough
+            FALLTHROUGH;
         } 
         else if (!IsMouseButtonDown(GET_RAYKEY(mousebinds[i].key))) {
             continue;

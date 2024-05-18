@@ -8,6 +8,8 @@
 
 #include "darray.h"
 
+#define FALLTHROUGH
+
 #define BYTES_TO_MB(bytes) ((double)(bytes) / (1024 * 1024))
 
 #define ImageViewWidth (GetScreenWidth())
@@ -101,7 +103,7 @@ typedef struct doko_control {
     doko_image_t *selected_image;
 
     // index of selected_image from image_files
-    size_t selected_index;
+    int selected_index;
 
     // keeps track of the last mouse location
     // this is needed for proper dragging of the image with the mouse

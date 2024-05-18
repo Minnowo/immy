@@ -10,7 +10,7 @@
 #include "config.h"
 #include "darray.h"
 #include "doko.h"
-#include "shaders.h"
+#include "resources.h"
 
 
 int hasInit = 0;
@@ -39,9 +39,22 @@ void ui_loadUnifont() {
 
     L_D("Loading unifont from %s\n", UNIFONT_PATH);
 
+    size_t size;
+
+    const unsigned char* data = get_resource_data(UNIFONT_PATH, &size);
+
+    if(!data) {
+
+        L_E("Cannot load unifont %s!", UNIFONT_PATH);
+
+        return;
+    }
+    
     UnloadFont(unifont);
-    unifont = LoadFontEx(UNIFONT_PATH, 32, font_codepoints.buffer,
-                         font_codepoints.size);
+
+    unifont = LoadFontFromMemory(GetFileExtension(UNIFONT_PATH), data, size, 32, font_codepoints.buffer, font_codepoints.size); 
+
+    free_resource_data((void*)data);
 }
 
 void ui_setInitialCodePoints(const char* text) {

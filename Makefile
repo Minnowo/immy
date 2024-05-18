@@ -42,22 +42,19 @@ clean_raylib:
 		RAYLIB_RELEASE_PATH="$(abspath $(TARGET_DIR))" \
 		clean
 
-install: RESOURCE_PATH := /opt/doko/
+install: CPPFLAGS      += -DDOKO_BUNDLE
 install: CFLAGS        += -O3
 install: rebuild
-	mkdir -p $(RESOURCE_PATH)
-	mkdir -p $(RESOURCE_PATH)/resources
-	mkdir -p $(RESOURCE_PATH)/resources/fonts
-	cp    -r $(RESOURCES) /opt/doko/
-	cp    -f $(TARGET)    /opt/doko/$(NAME)
-	chmod 755 $(RESOURCE_PATH)/$(NAME)
-	rm -f /usr/bin/$(NAME)
-	ln $(RESOURCE_PATH)/$(NAME) /usr/bin/$(NAME)
+	mkdir -p           /opt/doko
+	cp    -f $(TARGET) /opt/doko/$(NAME)
+	chmod 755          /opt/doko/$(NAME)
+
+	rm -f                   /usr/bin/$(NAME)
+	ln    /opt/doko/$(NAME) /usr/bin/$(NAME)
 
 uninstall:
 	rm -f /usr/bin/$(NAME)
-	rm -f  $(INSTALL_PATH)/$(NAME)
-	rm -rf $(INSTALL_PATH)/resources
+	rm -f /opt/doko/$(NAME)
 
 
 $(TARGET_DIR):
@@ -75,7 +72,7 @@ ${TARGET}: | $(TARGET_DIR)
 	$(MAKE) -C $(DOKO_SRC_DIR) \
 		CC="$(CC)" \
 		CFLAGS="$(CFLAGS)" \
-		CPPFLAGS="-DRESOURCE_PATH='\"$(RESOURCE_PATH)\"'" \
+		CPPFLAGS="$(CPPFLAGS)" \
 		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm -lImlib2 $(LDFLAGS)" \
 		INCLUDE_PATHS="-I\"$(abspath $(RAYLIB_SRC_DIR))\"" \
 		TARGET_DIR="$(abspath $(TARGET_DIR))" 

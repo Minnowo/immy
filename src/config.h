@@ -4,7 +4,6 @@
 #define DOKO_CONFIG_H
 
 #include <raylib.h>
-#include <stddef.h>
 
 #include "doko.h"
 #include "input.h"
@@ -89,7 +88,7 @@
 #define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20
 
 // draw the fps
-#define DRAW_FPS 1
+#define DRAW_FPS 0
 
 // 1 searches directories recursivly
 // 0 does not search directories recursivly
@@ -210,9 +209,10 @@ static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
 #define RAYLIB_QUIT_KEY KEY_Q
 
 // Time limit for triggering key presses (in seconds)
-#define _200MS (0.2)
-#define _110MS (0.11111)
-#define _80MS (0.08)
+#define DELAY_MEDIUM  (0.2)
+#define DELAY_FAST    (0.120)
+#define DELAY_VFAST   (0.08)
+#define DELAY_INSTANT (0)
 
 
 // To find all the keys you can bind see
@@ -229,64 +229,67 @@ static InputMapping keybinds[] = {
 
     // KEY,        KEY_CALLBACK,          SCREEN,     LAST_PRESSED,  KEY_TRIGGER_RATE
 
-    // image view
-    {KEY_K, keybind_moveImageUp, DOKO_SCREEN_IMAGE, 0, _110MS},
-    {KEY_J, keybind_moveImageDown, DOKO_SCREEN_IMAGE, 0, _110MS},
-    {KEY_H, keybind_moveImageLeft, DOKO_SCREEN_IMAGE, 0, _110MS},
-    {KEY_L, keybind_moveImageRight, DOKO_SCREEN_IMAGE, 0, _110MS},
+    // ###########################
+    // ##### all pages ###########
+    // ###########################
+    {KEY_T, keybind_cycleScreen   , DOKO_SCREEN__ALL, 0, DELAY_MEDIUM },
 
-    {KEY_K | SHIFT_MASK, keybind_zoomInCenterImage, DOKO_SCREEN_IMAGE, 0,
-     _110MS},
-    {KEY_J | SHIFT_MASK, keybind_zoomOutCenterImage, DOKO_SCREEN_IMAGE, 0,
-     _110MS},
-    {KEY_H | SHIFT_MASK, keybind_moveImageLeft, DOKO_SCREEN_IMAGE, 0, _110MS},
-    {KEY_L | SHIFT_MASK, keybind_moveImageRight, DOKO_SCREEN_IMAGE, 0, _110MS},
-
-    {KEY_H | CONTROL_MASK, keybind_prevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
-    {KEY_L | CONTROL_MASK, keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _200MS},
-    {KEY_P , keybind_prevImage, DOKO_SCREEN_IMAGE, 0, _200MS},
-    {KEY_N , keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _200MS},
-
-    {KEY_C, keybind_fitCenterImage, DOKO_SCREEN_IMAGE, 0, _110MS},
+    // ###########################
+    // ##### image view page #####
+    // ###########################
+    {KEY_K                , keybind_moveImageUp          , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_J                , keybind_moveImageDown        , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_H                , keybind_moveImageLeft        , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_L                , keybind_moveImageRight       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_H | SHIFT_MASK   , keybind_moveImageLeft        , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_L | SHIFT_MASK   , keybind_moveImageRight       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_K | SHIFT_MASK   , keybind_zoomInCenterImage    , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_J | SHIFT_MASK   , keybind_zoomOutCenterImage   , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_H | CONTROL_MASK , keybind_prevImage            , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
+    {KEY_L | CONTROL_MASK , keybind_nextImage            , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
+    {KEY_P                , keybind_prevImage            , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
+    {KEY_N                , keybind_nextImage            , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
+    {KEY_C                , keybind_fitCenterImage       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_M                , keybind_flipHorizontal       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_V                , keybind_flipVertical         , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_O                , keybind_printDebugInfo       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
+    {KEY_SPACE            , keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, DELAY_INSTANT},
 
 #if (ENABLE_SHADERS == 1)
-    {KEY_I, keybind_colorInvertShader, DOKO_SCREEN_IMAGE, 0, _200MS},
-    {KEY_G, keybind_colorGrayscaleShader, DOKO_SCREEN_IMAGE, 0, _200MS},
+    {KEY_I, keybind_colorInvertShader   , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
+    {KEY_G, keybind_colorGrayscaleShader, DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
 #else
-    {KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, 0, _200MS},
+    {KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
 #endif
 
-    {KEY_M, keybind_flipHorizontal, DOKO_SCREEN_IMAGE, 0, _110MS},
-    {KEY_V, keybind_flipVertical, DOKO_SCREEN_IMAGE, 0, _110MS},
 
-    {KEY_O, keybind_printDebugInfo, DOKO_SCREEN_IMAGE, 0, _110MS},
-
-    {KEY_SPACE, keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, 0},
-
-    // file list
-    {KEY_K, keybind_prevImage, DOKO_SCREEN_FILE_LIST, 0, _110MS},
-    {KEY_J, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, _110MS},
-    {KEY_K | SHIFT_MASK, keybind_prevImage, DOKO_SCREEN_FILE_LIST, 0, 0},
-    {KEY_J | SHIFT_MASK, keybind_nextImage, DOKO_SCREEN_FILE_LIST, 0, 0},
-
-    {KEY_D | CONTROL_MASK, keybind_nextImageBy10, DOKO_SCREEN_FILE_LIST, 0, _110MS},
-    {KEY_U | CONTROL_MASK, keybind_prevImageBy10, DOKO_SCREEN_FILE_LIST, 0, _110MS},
-    {KEY_D | CONTROL_MASK | SHIFT_MASK, keybind_nextImageBy10, DOKO_SCREEN_FILE_LIST, 0, 0},
-    {KEY_U | CONTROL_MASK | SHIFT_MASK, keybind_prevImageBy10, DOKO_SCREEN_FILE_LIST, 0, 0},
-
-    {KEY_G | SHIFT_MASK, keybind_jumpImageEnd, DOKO_SCREEN_FILE_LIST, 0, 0},
-    {KEY_G , keybind_jumpImageStart, DOKO_SCREEN_FILE_LIST, 0, 0},
-
-    {KEY_T, keybind_cycleScreen, DOKO_SCREEN__ALL, 0, _200MS },
+    // ###########################
+    // ##### file list page ######
+    // ###########################
+    {KEY_K                            , keybind_prevImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
+    {KEY_J                            , keybind_nextImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
+    {KEY_K | SHIFT_MASK               , keybind_prevImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {KEY_J | SHIFT_MASK               , keybind_nextImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {KEY_D | CONTROL_MASK             , keybind_nextImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
+    {KEY_U | CONTROL_MASK             , keybind_prevImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
+    {KEY_D | CONTROL_MASK | SHIFT_MASK, keybind_nextImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {KEY_U | CONTROL_MASK | SHIFT_MASK, keybind_prevImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {KEY_G | SHIFT_MASK               , keybind_jumpImageEnd  , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {KEY_G                            , keybind_jumpImageStart, DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
 };
 
 // define mouse input mappings
 static InputMapping mousebinds[] = {
-    {MOUSE_WHEEL_FORWARD_BUTTON, keybind_zoomInMousePosition, DOKO_SCREEN_IMAGE, 0, 0},
-    {MOUSE_WHEEL_BACKWARD_BUTTON, keybind_zoomOutMousePosition, DOKO_SCREEN_IMAGE, 0, 0},
-    {MOUSE_WHEEL_FORWARD_BUTTON | SHIFT_MASK, keybind_nextImage, DOKO_SCREEN_IMAGE, 0, _80MS},
-    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_prevImage, DOKO_SCREEN_IMAGE, 0, _80MS},
-    {MOUSE_BUTTON_LEFT, keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, 0},
+    {MOUSE_WHEEL_FORWARD_BUTTON              , keybind_zoomInMousePosition  , DOKO_SCREEN_IMAGE, 0, DELAY_INSTANT},
+    {MOUSE_WHEEL_BACKWARD_BUTTON             , keybind_zoomOutMousePosition , DOKO_SCREEN_IMAGE, 0, DELAY_INSTANT},
+    {MOUSE_WHEEL_FORWARD_BUTTON  | SHIFT_MASK, keybind_nextImage            , DOKO_SCREEN_IMAGE, 0, DELAY_VFAST},
+    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_prevImage            , DOKO_SCREEN_IMAGE, 0, DELAY_VFAST},
+    {MOUSE_BUTTON_LEFT                       , keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, DELAY_INSTANT},
+
+    {MOUSE_WHEEL_FORWARD_BUTTON              , keybind_prevImage    , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {MOUSE_WHEEL_BACKWARD_BUTTON             , keybind_nextImage    , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    {MOUSE_WHEEL_FORWARD_BUTTON  | SHIFT_MASK, keybind_prevImageBy10, DOKO_SCREEN_FILE_LIST, 0, DELAY_VFAST},
+    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_nextImageBy10, DOKO_SCREEN_FILE_LIST, 0, DELAY_VFAST},
 };
 
 
@@ -295,12 +298,18 @@ static InputMapping mousebinds[] = {
 //
 // Define resource
 //
-
-// the directory which contains the 'resources' folder
-// when doing `make install` this is set to `/opt/doko/`
-// important that this always ends with a /
-#ifndef RESOURCE_PATH
-    #define RESOURCE_PATH ""
+#ifdef DOKO_BUNDLE
+    #ifdef RESOURCE_PATH
+        #undef RESOURCE_PATH
+    #endif
+    #define RESOURCE_PATH "../"
+#else
+    // the directory which contains the 'resources' folder
+    // when doing `make install` this is set to `/opt/doko/`
+    // important that this always ends with a /
+    #ifndef RESOURCE_PATH
+        #define RESOURCE_PATH ""
+    #endif
 #endif
 
 // path to unifont
