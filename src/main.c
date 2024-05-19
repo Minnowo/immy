@@ -142,19 +142,21 @@ void do_keyboard_input() {
     }
 }
 
-void handle_flags(doko_config_t* config, const char* flag_str, const char* flag_value) {
+// returns the number of arguments to skip
+int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_value) {
 
     size_t flen = strlen(flag_str);
 
     if (flen < 2 || flag_str[0] != '-')
-        return;
+        return 0;
 
     for (size_t i = 1; i < flen; ++i)
 
         switch (flag_str[i]) {
 
         case 'f':
-            config->window_flags |= FLAG_BORDERLESS_WINDOWED_MODE;
+            config->window_flags |=
+                FLAG_BORDERLESS_WINDOWED_MODE | FLAG_WINDOW_TOPMOST;
             continue;
 
         case 'B':
@@ -186,7 +188,7 @@ void handle_flags(doko_config_t* config, const char* flag_str, const char* flag_
             DIE_IF_NULL(flag_value, "-t flag expects <string : window_title>");
 
             config->window_title = flag_value;
-            continue;
+            return 1;
 
         case 'x':
 
@@ -194,7 +196,7 @@ void handle_flags(doko_config_t* config, const char* flag_str, const char* flag_
 
             config->window_x         = atoi(flag_value);
             config->set_win_position = true;
-            continue;
+            return 1;
 
         case 'y':
 
@@ -202,7 +204,7 @@ void handle_flags(doko_config_t* config, const char* flag_str, const char* flag_
 
             config->window_y         = atoi(flag_value);
             config->set_win_position = true;
-            continue;
+            return 1;
 
         case 'w':
 
@@ -213,7 +215,7 @@ void handle_flags(doko_config_t* config, const char* flag_str, const char* flag_
             if (config->window_width == 0)
                 DIE("-w flag expects <int : window_width>");
 
-            continue;
+            return 1;
 
         case 'h':
 
@@ -224,8 +226,10 @@ void handle_flags(doko_config_t* config, const char* flag_str, const char* flag_
             if (config->window_height == 0)
                 DIE("-h flag expects <int : window_height>");
 
-            continue;
+            return 1;
         }
+
+    return 0;
 }
 
 void handle_start_args(doko_config_t* config, int argc, char* argv[]) {
@@ -235,9 +239,9 @@ void handle_start_args(doko_config_t* config, int argc, char* argv[]) {
         if (!FileExists(argv[i])) {
 
             if (i + 1 < argc) {
-                handle_flags(config, argv[i], argv[i + 1]);
+                i += handle_flags(config, argv[i], argv[i + 1]);
             } else {
-                handle_flags(config, argv[i], NULL);
+                i += handle_flags(config, argv[i], NULL);
             }
 
             continue;
