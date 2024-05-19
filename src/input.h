@@ -68,6 +68,7 @@ void kb_Color_Grayscale_Shader(doko_control_t* ctrl);
 void kb_Increase_FPS(doko_control_t* ctrl);
 void kb_Decrease_FPS(doko_control_t* ctrl);
 
+void kb_Toggle_Image_Filelist_Screen(doko_control_t *ctrl);
 void kb_Cycle_Screen(doko_control_t *ctrl);
 void kb_Cycle_Screen_Reverse(doko_control_t *ctrl);
 

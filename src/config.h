@@ -52,13 +52,13 @@
 
 // if 1 load images using image magick convert before raylib
 // requires image magick's `convert` added to path
-#define USE_MAGICK_CONVERT 0
+#define USE_MAGICK_CONVERT 1
 // have magick convert to this format before raylib loads the image
 #define MAGICK_CONVERT_MIDDLE_FMT "qoi"
 
 // if 1 try and load images using ffmpeg before raylib
 // requires `ffmpeg` added to path
-#define USE_FFMPEG_CONVERT 0
+#define USE_FFMPEG_CONVERT 1
 // have ffmpeg convert to this format before raylib loads the image
 #define FFMPEG_CONVERT_MIDDLE_FMT "qoi"
 // see https://ffmpeg.org/ffmpeg.html
@@ -240,10 +240,10 @@ static InputMapping keybinds[] = {
     // ###########################
     // ##### all pages ###########
     // ###########################
-    BIND(KEY_T    , kb_Cycle_Screen       , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
-    BIND(KEY_ONE  , kb_Goto_Image_Screen   , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
-    BIND(KEY_TWO  , kb_Goto_File_List_Screen, DOKO_SCREEN__ALL, DELAY_MEDIUM ),
-    BIND(KEY_THREE, kb_Goto_Keybinds_Screen, DOKO_SCREEN__ALL, DELAY_MEDIUM ),
+    BIND(KEY_T    , kb_Toggle_Image_Filelist_Screen, DOKO_SCREEN__ALL, DELAY_MEDIUM ),
+    BIND(KEY_ONE  , kb_Goto_Image_Screen           , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
+    BIND(KEY_TWO  , kb_Goto_File_List_Screen       , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
+    BIND(KEY_THREE, kb_Goto_Keybinds_Screen        , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
 
     // ###########################
     // ##### image view page #####

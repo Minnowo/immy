@@ -343,6 +343,18 @@ void kb_Cycle_Screen_Reverse(doko_control_t *ctrl) {
     }
 }
 
+void kb_Toggle_Image_Filelist_Screen(doko_control_t* ctrl) {
+
+    if (ctrl->screen == DOKO_SCREEN_IMAGE) {
+
+        ctrl->screen = DOKO_SCREEN_FILE_LIST;
+
+    } else {
+
+        ctrl->screen = DOKO_SCREEN_IMAGE;
+    }
+}
+
 void kb_Goto_Image_Screen(doko_control_t *ctrl) {
     ctrl->screen = DOKO_SCREEN_IMAGE;
 }
