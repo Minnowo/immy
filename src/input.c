@@ -355,6 +355,11 @@ void kb_Toggle_Image_Filelist_Screen(doko_control_t* ctrl) {
     }
 }
 
+void kb_Toggle_Show_Bar(doko_control_t *ctrl) {
+
+    ctrl->config.show_bar = !ctrl->config.show_bar;
+}
+
 void kb_Goto_Image_Screen(doko_control_t *ctrl) {
     ctrl->screen = DOKO_SCREEN_IMAGE;
 }
