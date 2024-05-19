@@ -334,7 +334,6 @@ int doko_loadImage(doko_image_t* image) {
     };
     image->dstPos = (Vector2){0, 0};
     image->status = IMAGE_STATUS_LOADED;
-    doko_fitCenterImage(image);
 
     return 1;
 }
@@ -589,6 +588,7 @@ void doko_log(log_level_t level, FILE* stream, const char *fmt, ...) {
         break;
 
     case LOG_LEVEL_CRITICAL:
+
 #if (LOG_LEVEL <= __LOG_LEVEL_CRITICAL)
         va_start(ap, fmt);
         fprintf(stream, "[CRITICAL] ");

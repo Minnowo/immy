@@ -93,7 +93,7 @@ void ui_loadCodepoints(const char* text, bool reload) {
     }
 }
 
-void ui_loadCodepointsFromFileList(doko_control_t* ctrl) {
+void ui_loadCodepointsFromFileList(const doko_control_t* ctrl) {
 
     DARRAY_FOR_EACH_I(ctrl->image_files, i) {
 
@@ -105,12 +105,16 @@ void ui_loadCodepointsFromFileList(doko_control_t* ctrl) {
     ui_loadUnifont();
 }
 
-void ui_init() {
+void ui_init(doko_config_t* config) {
 
-    InitWindow(START_WIDTH, START_HEIGHT, WINDOW_TITLE);
-    SetWindowMinSize(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT);
+    InitWindow(config->window_width, config->window_height, config->window_title);
+    SetWindowMinSize(config->window_min_width, config->window_min_height);
 
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetWindowState(config->window_flags);
+
+    if (config->set_win_position)
+        SetWindowPosition(config->window_x, config->window_y);
+
     SetTargetFPS(WINDOW_FPS);
     SetExitKey(RAYLIB_QUIT_KEY);
 
@@ -268,7 +272,7 @@ void ui_renderImage(doko_image_t* image) {
 #endif
 }
 
-void ui_renderInfoBar(doko_image_t* image) {
+void ui_renderInfoBar(const doko_image_t* image) {
     // ui_renderTextOnInfoBar(TextFormat(
     //     "%0.0f x %0.0f  %0.0f%%  %s", image->srcRect.width,
     //     image->srcRect.height, image->scale*100, image->path +
@@ -309,7 +313,7 @@ void ui_renderInfoBar(doko_image_t* image) {
     );
 }
 
-void ui_renderPixelGrid(doko_image_t* image) {
+void ui_renderPixelGrid(const doko_image_t* image) {
 
     if (image->scale < SHOW_PIXEL_GRID_SCALE_THRESHOLD) {
         return;
@@ -338,7 +342,7 @@ void ui_renderPixelGrid(doko_image_t* image) {
 #define BOTTOM_MARGIN 1
 
 
-void ui_renderFileList(doko_control_t* ctrl) {
+void ui_renderFileList(const doko_control_t* ctrl) {
 
     const int sw = GetScreenWidth();
     const int sh = GetScreenHeight() - FZ; //- (GetScreenHeight() / 8);
@@ -391,7 +395,7 @@ void ui_renderFileList(doko_control_t* ctrl) {
     );
 }
 
-void ui_renderKeybinds(doko_control_t* ctrl) {
+void ui_renderKeybinds(const doko_control_t* ctrl) {
 
     const size_t SCROLL_COUNT = KEYBIND_COUNT + MOUSEBIND_COUNT;
     const int    sw           = GetScreenWidth();

@@ -15,7 +15,7 @@
 /**
  * Initializes and creates the window/UI components. Should always be called first.
  */
-void ui_init();
+void ui_init(doko_config_t* ctrl);
 
 /**
  * Deinitializes and destroys all the window/UI components. Should always be called last.
@@ -35,7 +35,7 @@ void ui_setInitialCodePoints(const char* text);
 /*
  *  Adds codepoints from the filelist
  */
-void ui_loadCodepointsFromFileList(doko_control_t* ctrl);
+void ui_loadCodepointsFromFileList(const doko_control_t* ctrl);
 
 /*
  *  Add codepoints from the given string
@@ -65,21 +65,21 @@ void ui_renderTextOnInfoBar(const char* text);
 /**
  * Renders the info bar.
  */
-void ui_renderInfoBar(doko_image_t* image);
+void ui_renderInfoBar(const doko_image_t* image);
 
 /**
  * Renders the pixel grid.
  */
-void ui_renderPixelGrid(doko_image_t* image);
+void ui_renderPixelGrid(const doko_image_t* image);
 
 /**
  * Renders the a file list.
  */
-void ui_renderFileList(doko_control_t* ctrl);
+void ui_renderFileList(const doko_control_t* ctrl);
 
 /**
  * Renders the a file list.
  */
-void ui_renderKeybinds(doko_control_t* ctrl);
+void ui_renderKeybinds(const doko_control_t* ctrl);
 
 #endif

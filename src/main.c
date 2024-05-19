@@ -142,12 +142,104 @@ void do_keyboard_input() {
     }
 }
 
+void handle_flags(doko_config_t* config, const char* flag_str, const char* flag_value) {
 
-void handle_start_args(int argc, char* argv[]) {
+    size_t flen = strlen(flag_str);
+
+    if (flen < 2 || flag_str[0] != '-')
+        return;
+
+    for (size_t i = 1; i < flen; ++i)
+
+        switch (flag_str[i]) {
+
+        case 'f':
+            config->window_flags |= FLAG_BORDERLESS_WINDOWED_MODE;
+            continue;
+
+        case 'B':
+            config->show_bar = false;
+            continue;
+
+        case 'b':
+            config->show_bar = true;
+            continue;
+
+        case 'D':
+            config->terminal = true;
+            continue;
+
+        case 'd':
+            config->terminal = false;
+            continue;
+
+        case 'C':
+            config->center_image_on_start = false;
+            continue;
+
+        case 'c':
+            config->center_image_on_start = true;
+            continue;
+
+        case 't':
+
+            DIE_IF_NULL(flag_value, "-t flag expects <string : window_title>");
+
+            config->window_title = flag_value;
+            continue;
+
+        case 'x':
+
+            DIE_IF_NULL(flag_value, "-x flag expects <int : x_position>");
+
+            config->window_x         = atoi(flag_value);
+            config->set_win_position = true;
+            continue;
+
+        case 'y':
+
+            DIE_IF_NULL(flag_value, "-y flag expects <int : y_position>");
+
+            config->window_y         = atoi(flag_value);
+            config->set_win_position = true;
+            continue;
+
+        case 'w':
+
+            DIE_IF_NULL(flag_value, "-w flag expects <int : window_width>");
+
+            config->window_width = atoi(flag_value);
+
+            if (config->window_width == 0)
+                DIE("-w flag expects <int : window_width>");
+
+            continue;
+
+        case 'h':
+
+            DIE_IF_NULL(flag_value, "-h flag expects <int : window_height>");
+
+            config->window_height = atoi(flag_value);
+
+            if (config->window_height == 0)
+                DIE("-h flag expects <int : window_height>");
+
+            continue;
+        }
+}
+
+void handle_start_args(doko_config_t* config, int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
 
         if (!FileExists(argv[i])) {
+
+            if (i + 1 < argc) {
+                handle_flags(config, argv[i], argv[i + 1]);
+            } else {
+                handle_flags(config, argv[i], NULL);
+            }
+
             continue;
         }
 
@@ -174,6 +266,7 @@ void handle_start_args(int argc, char* argv[]) {
 
 void detach_from_terminal() {
 
+#if (ALLOW_DETACH_FROM_TERMINAL == 1)
 #ifdef __unix__
 
     int pid = fork();
@@ -193,42 +286,57 @@ void detach_from_terminal() {
     freopen("/dev/null", "w", stderr);
 
 #endif
+#endif
 }
 
 int main(int argc, char* argv[])
 {
-
-#if (DETACH_FROM_TERMINAL == 1)
-    detach_from_terminal();
-#endif
-
     memset(&this, 0, sizeof(this));
+
+    this.config.window_title          = WINDOW_TITLE;
+    this.config.window_x              = 0;
+    this.config.window_y              = 0;
+    this.config.set_win_position      = false;
+    this.config.window_width          = START_WIDTH;
+    this.config.window_height         = START_HEIGHT;
+    this.config.window_min_width      = MIN_WINDOW_WIDTH;
+    this.config.window_min_height     = MIN_WINDOW_HEIGHT;
+    this.config.window_flags          = FLAG_WINDOW_RESIZABLE;
+    this.config.center_image_on_start = CENTER_IMAGE_ON_FIRST_START;
+    this.config.terminal              = !DETACH_FROM_TERMINAL;
+    this.config.show_bar              = true;
 
     this.filename_cmp = DEFAULT_SORT_ORDER;
 
-    handle_start_args(argc, argv);
+    handle_start_args(&this.config, argc, argv);
 
-    if(this.image_files.size > 0) {
+    if (this.image_files.size > 0)
         this.selected_image = this.image_files.buffer;
-    }
+
     this.renderFrames = RENDER_FRAMES;
 
-    ui_init();
+    // we want to load the image before we lose the terminal
+    // so that scripts know we have the image and can remove it
+    if(this.selected_image != NULL )
+        doko_loadImage(this.selected_image);
+
+    if (!this.config.terminal)
+        detach_from_terminal();
+
+    ui_init(&this.config);
 
     ui_loadCodepointsFromFileList(&this);
 
-
     // this loads the image and makes sure it is actually center
     // since my tiling wm spawns the window floating and then unfloats it
-    if (this.selected_image != NULL)
+    if (this.selected_image != NULL && this.config.center_image_on_start)
 
-        for(int i = 0; i < 2; i++){
+        for (int i = 0; i < 2; i++) {
             BeginDrawing();
             ui_renderImage(this.selected_image);
             kb_Fit_Center_Image(&this);
             EndDrawing();
         }
-
 
     while (!WindowShouldClose()) {
 
@@ -285,7 +393,8 @@ int main(int argc, char* argv[])
 
                         ui_renderImage(this.selected_image);
                         ui_renderPixelGrid(this.selected_image);
-                        ui_renderInfoBar(this.selected_image);
+                        if (this.config.show_bar)
+                            ui_renderInfoBar(this.selected_image);
                     } else {
                         ui_renderTextOnInfoBar(
                             "There is no image selected! Drag an image to view.");

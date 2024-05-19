@@ -5,6 +5,7 @@
 
 #include <raylib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "darray.h"
 
@@ -29,6 +30,20 @@
 #define L_W(...) doko_log(__LOG_LEVEL_WARN, stdout,  __VA_ARGS__)
 #define L_E(...) doko_log(__LOG_LEVEL_ERROR, stderr, __VA_ARGS__)
 #define L_C(...) doko_log(__LOG_LEVEL_CRITICAL, stderr, __VA_ARGS__)
+
+#define DIE(...)                                                               \
+    do {                                                                       \
+        L_E(__VA_ARGS__);                                                      \
+        fflush(stderr);                                                        \
+        exit(1);                                                               \
+    } while (0)
+
+#define DIE_IF_NULL(i, ...)                                                    \
+    do {                                                                       \
+        if ((i) == NULL) {                                                     \
+            DIE(__VA_ARGS__);                                                  \
+        }                                                                      \
+    } while (0)
 
 typedef enum {
     LOG_LEVEL_DEBUG = __LOG_LEVEL_DEBUG,
@@ -97,9 +112,31 @@ DARRAY_DEF(dint_arr, int*);
 DARRAY_DEF(dbyte_arr, unsigned char*);
 
 
+typedef struct doko_config {
+
+    const char* window_title;
+
+    int window_x; 
+    int window_y;
+    int window_width; 
+    int window_height;
+    int window_min_width; 
+    int window_min_height;
+    int window_flags;
+
+    bool center_image_on_start;
+    bool terminal;
+    bool set_win_position;
+    bool show_bar;
+
+} doko_config_t;
+
+
 // the main control data
 // a singleton is passed to every keypress callback
 typedef struct doko_control {
+
+    doko_config_t config;
 
     // images files loaded or not
     dimage_arr_t image_files;
@@ -236,5 +273,9 @@ const char* get_mouse_to_pretty_text(int key);
 // which is len("MOUSE_BUTTON_RIGHT") plus 2 for C and S 
 #define STRLEN_KEY_STR 20
 
+
+inline static bool str_likely_means_true(const char* str) {
+    return strncmp(str, "true", 5) == 0 || atoi(str) != 0;
+} 
 
 #endif

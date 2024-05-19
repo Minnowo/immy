@@ -40,12 +40,15 @@
 // if you get flickering, increase this number
 #define RENDER_FRAMES (1+(int)(WINDOW_FPS/4))
 
-// if 1, try and detach from the terminal
+// if 1, enable detaching from terminal
+#define ALLOW_DETACH_FROM_TERMINAL 1
+
+// default value for detaching from terminal
 #define DETACH_FROM_TERMINAL 1
 
 // use imlib2
 // you will also need to set -lImlib2 in the LDFLAGS of the makefile
-#define USE_IMLIB2 0
+#define USE_IMLIB2 1
 
 // if 1 load images using image magick convert before raylib
 // requires image magick's `convert` added to path
@@ -69,6 +72,9 @@
 #define MIN_WINDOW_HEIGHT 64
 
 #define DEFAULT_SORT_ORDER SORT_ORDER__NATURAL
+
+// if 1, center the first image on start
+#define CENTER_IMAGE_ON_FIRST_START 1
 
 // Size of the background tile pattern
 #define BACKGROUND_TILE_W 128
