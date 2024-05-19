@@ -18,12 +18,14 @@
 
 struct doko_control this;
 
-static inline void sort_file_list(FilePathList fpl){
+static inline void sort_file_list(FilePathList fpl) {
 
-    switch(this.filename_cmp){
+    switch(this.filename_cmp) {
+
         case SORT_ORDER__DEFAULT:
             qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_strcmp);
             break;
+
         case SORT_ORDER__NATURAL:
             qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_natstrcmp);
             break;
@@ -64,7 +66,6 @@ void add_file(const char* path_) {
     }
 }
 
-#ifdef ENABLE_FILE_DROP
 
 void handle_dropped_files() {
 
@@ -79,33 +80,26 @@ void handle_dropped_files() {
     UnloadDroppedFiles(fpl);
 }
 
-#endif
 
-#ifdef ENABLE_MOUSE_INPUT
 
 void do_mouse_input() {
 
-    int s = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    int s = IsKeyDown(KEY_LEFT_SHIFT)    || IsKeyDown(KEY_RIGHT_SHIFT);
     int c = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
+    int kc = 0;
     double time = GetTime();
 
-    for (size_t i = 0, kc = 0; i < MOUSEBIND_COUNT; ++i) {
+    for (size_t i = 0; i < MOUSEBIND_COUNT; ++i) {
 
-        if (!(c == HAS_CTRL(mousebinds[i].key)) ||
-            !(s == HAS_SHIFT(mousebinds[i].key)) || 
-            (this.screen != mousebinds[i].screen && mousebinds[i].screen != DOKO_SCREEN__ALL) ||
-            time - mousebinds[i].lastPressedTime < mousebinds[i].keyTriggerRate
-            ) {
-            continue;
-        }
-
-        if (GetMouseWheelMove() > 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_FORWARD_BUTTON) { 
-            FALLTHROUGH;
-        } 
-        else if (GetMouseWheelMove() < 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_BACKWARD_BUTTON) { 
-            FALLTHROUGH;
-        } 
-        else if (!IsMouseButtonDown(GET_RAYKEY(mousebinds[i].key))) {
+        if (
+            (this.screen != mousebinds[i].screen && mousebinds[i].screen != DOKO_SCREEN__ALL) || 
+            (c != HAS_CTRL(mousebinds[i].key))                                                ||
+            (s != HAS_SHIFT(mousebinds[i].key))                                               || 
+            (time - mousebinds[i].lastPressedTime < mousebinds[i].keyTriggerRate)             ||
+            !(GetMouseWheelMove() > 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_FWD) &&
+            !(GetMouseWheelMove() < 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_BWD) &&
+            !(IsMouseButtonDown(GET_RAYKEY(mousebinds[i].key)))
+        ) {
             continue;
         }
 
@@ -119,29 +113,27 @@ void do_mouse_input() {
     }
 }
 
-#endif
-
-#ifdef ENABLE_KEYBOARD_INPUT
 
 void do_keyboard_input() {
 
-
-    int s = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    int s = IsKeyDown(KEY_LEFT_SHIFT)    || IsKeyDown(KEY_RIGHT_SHIFT);
     int c = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
+    int kc = 0;
     double time = GetTime();
 
-    for (size_t i = 0, kc = 0; i < KEYBIND_COUNT; ++i) {
+    for (size_t i = 0; i < KEYBIND_COUNT; ++i) {
 
-        if (time - keybinds[i].lastPressedTime < keybinds[i].keyTriggerRate ||
+        if (
             (this.screen != keybinds[i].screen && keybinds[i].screen != DOKO_SCREEN__ALL) ||
-            !(c == HAS_CTRL(keybinds[i].key)) ||
-            !(s == HAS_SHIFT(keybinds[i].key)) ||
+            (time - keybinds[i].lastPressedTime < keybinds[i].keyTriggerRate) ||
+            (c != HAS_CTRL(keybinds[i].key)) ||
+            (s != HAS_SHIFT(keybinds[i].key)) ||
             !IsKeyDown(GET_RAYKEY(keybinds[i].key))) {
             continue;
         }
 
         keybinds[i].function(&this);
-        keybinds[i].lastPressedTime = GetTime();
+        keybinds[i].lastPressedTime = time;
         this.renderFrames = RENDER_FRAMES;
 
         if (++kc == KEY_LIMIT) {
@@ -150,7 +142,6 @@ void do_keyboard_input() {
     }
 }
 
-#endif
 
 void handle_start_args(int argc, char* argv[]) {
 
@@ -234,7 +225,7 @@ int main(int argc, char* argv[])
         for(int i = 0; i < 2; i++){
             BeginDrawing();
             ui_renderImage(this.selected_image);
-            keybind_fitCenterImage(&this);
+            kb_Fit_Center_Image(&this);
             EndDrawing();
         }
 
@@ -278,6 +269,11 @@ int main(int argc, char* argv[])
             switch (this.screen) {
 
                 case DOKO_SCREEN__ALL:
+                    break;
+
+                case DOKO_SCREEN_KEYBINDS:
+
+                    ui_renderKeybinds(&this);
                     break;
 
                 case DOKO_SCREEN_FILE_LIST:

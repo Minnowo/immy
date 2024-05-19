@@ -220,8 +220,10 @@ static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
 
 // Since raylib doesn't have a key for the scroll wheel delta
 // Use these to bind a mouse wheel scroll
-#define MOUSE_WHEEL_FORWARD_BUTTON 666
-#define MOUSE_WHEEL_BACKWARD_BUTTON 667
+typedef enum { 
+    MOUSE_WHEEL_FWD = 666,
+    MOUSE_WHEEL_BWD = 667
+} MouseWheel;
 
 // define keybinds, you can find more methods in the keybind.h file
 // define any new ones as you see fit
@@ -232,68 +234,80 @@ static InputMapping keybinds[] = {
     // ###########################
     // ##### all pages ###########
     // ###########################
-    {KEY_T, keybind_cycleScreen   , DOKO_SCREEN__ALL, 0, DELAY_MEDIUM },
+    BIND(KEY_T    , kb_Cycle_Screen       , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
+    BIND(KEY_ONE  , kb_Goto_Image_Screen   , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
+    BIND(KEY_TWO  , kb_Goto_File_List_Screen, DOKO_SCREEN__ALL, DELAY_MEDIUM ),
+    BIND(KEY_THREE, kb_Goto_Keybinds_Screen, DOKO_SCREEN__ALL, DELAY_MEDIUM ),
 
     // ###########################
     // ##### image view page #####
     // ###########################
-    {KEY_K                , keybind_moveImageUp          , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_J                , keybind_moveImageDown        , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_H                , keybind_moveImageLeft        , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_L                , keybind_moveImageRight       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_H | SHIFT_MASK   , keybind_moveImageLeft        , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_L | SHIFT_MASK   , keybind_moveImageRight       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_K | SHIFT_MASK   , keybind_zoomInCenterImage    , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_J | SHIFT_MASK   , keybind_zoomOutCenterImage   , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_H | CONTROL_MASK , keybind_prevImage            , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
-    {KEY_L | CONTROL_MASK , keybind_nextImage            , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
-    {KEY_P                , keybind_prevImage            , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
-    {KEY_N                , keybind_nextImage            , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
-    {KEY_C                , keybind_fitCenterImage       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_M                , keybind_flipHorizontal       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_V                , keybind_flipVertical         , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_O                , keybind_printDebugInfo       , DOKO_SCREEN_IMAGE, 0, DELAY_FAST},
-    {KEY_SPACE            , keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, DELAY_INSTANT},
+    BIND(KEY_K                , kb_Move_Image_Up          , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_J                , kb_Move_Image_Down        , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_H                , kb_Move_Image_Left        , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_L                , kb_Move_Image_Right       , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_H | SHIFT_MASK   , kb_Move_Image_Left        , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_L | SHIFT_MASK   , kb_Move_Image_Right       , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_K | SHIFT_MASK   , kb_Zoom_In_Center_Image    , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_J | SHIFT_MASK   , kb_Zoom_Out_Center_Image   , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_H | CONTROL_MASK , kb_Prev_Image            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_L | CONTROL_MASK , kb_Next_Image            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_P                , kb_Prev_Image            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_N                , kb_Next_Image            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_C                , kb_Fit_Center_Image       , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_M                , kb_Flip_Horizontal       , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_V                , kb_Flip_Vertical         , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_O                , kb_Print_Debug_Info       , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_SPACE            , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
 
 #if (ENABLE_SHADERS == 1)
-    {KEY_I, keybind_colorInvertShader   , DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
-    {KEY_G, keybind_colorGrayscaleShader, DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
+    BIND(KEY_I, kb_Color_Invert_Shader   , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_G, kb_Color_Grayscale_Shader, DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
 #else
-    {KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, 0, DELAY_MEDIUM},
+    BIND(KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
 #endif
 
 
     // ###########################
     // ##### file list page ######
     // ###########################
-    {KEY_K                            , keybind_prevImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
-    {KEY_J                            , keybind_nextImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
-    {KEY_K | SHIFT_MASK               , keybind_prevImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {KEY_J | SHIFT_MASK               , keybind_nextImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {KEY_D | CONTROL_MASK             , keybind_nextImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
-    {KEY_U | CONTROL_MASK             , keybind_prevImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
-    {KEY_D | CONTROL_MASK | SHIFT_MASK, keybind_nextImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {KEY_U | CONTROL_MASK | SHIFT_MASK, keybind_prevImageBy10 , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {KEY_P | CONTROL_MASK             , keybind_prevImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
-    {KEY_N | CONTROL_MASK             , keybind_nextImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_FAST},
-    {KEY_P | CONTROL_MASK | SHIFT_MASK, keybind_prevImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {KEY_N | CONTROL_MASK | SHIFT_MASK, keybind_nextImage     , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {KEY_G | SHIFT_MASK               , keybind_jumpImageEnd  , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {KEY_G                            , keybind_jumpImageStart, DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    BIND(KEY_K                            , kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_J                            , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_K | SHIFT_MASK               , kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_J | SHIFT_MASK               , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_D | CONTROL_MASK             , kb_Next_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_U | CONTROL_MASK             , kb_Prev_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_D | CONTROL_MASK | SHIFT_MASK, kb_Next_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_U | CONTROL_MASK | SHIFT_MASK, kb_Prev_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_P | CONTROL_MASK             , kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_N | CONTROL_MASK             , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_P | CONTROL_MASK | SHIFT_MASK, kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_N | CONTROL_MASK | SHIFT_MASK, kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_G | SHIFT_MASK               , kb_Jump_Image_End  , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_G                            , kb_Jump_Image_Start, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+
+
+
+    // ###########################
+    // ##### keybind   page ######
+    // ###########################
+    BIND(KEY_K, kb_Scroll_Keybind_List_Up  , DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
+    BIND(KEY_J, kb_Scroll_Keybind_List_Down, DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
 };
 
 // define mouse input mappings
 static InputMapping mousebinds[] = {
-    {MOUSE_WHEEL_FORWARD_BUTTON              , keybind_zoomInMousePosition  , DOKO_SCREEN_IMAGE, 0, DELAY_INSTANT},
-    {MOUSE_WHEEL_BACKWARD_BUTTON             , keybind_zoomOutMousePosition , DOKO_SCREEN_IMAGE, 0, DELAY_INSTANT},
-    {MOUSE_WHEEL_FORWARD_BUTTON  | SHIFT_MASK, keybind_nextImage            , DOKO_SCREEN_IMAGE, 0, DELAY_VFAST},
-    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_prevImage            , DOKO_SCREEN_IMAGE, 0, DELAY_VFAST},
-    {MOUSE_BUTTON_LEFT                       , keybind_moveImageByMouseDelta, DOKO_SCREEN_IMAGE, 0, DELAY_INSTANT},
+    BIND(MOUSE_WHEEL_FWD             , kb_Zoom_In_Mouse_Position   , DOKO_SCREEN_IMAGE, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD             , kb_Zoom_Out_Mouse_Position  , DOKO_SCREEN_IMAGE, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_VFAST),
+    BIND(MOUSE_WHEEL_BWD | SHIFT_MASK, kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_VFAST),
+    BIND(MOUSE_BUTTON_LEFT           , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
+    BIND(MOUSE_BUTTON_RIGHT          , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
 
-    {MOUSE_WHEEL_FORWARD_BUTTON              , keybind_prevImage    , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {MOUSE_WHEEL_BACKWARD_BUTTON             , keybind_nextImage    , DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {MOUSE_WHEEL_FORWARD_BUTTON  | SHIFT_MASK, keybind_prevImageBy10, DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
-    {MOUSE_WHEEL_BACKWARD_BUTTON | SHIFT_MASK, keybind_nextImageBy10, DOKO_SCREEN_FILE_LIST, 0, DELAY_INSTANT},
+    BIND(MOUSE_WHEEL_FWD             , kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD             , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Prev_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD | SHIFT_MASK, kb_Next_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
 };
 
 

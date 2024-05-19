@@ -7,3 +7,8 @@ IndentAccessModifiers: true
 IndentWidth: 4
 SortIncludes: false
 NamespaceIndentation: All
+DerivePointerAlignment: false
+PointerAlignment: Left
+AlignAfterOpenBracket: BlockIndent
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveDeclarations: Consecutive

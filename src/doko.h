@@ -54,12 +54,17 @@ typedef enum {
 typedef enum {
     DOKO_SCREEN_IMAGE = 0,
     DOKO_SCREEN_FILE_LIST,
+    DOKO_SCREEN_KEYBINDS,
 
     DOKO_SCREEN__START = DOKO_SCREEN_IMAGE,
-    DOKO_SCREEN__END = DOKO_SCREEN_FILE_LIST,
+    DOKO_SCREEN__END = DOKO_SCREEN_KEYBINDS,
     DOKO_SCREEN__ALL = -1
 
 } doko_screen_t;
+
+// len("SCREEN_FILE_LIST")
+#define STRLEN_SCREEN_STR 16
+
 
 // a wrapper around the raylib image
 // holds lots of extra data and the image itself
@@ -115,6 +120,9 @@ typedef struct doko_control {
 
     // keeps track of the current frame
     size_t frame;
+
+    // for keeping state on the keybinds page
+    size_t keybindPageScroll;
 
     // which screen the user is on
     doko_screen_t screen;
@@ -208,5 +216,25 @@ int doko_qsort_natstrcmp(const void *a, const void *b);
  * Prints a message to a stream if the log level is above or equal to the set log level
  */
 void doko_log(log_level_t level, FILE* stream, const char *fmt, ...);
+
+/**
+ * Gets a pretty name for the screen
+ */
+const char* get_pretty_screen_text(doko_screen_t screen);
+
+/**
+ * Gets a pretty name for raylib keys
+ */
+const char* get_key_to_pretty_text(int key);
+
+/**
+ * Gets a pretty name for raylib keys
+ */
+const char* get_mouse_to_pretty_text(int key);
+
+// the max length of the output of get_key_to_pretty_text and get_mouse_to_pretty_text
+// which is len("MOUSE_BUTTON_RIGHT") plus 2 for C and S 
+#define STRLEN_KEY_STR 20
+
 
 #endif

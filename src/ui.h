@@ -77,4 +77,9 @@ void ui_renderPixelGrid(doko_image_t* image);
  */
 void ui_renderFileList(doko_control_t* ctrl);
 
+/**
+ * Renders the a file list.
+ */
+void ui_renderKeybinds(doko_control_t* ctrl);
+
 #endif

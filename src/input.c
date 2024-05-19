@@ -1,5 +1,6 @@
 
 #include "input.h"
+#include "config.h"
 #include "doko.h"
 #include <raylib.h>
 #include <stdio.h>
@@ -24,34 +25,34 @@
 #define I_HEIGHT(i) (i)->selected_image->srcRect.height
 #define I_SCALE(i) (i)->selected_image->scale
 
-void keybind_zoomInCenterImage(doko_control_t *ctrl) {
+void kb_Zoom_In_Center_Image(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_zoomImageOnPointFromClosest(ctrl->selected_image, true, GetScreenWidth() / 2, GetScreenHeight() / 2);
 }
 
-void keybind_zoomOutCenterImage(doko_control_t *ctrl) {
+void kb_Zoom_Out_Center_Image(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_zoomImageOnPointFromClosest(ctrl->selected_image, false, GetScreenWidth() / 2, GetScreenHeight() / 2);
 }
 
-void keybind_zoomInMousePosition(doko_control_t *ctrl) {
+void kb_Zoom_In_Mouse_Position(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_zoomImageOnPointFromClosest(ctrl->selected_image, true, GetMouseX(), GetMouseY());
 }
-void keybind_zoomOutMousePosition(doko_control_t *ctrl) {
+void kb_Zoom_Out_Mouse_Position(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_zoomImageOnPointFromClosest(ctrl->selected_image, false, GetMouseX(), GetMouseY());
 }
 
-void keybind_nextImageN(doko_control_t *ctrl, int by) {
+void kb_Next_Image_By_N(doko_control_t *ctrl, int by) {
 
     _ZERO_SIZE_WARN(ctrl);
 
@@ -77,7 +78,7 @@ void keybind_nextImageN(doko_control_t *ctrl, int by) {
 }
 
 
-void keybind_prevImageN(doko_control_t *ctrl, int by) {
+void kb_Prev_Image_N(doko_control_t *ctrl, int by) {
 
     _ZERO_SIZE_WARN(ctrl);
 
@@ -102,27 +103,27 @@ void keybind_prevImageN(doko_control_t *ctrl, int by) {
     }
 }
 
-void keybind_nextImage(doko_control_t *ctrl) {
+void kb_Next_Image(doko_control_t *ctrl) {
 
-    keybind_nextImageN(ctrl, 1);
+    kb_Next_Image_By_N(ctrl, 1);
 }
 
-void keybind_nextImageBy10(doko_control_t *ctrl) {
+void kb_Next_Image_By_10(doko_control_t *ctrl) {
 
-    keybind_nextImageN(ctrl, 10);
+    kb_Next_Image_By_N(ctrl, 10);
 }
 
-void keybind_prevImage(doko_control_t *ctrl) {
+void kb_Prev_Image(doko_control_t *ctrl) {
 
-    keybind_prevImageN(ctrl, 1);
+    kb_Prev_Image_N(ctrl, 1);
 }
 
-void keybind_prevImageBy10(doko_control_t *ctrl){
+void kb_Prev_Image_By_10(doko_control_t *ctrl){
 
-    keybind_prevImageN(ctrl, 10);
+    kb_Prev_Image_N(ctrl, 10);
 }
 
-void keybind_jumpImageN(doko_control_t* ctrl, int to) {
+void kb_Jump_Image_N(doko_control_t* ctrl, int to) {
 
     _ZERO_SIZE_WARN(ctrl);
 
@@ -131,18 +132,18 @@ void keybind_jumpImageN(doko_control_t* ctrl, int to) {
     set_image(ctrl, to);
 }
 
-void keybind_jumpImageStart(doko_control_t* ctrl) {
+void kb_Jump_Image_Start(doko_control_t* ctrl) {
 
-    keybind_jumpImageN(ctrl, 0);
+    kb_Jump_Image_N(ctrl, 0);
 
 }
 
-void keybind_jumpImageEnd(doko_control_t* ctrl) {
+void kb_Jump_Image_End(doko_control_t* ctrl) {
 
-    keybind_jumpImageN(ctrl, ctrl->image_files.size - 1);
+    kb_Jump_Image_N(ctrl, ctrl->image_files.size - 1);
 }
 
-void keybind_printDebugInfo(doko_control_t *ctrl) {
+void kb_Print_Debug_Info(doko_control_t *ctrl) {
 
     doko_image_t *im;
 
@@ -165,35 +166,35 @@ void keybind_printDebugInfo(doko_control_t *ctrl) {
     L_I("   Scale %f\n", im->scale);
 }
 
-void keybind_moveImageUp(doko_control_t *ctrl) {
+void kb_Move_Image_Up(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_moveScrFracImage(ctrl->selected_image, 0, -1 / 5.0);
 }
 
-void keybind_moveImageDown(doko_control_t *ctrl) {
+void kb_Move_Image_Down(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_moveScrFracImage(ctrl->selected_image, 0, 1 / 5.0);
 }
 
-void keybind_moveImageLeft(doko_control_t *ctrl) {
+void kb_Move_Image_Left(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_moveScrFracImage(ctrl->selected_image, -1 / 5.0, 0);
 }
 
-void keybind_moveImageRight(doko_control_t *ctrl) {
+void kb_Move_Image_Right(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_moveScrFracImage(ctrl->selected_image, 1 / 5.0, 0);
 }
 
-void keybind_moveImageByMouseDelta(doko_control_t *ctrl) {
+void kb_Move_Image_By_Mouse_Delta(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
@@ -215,21 +216,21 @@ void keybind_moveImageByMouseDelta(doko_control_t *ctrl) {
     // }
 }
 
-void keybind_centerImage(doko_control_t *ctrl) {
+void kb_Center_Image(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_centerImage(ctrl->selected_image);
 }
 
-void keybind_fitCenterImage(doko_control_t *ctrl) {
+void kb_Fit_Center_Image(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     doko_fitCenterImage(ctrl->selected_image);
 }
 
-void keybind_flipVertical(doko_control_t *ctrl) {
+void kb_Flip_Vertical(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
@@ -242,7 +243,7 @@ void keybind_flipVertical(doko_control_t *ctrl) {
     ctrl->selected_image->rebuildBuff = 1;
 }
 
-void keybind_flipHorizontal(doko_control_t *ctrl) {
+void kb_Flip_Horizontal(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
@@ -255,7 +256,7 @@ void keybind_flipHorizontal(doko_control_t *ctrl) {
     ctrl->selected_image->rebuildBuff = 1;
 }
 
-void keybind_colorInvert(doko_control_t *ctrl) {
+void kb_Color_Invert(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
@@ -298,31 +299,31 @@ void keybind_colorInvert(doko_control_t *ctrl) {
     }
 }
 
-void keybind_colorInvertShader(doko_control_t *ctrl) {
+void kb_Color_Invert_Shader(doko_control_t *ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     ctrl->selected_image->applyInvertShader = !ctrl->selected_image->applyInvertShader;
 }
 
-void keybind_colorGrayscaleShader(doko_control_t* ctrl) {
+void kb_Color_Grayscale_Shader(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     ctrl->selected_image->applyGrayscaleShader = !ctrl->selected_image->applyGrayscaleShader;
 }
 
-void keybind_increaseFPS(doko_control_t *ctrl) {
+void kb_Increase_FPS(doko_control_t *ctrl) {
 
     SetTargetFPS(GetFPS() + 1);
 }
 
-void keybind_decreaseFPS(doko_control_t *ctrl) {
+void kb_Decrease_FPS(doko_control_t *ctrl) {
 
     SetTargetFPS(GetFPS() - 1);
 }
 
-void keybind_cycleScreen(doko_control_t *ctrl) {
+void kb_Cycle_Screen(doko_control_t *ctrl) {
 
     ctrl->screen++;
 
@@ -332,7 +333,7 @@ void keybind_cycleScreen(doko_control_t *ctrl) {
     }
 }
 
-void keybind_cycleScreenReverse(doko_control_t *ctrl) {
+void kb_Cycle_Screen_Reverse(doko_control_t *ctrl) {
 
     ctrl->screen--;
 
@@ -341,3 +342,38 @@ void keybind_cycleScreenReverse(doko_control_t *ctrl) {
         ctrl->screen = DOKO_SCREEN__END;
     }
 }
+
+void kb_Goto_Image_Screen(doko_control_t *ctrl) {
+    ctrl->screen = DOKO_SCREEN_IMAGE;
+}
+
+void kb_Goto_File_List_Screen(doko_control_t *ctrl) {
+    ctrl->screen = DOKO_SCREEN_FILE_LIST;
+}
+
+void kb_Goto_Keybinds_Screen(doko_control_t *ctrl) {
+    ctrl->screen = DOKO_SCREEN_KEYBINDS;
+}
+
+void kb_Scroll_Keybind_List_Up(doko_control_t* ctrl) {
+
+    if (ctrl->keybindPageScroll == 0) {
+
+        ctrl->keybindPageScroll = KEYBIND_COUNT + MOUSEBIND_COUNT - 1;
+
+        return;
+    }
+
+    ctrl->keybindPageScroll--;
+}
+
+void kb_Scroll_Keybind_List_Down(doko_control_t *ctrl){
+
+    ctrl->keybindPageScroll++;
+
+    if (ctrl->keybindPageScroll > KEYBIND_COUNT + MOUSEBIND_COUNT) {
+
+        ctrl->keybindPageScroll = 0;
+    }
+}
+
