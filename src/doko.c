@@ -414,6 +414,15 @@ bool doko_loadImage(doko_image_t* image) {
         return 0;
     }
 
+    if(!CreateThumbnail( &image->rayim, &image->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE)) {
+        
+        L_E("Error creating thumbnail!");
+
+        memset(&image->thumb, 0, sizeof(image->thumb));
+    }
+
+    L_I("thumbnail created with size: %d x %d", image->thumb.width, image->thumb.height);
+
     image->srcRect = (Rectangle){
         0.0,
         0.0,
@@ -696,9 +705,85 @@ void doko_log(log_level_t level, FILE* stream, const char* fmt, ...) {
     }
 }
 
+
+// edited from the raylib ImageResizeNN function
+bool CopyAndResizeImageNN(
+    Image* image, Image* newimage, int newWidth, int newHeight
+) {
+    // Security check to avoid program crash
+    if ((image->data == NULL) || (image->width == 0) || (image->height == 0))
+        return false;
+
+    Color* pixels;
+
+    if (image->format != PIXELFORMAT_UNCOMPRESSED_R32G32B32A32) { 
+        pixels = LoadImageColors(*image);
+    } else { 
+        pixels = image->data;
+    }
+
+    Color* output = (Color*)RL_MALLOC(newWidth * newHeight * sizeof(Color));
+
+    // EDIT: added +1 to account for an early rounding problem
+    int xRatio = (int)((image->width << 16) / newWidth) + 1;
+    int yRatio = (int)((image->height << 16) / newHeight) + 1;
+
+    int x2, y2;
+
+    for (int y = 0; y < newHeight; y++) {
+        for (int x = 0; x < newWidth; x++) {
+            x2 = ((x * xRatio) >> 16);
+            y2 = ((y * yRatio) >> 16);
+
+            output[(y * newWidth) + x] = pixels[(y2 * image->width) + x2];
+        }
+    }
+
+    int format = image->format;
+
+    newimage->data   = output;
+    newimage->width  = newWidth;
+    newimage->height = newHeight;
+    newimage->mipmaps = 1;
+    newimage->format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+
+    // Reformat 32bit RGBA image to original format
+    ImageFormat(
+        newimage, format
+    );
+
+    if (image->format != PIXELFORMAT_UNCOMPRESSED_R32G32B32A32) {
+        UnloadImageColors(pixels);
+    }
+
+    return true;
+}
+
+bool CreateThumbnail( Image* image, Image* newimage, int newWidth, int newHeight) {
+
+    double ratio;
+
+    if(image->width > image->height) {
+
+        ratio = (double)image->height / image->width;
+
+        return CopyAndResizeImageNN(image, newimage, newWidth, ratio * newHeight);
+    }
+    else {
+        ratio = (double)image->width / image->height;
+
+        return CopyAndResizeImageNN(image, newimage, ratio * newWidth, newHeight);
+    }
+
+    return true;
+}
+
 const char* get_pretty_screen_text(doko_screen_t screen) {
 
     switch (screen) {
+
+    case DOKO_SCREEN_THUMB_GRID:
+        return "SCREEN_THUMB";
 
     case DOKO_SCREEN_IMAGE:
         return "SCREEN_IMAGE";
@@ -861,4 +946,5 @@ const char* get_mouse_to_pretty_text(int key) {
     }
     return "UNKNOWN";
 }
+
 

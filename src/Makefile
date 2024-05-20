@@ -16,7 +16,7 @@ clean:
 	rm -f $(TARGET) $(OBJS)
 	rm -f $(TARGET).exe
 
-doko.o: doko.c doko.h darray.h
+doko.o: doko.c doko.h darray.h config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INCLUDE_PATHS)
 
 main.o: main.c doko.h darray.h ui.h config.h input.h
@@ -25,10 +25,10 @@ main.o: main.c doko.h darray.h ui.h config.h input.h
 resources.o: resources.c resources.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INCLUDE_PATHS)
 
-ui.o: ui.c doko.h ui.h config.h resources.h
+ui.o: ui.c doko.h ui.h darray.h config.h resources.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INCLUDE_PATHS)
 
-input.o: input.c doko.h ui.h config.h
+input.o: input.c doko.h darray.h ui.h config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(INCLUDE_PATHS)
 
 external/strnatcmp.o: external/strnatcmp.c

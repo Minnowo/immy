@@ -76,10 +76,14 @@ void kb_Cycle_Screen_Reverse(doko_control_t* ctrl);
 
 void kb_Goto_Image_Screen(doko_control_t* ctrl);
 void kb_Goto_File_List_Screen(doko_control_t* ctrl);
+void kb_Goto_Thumb_Screen(doko_control_t* ctrl);
 void kb_Goto_Keybinds_Screen(doko_control_t* ctrl);
 
 void kb_Scroll_Keybind_List_Up(doko_control_t* ctrl);
 void kb_Scroll_Keybind_List_Down(doko_control_t* ctrl);
+
+void kb_Scroll_Thumb_Page_Up(doko_control_t* ctrl);
+void kb_Scroll_Thumb_Page_Down(doko_control_t* ctrl);
 
 void kb_Copy_Image_To_Clipboard(doko_control_t* ctrl);
 

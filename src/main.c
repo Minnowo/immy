@@ -14,7 +14,6 @@
 #include "doko.h"
 #include "ui.h"
 
-void* display;
 struct doko_control this;
 
 static inline void sort_file_list(FilePathList fpl) {
@@ -452,6 +451,10 @@ int main(int argc, char* argv[]) {
                 ui_renderFileList(&this);
                 break;
 
+            case DOKO_SCREEN_THUMB_GRID:
+                ui_renderThumbs(&this);
+                break;
+
             case DOKO_SCREEN_IMAGE:
 
                 if (this.selected_image == NULL) {
@@ -500,7 +503,7 @@ int main(int argc, char* argv[]) {
         EndDrawing();
     }
 
-    DARRAY_FOR_EACH_I(this.image_files, i) {
+    DARRAY_FOR_EACH(this.image_files, i) {
 
         doko_image_t im = this.image_files.buffer[i];
 

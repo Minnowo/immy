@@ -69,6 +69,7 @@ typedef enum {
 typedef enum {
     DOKO_SCREEN_IMAGE = 0,
     DOKO_SCREEN_FILE_LIST,
+    DOKO_SCREEN_THUMB_GRID,
     DOKO_SCREEN_KEYBINDS,
 
     DOKO_SCREEN__START = DOKO_SCREEN_IMAGE,
@@ -78,7 +79,7 @@ typedef enum {
 } doko_screen_t;
 
 // max width to render for the screen column on the keybinds page
-#define STRLEN_SCREEN_STR 16
+#define STRLEN_SCREEN_STR 17
 
 // max width to render for the key string column on the keybinds page
 #define STRLEN_KEY_STR 20
@@ -95,6 +96,7 @@ typedef struct doko_image {
 
         image_status_t status;
         Image          rayim;
+        Image          thumb;
         Rectangle      srcRect;
         Vector2        dstPos;
 
@@ -111,6 +113,7 @@ typedef struct doko_image {
 DARRAY_DEF(dimage_arr, doko_image_t*);
 DARRAY_DEF(dint_arr, int*);
 DARRAY_DEF(dbyte_arr, unsigned char*);
+DARRAY_DEF(Texture2D_dynamic_arr, Texture2D*);
 
 typedef struct doko_message {
         char*  message;
@@ -151,12 +154,13 @@ typedef struct doko_control {
         doko_image_t* selected_image; // the selected image;
                                       // points to the image_files;
 
-        doko_message_t message;     // message to show to the user
-        dimage_arr_t   image_files; // images files loaded or not
-        doko_config_t  config;      // runtime settings
+        doko_message_t message;      // message to show to the user
+        dimage_arr_t   image_files;  // images files loaded or not
+        doko_config_t  config;       // runtime settings
 
         // for keeping state on the keybinds page
         size_t keybindPageScroll;
+        size_t thumbPageScroll;
 
         // which screen the user is on
         doko_screen_t screen;
@@ -280,6 +284,17 @@ const char* get_mouse_to_pretty_text(int key);
  * Copy an image to clipboard
  */
 bool doko_copy_image_to_clipboard(doko_image_t* im);
+
+
+/**
+ * Return a resized copy of the image
+ */
+bool CopyAndResizeImageNN( Image* image, Image* newimage, int newWidth, int newHeight);
+
+/**
+ * Create a thumbnail image from the given image
+ */
+bool CreateThumbnail( Image* image, Image* newimage, int newWidth, int newHeight);
 
 inline static bool str_likely_means_true(const char* str) {
     return strncmp(str, "true", 5) == 0 || atoi(str) != 0;

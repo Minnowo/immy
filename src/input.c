@@ -156,7 +156,7 @@ void kb_Print_Debug_Info(doko_control_t* ctrl) {
 
     doko_image_t* im;
 
-    DARRAY_FOR_EACH_I(ctrl->image_files, i) {
+    DARRAY_FOR_EACH(ctrl->image_files, i) {
 
         im = ctrl->image_files.buffer + i;
 
@@ -389,6 +389,10 @@ void kb_Goto_File_List_Screen(doko_control_t* ctrl) {
     ctrl->screen = DOKO_SCREEN_FILE_LIST;
 }
 
+void kb_Goto_Thumb_Screen(doko_control_t* ctrl) {
+    ctrl->screen = DOKO_SCREEN_THUMB_GRID;
+}
+
 void kb_Goto_Keybinds_Screen(doko_control_t* ctrl) {
     ctrl->screen = DOKO_SCREEN_KEYBINDS;
 }
@@ -409,10 +413,41 @@ void kb_Scroll_Keybind_List_Down(doko_control_t* ctrl) {
 
     ctrl->keybindPageScroll++;
 
-    if (ctrl->keybindPageScroll > KEYBIND_COUNT + MOUSEBIND_COUNT) {
+    if (ctrl->keybindPageScroll >= KEYBIND_COUNT + MOUSEBIND_COUNT) {
 
         ctrl->keybindPageScroll = 0;
     }
+}
+
+void kb_Scroll_Thumb_Page_Up(doko_control_t* ctrl) {
+
+    int cols = GetScreenWidth() / THUMBNAIL_SIZE;
+
+    if (cols < ctrl->thumbPageScroll) {
+
+        ctrl->thumbPageScroll -= cols;
+
+    } else {
+
+        ctrl->thumbPageScroll = 0;
+    }
+}
+
+void kb_Scroll_Thumb_Page_Down(doko_control_t* ctrl) {
+
+    int cols = GetScreenWidth() / THUMBNAIL_SIZE;
+    // int rows = 2 * ctrl->image_files.size / cols;
+
+    // L_I("there are %d cols", cols);
+    // L_I("there are %d rows", rows);
+
+    ctrl->thumbPageScroll += cols;
+
+    // if (ctrl->thumbPageScroll >= rows) {
+
+    //     ctrl->thumbPageScroll = rows;
+    //     L_I("lcoking at rows count");
+    // }
 }
 
 void kb_Copy_Image_To_Clipboard(doko_control_t* ctrl) {

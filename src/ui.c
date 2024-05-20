@@ -15,6 +15,7 @@ int hasInit = 0;
 char*     imageBufPath;
 Texture2D imageBuf;
 Texture2D backgroundBuf;
+Texture2D_dynamic_arr_t thumbBufs;
 
 #if (ENABLE_SHADERS == 1)
 Shader grayscaleShader;
@@ -95,7 +96,7 @@ void ui_loadCodepoints(const char* text, bool reload) {
 
 void ui_loadCodepointsFromFileList(const doko_control_t* ctrl) {
 
-    DARRAY_FOR_EACH_I(ctrl->image_files, i) {
+    DARRAY_FOR_EACH(ctrl->image_files, i) {
 
         doko_image_t* im = ctrl->image_files.buffer + i;
 
@@ -134,6 +135,8 @@ void ui_init(doko_config_t* config) {
         GetShaderLocation(grayscaleShader, "applyGrayscale");
 #endif
 
+    memset(&thumbBufs, 0, sizeof(thumbBufs));
+
     DARRAY_INIT(font_codepoints, 128);
     ui_setInitialCodePoints(CODEPOINT_INITIAL);
 
@@ -151,6 +154,11 @@ void ui_deinit() {
         DIE("Cannot deinit if we have no init the ui");
         return;
     }
+
+    DARRAY_FOR_EACH(thumbBufs, i) {
+        UnloadTexture(thumbBufs.buffer[i]);
+    }
+    DARRAY_FREE(thumbBufs);
 
     UnloadTexture(imageBuf);
     UnloadTexture(backgroundBuf);
@@ -469,5 +477,69 @@ void ui_renderKeybinds(const doko_control_t* ctrl) {
             ),
             (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, WHITE
         );
+    }
+}
+
+void ui_renderThumbs(const doko_control_t* ctrl) {
+
+    const int sw = GetScreenWidth();
+    const int sh = GetScreenHeight();
+
+    // ensure we can always get a thumb buffer
+    if (ctrl->image_files.length > thumbBufs.length) {
+
+        DARRAY_GROW_SIZE_TO(thumbBufs, ctrl->image_files.length);
+    }
+
+    int cols = sw / THUMBNAIL_SIZE;
+    int offset = (sw % THUMBNAIL_SIZE) / 2;
+
+    int col = 0;
+    int row = 0;
+
+    size_t i = ctrl->thumbPageScroll;
+
+    DARRAY_FOR_EACH_I(ctrl->image_files, i) {
+
+        Image im = ctrl->image_files.buffer[i].thumb;
+
+        if (!IsImageReady(im)) {
+
+            continue;
+        }
+
+        Texture2D tex = thumbBufs.buffer[i];
+
+        if (!IsTextureReady(tex)) {
+
+            tex = LoadTextureFromImage(im);
+
+            if (!IsTextureReady(tex)) {
+                continue;
+            }
+
+            thumbBufs.buffer[i] = tex;
+        }
+
+        int x = col * THUMBNAIL_SIZE;
+        int y = row * THUMBNAIL_SIZE;
+
+        x -= (x % THUMBNAIL_SIZE);
+        x += offset;
+
+        col++;
+
+        if (col >= cols) {
+            col = 0;
+            row ++;
+        }
+
+        DrawTexture(
+            tex, 
+            x + (THUMBNAIL_SIZE - im.width) / 2,
+            y + (THUMBNAIL_SIZE - im.height) / 2, 
+            WHITE
+        );
+        DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, WHITE);
     }
 }

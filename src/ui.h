@@ -79,7 +79,12 @@ void ui_renderPixelGrid(const doko_image_t* image);
 void ui_renderFileList(const doko_control_t* ctrl);
 
 /**
- * Renders the a file list.
+ * Renders the a thumbs list.
+ */
+void ui_renderThumbs(const doko_control_t* ctrl);
+
+/**
+ * Renders the a keybind list.
  */
 void ui_renderKeybinds(const doko_control_t* ctrl);
 
