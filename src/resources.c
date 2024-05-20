@@ -3,7 +3,6 @@
 
 #include "resources.h"
 
-
 #ifdef DOKO_BUNDLE
 
 #include "bundle.h"
@@ -12,7 +11,7 @@
 #error "DOKO_BUNDLE is defined, but the bundle.h file does not define a bundle"
 #endif
 
-unsigned char* get_resource_data(const char* resource_path, size_t *data_size) {
+unsigned char* get_resource_data(const char* resource_path, size_t* data_size) {
 
     for (size_t i = 0; i < resources_count; ++i) {
 
@@ -27,25 +26,22 @@ unsigned char* get_resource_data(const char* resource_path, size_t *data_size) {
     return NULL;
 }
 
-
 void free_resource_data(void* data) {
 
     (void)data;
 }
 
-
 #else
-
 
 #include "raylib.h"
 
-unsigned char* get_resource_data(const char* resource_path, size_t *data_size) {
+unsigned char* get_resource_data(const char* resource_path, size_t* data_size) {
 
     int dataSize;
 
-    void *data = LoadFileData(resource_path, &dataSize);
+    void* data = LoadFileData(resource_path, &dataSize);
 
-    if(!data) {
+    if (!data) {
         return NULL;
     }
 
@@ -54,12 +50,9 @@ unsigned char* get_resource_data(const char* resource_path, size_t *data_size) {
     return data;
 }
 
-
 void free_resource_data(void* data) {
 
     UnloadFileData(data);
 }
 
-
 #endif
-

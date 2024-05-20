@@ -52,13 +52,13 @@
 
 // if 1 load images using image magick convert before raylib
 // requires image magick's `convert` added to path
-#define USE_MAGICK_CONVERT 1
+#define USE_MAGICK 1
 // have magick convert to this format before raylib loads the image
 #define MAGICK_CONVERT_MIDDLE_FMT "qoi"
 
 // if 1 try and load images using ffmpeg before raylib
 // requires `ffmpeg` added to path
-#define USE_FFMPEG_CONVERT 1
+#define USE_FFMPEG 1
 // have ffmpeg convert to this format before raylib loads the image
 #define FFMPEG_CONVERT_MIDDLE_FMT "qoi"
 // see https://ffmpeg.org/ffmpeg.html
@@ -237,7 +237,7 @@ typedef enum {
     MOUSE_WHEEL_BWD = 667
 } MouseWheel;
 
-// define keybinds, you can find more methods in the keybind.h file
+// define keybinds
 // define any new ones as you see fit
 static InputMapping keybinds[] = {
 

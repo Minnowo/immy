@@ -6,29 +6,29 @@
 #include "doko.h"
 #include <raylib.h>
 
-#define SHIFT_MASK   0x80000000  // 1000 0000 0000 0000 0000 0000 0000 0000
-#define CONTROL_MASK 0x40000000  // 0100 0000 0000 0000 0000 0000 0000 0000
+#define SHIFT_MASK 0x80000000   // 1000 0000 0000 0000 0000 0000 0000 0000
+#define CONTROL_MASK 0x40000000 // 0100 0000 0000 0000 0000 0000 0000 0000
 #define KEY_MASK ~(SHIFT_MASK | CONTROL_MASK)
 
-#define HAS_CTRL(k)   ((((int)(k)) & CONTROL_MASK) != 0)
-#define HAS_SHIFT(k)  ((((int)(k)) & SHIFT_MASK)   != 0)
+#define HAS_CTRL(k) ((((int)(k)) & CONTROL_MASK) != 0)
+#define HAS_SHIFT(k) ((((int)(k)) & SHIFT_MASK) != 0)
 #define GET_RAYKEY(k) ((k) & KEY_MASK)
 
 typedef void (*InputCallback)(doko_control_t*);
 
 typedef struct {
-    unsigned int key;
-    InputCallback function;
-    doko_screen_t screen;
-    double lastPressedTime;
-    double keyTriggerRate;
-    const char* NAME;
+        unsigned int  key;
+        InputCallback function;
+        doko_screen_t screen;
+        double        lastPressedTime;
+        double        keyTriggerRate;
+        const char*   NAME;
 } InputMapping;
 
 #define BIND(k, func, scr, rate)                                               \
     (InputMapping) {                                                           \
         .key = k, .function = func, .screen = scr, .lastPressedTime = 0,       \
-        .keyTriggerRate = rate, .NAME = (#func)+3                                  \
+        .keyTriggerRate = rate, .NAME = (#func) + 3                            \
     }
 
 void kb_Zoom_In_Center_Image(doko_control_t* ctrl);
@@ -53,7 +53,7 @@ void kb_Move_Image_Up(doko_control_t* ctrl);
 void kb_Move_Image_Down(doko_control_t* ctrl);
 void kb_Move_Image_Left(doko_control_t* ctrl);
 void kb_Move_Image_Right(doko_control_t* ctrl);
-void kb_Move_Image_By_Mouse_Delta(doko_control_t *ctrl);
+void kb_Move_Image_By_Mouse_Delta(doko_control_t* ctrl);
 
 void kb_Center_Image(doko_control_t* ctrl);
 void kb_Fit_Center_Image(doko_control_t* ctrl);
@@ -68,19 +68,19 @@ void kb_Color_Grayscale_Shader(doko_control_t* ctrl);
 void kb_Increase_FPS(doko_control_t* ctrl);
 void kb_Decrease_FPS(doko_control_t* ctrl);
 
-void kb_Toggle_Image_Filelist_Screen(doko_control_t *ctrl);
-void kb_Toggle_Show_Bar(doko_control_t *ctrl);
+void kb_Toggle_Image_Filelist_Screen(doko_control_t* ctrl);
+void kb_Toggle_Show_Bar(doko_control_t* ctrl);
 
-void kb_Cycle_Screen(doko_control_t *ctrl);
-void kb_Cycle_Screen_Reverse(doko_control_t *ctrl);
+void kb_Cycle_Screen(doko_control_t* ctrl);
+void kb_Cycle_Screen_Reverse(doko_control_t* ctrl);
 
-void kb_Goto_Image_Screen(doko_control_t *ctrl);
-void kb_Goto_File_List_Screen(doko_control_t *ctrl);
-void kb_Goto_Keybinds_Screen(doko_control_t *ctrl);
+void kb_Goto_Image_Screen(doko_control_t* ctrl);
+void kb_Goto_File_List_Screen(doko_control_t* ctrl);
+void kb_Goto_Keybinds_Screen(doko_control_t* ctrl);
 
-void kb_Scroll_Keybind_List_Up(doko_control_t *ctrl);
-void kb_Scroll_Keybind_List_Down(doko_control_t *ctrl);
+void kb_Scroll_Keybind_List_Up(doko_control_t* ctrl);
+void kb_Scroll_Keybind_List_Down(doko_control_t* ctrl);
 
-void kb_Copy_Image_To_Clipboard(doko_control_t *ctrl);
+void kb_Copy_Image_To_Clipboard(doko_control_t* ctrl);
 
 #endif

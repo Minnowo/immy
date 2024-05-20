@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ui.h"
 #include "config.h"
 #include "darray.h"
 #include "doko.h"
 #include "resources.h"
+#include "ui.h"
 
 int hasInit = 0;
 
@@ -107,7 +107,9 @@ void ui_loadCodepointsFromFileList(const doko_control_t* ctrl) {
 
 void ui_init(doko_config_t* config) {
 
-    InitWindow(config->window_width, config->window_height, config->window_title);
+    InitWindow(
+        config->window_width, config->window_height, config->window_title
+    );
     SetWindowMinSize(config->window_min_width, config->window_min_height);
 
     SetWindowState(config->window_flags);
@@ -145,7 +147,8 @@ void ui_init(doko_config_t* config) {
 void ui_deinit() {
 
     if (!hasInit) {
-        exit(1);
+
+        DIE("Cannot deinit if we have no init the ui");
         return;
     }
 
@@ -213,6 +216,7 @@ void ui_renderImage(doko_image_t* image) {
     if (imageBufPath != image->path) {
 
         if (image->status == IMAGE_STATUS_NOT_LOADED) {
+
             if (!doko_loadImage(image)) {
                 return;
             }
@@ -275,10 +279,6 @@ void ui_renderImage(doko_image_t* image) {
 }
 
 void ui_renderInfoBar(const doko_image_t* image) {
-    // ui_renderTextOnInfoBar(TextFormat(
-    //     "%0.0f x %0.0f  %0.0f%%  %s", image->srcRect.width,
-    //     image->srcRect.height, image->scale*100, image->path +
-    //     image->nameOffset));
 
     const char* prefix = TextFormat(
         "%0.0f x %0.0f  %0.0f%%  ", image->srcRect.width, image->srcRect.height,
@@ -339,15 +339,13 @@ void ui_renderPixelGrid(const doko_image_t* image) {
     }
 }
 
-
 #define FZ unifont.baseSize
 #define BOTTOM_MARGIN 1
-
 
 void ui_renderFileList(const doko_control_t* ctrl) {
 
     const int sw = GetScreenWidth();
-    const int sh = GetScreenHeight() - FZ; //- (GetScreenHeight() / 8);
+    const int sh = GetScreenHeight() - FZ;
 
     int    startY;
     size_t startIndex   = 0;
@@ -441,10 +439,8 @@ void ui_renderKeybinds(const doko_control_t* ctrl) {
         DrawTextEx(
             unifont,
             TextFormat(
-                "%s%*.*s %s%*.*s %s", 
-                SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN, PADDING, 
-                KEY_TEXT, KEY_PAD_LEN, KEY_PAD_LEN, PADDING, 
-                im->NAME
+                "%s%*.*s %s%*.*s %s", SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN,
+                PADDING, KEY_TEXT, KEY_PAD_LEN, KEY_PAD_LEN, PADDING, im->NAME
             ),
             (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, WHITE
         );
@@ -468,10 +464,8 @@ void ui_renderKeybinds(const doko_control_t* ctrl) {
         DrawTextEx(
             unifont,
             TextFormat(
-                "%s%*.*s %s%*.*s %s", 
-                SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN, PADDING, 
-                KEY_TEXT, KEY_PAD_LEN, KEY_PAD_LEN, PADDING,
-                im->NAME
+                "%s%*.*s %s%*.*s %s", SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN,
+                PADDING, KEY_TEXT, KEY_PAD_LEN, KEY_PAD_LEN, PADDING, im->NAME
             ),
             (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, WHITE
         );

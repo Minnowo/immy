@@ -1,6 +1,5 @@
 
 
-
 #ifndef DOKO_UI_H
 #define DOKO_UI_H
 
@@ -13,12 +12,14 @@
     ((Color){.r = 255 - (c).r, .g = 255 - (c).g, .b = 255 - (c).b})
 
 /**
- * Initializes and creates the window/UI components. Should always be called first.
+ * Initializes and creates the window/UI components. Should always be called
+ * first.
  */
 void ui_init(doko_config_t* ctrl);
 
 /**
- * Deinitializes and destroys all the window/UI components. Should always be called last.
+ * Deinitializes and destroys all the window/UI components. Should always be
+ * called last.
  */
 void ui_deinit();
 
@@ -28,7 +29,7 @@ void ui_deinit();
 void ui_loadUnifont();
 
 /*
- * Sets the initial codepoints 
+ * Sets the initial codepoints
  */
 void ui_setInitialCodePoints(const char* text);
 

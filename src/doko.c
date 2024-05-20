@@ -2,26 +2,26 @@
 // needed for popen
 #define _POSIX_C_SOURCE 200809L
 
+#include <errno.h>
 #include <math.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <unistd.h>
+#ifdef __unix__
+#include <sys/wait.h>
+#endif
 
-#include "doko.h"
 #include "config.h"
 #include "darray.h"
+#include "doko.h"
 #include "external/strnatcmp.h"
 
-
 int info_bar_height = INFO_BAR_HEIGHT;
-int log_level = LOG_LEVEL;
+int log_level       = LOG_LEVEL;
 
 #ifdef __unix__
-
-#include <sys/wait.h>
 
 #define PIPE_READ 0
 #define PIPE_WRITE 1
@@ -72,20 +72,23 @@ bool doko_copy_image_to_clipboard(doko_image_t* im) {
 bool doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
 
     L_I("About to read image using FFMPEG");
-    L_D("FFMPEG decode format is " FFMPEG_CONVERT_MIDDLE_FMT);
+    L_D("%s: decode format is " FFMPEG_CONVERT_MIDDLE_FMT, __func__);
 
     int pipefd[2];
 
     if (pipe(pipefd) < 0) {
 
-        L_W("Load with FFMPEG: Could not create a pipe: %s", strerror(errno));
+        L_W("%s: Could not create a pipe: %s", __func__, strerror(errno));
+
         return false;
     }
 
     pid_t child = fork();
 
     if (child < 0) {
-        L_W("Load With FFMPEG: Could not create fork: %s", strerror(errno));
+
+        L_W("%s: Could not create fork: %s", __func__, strerror(errno));
+
         return false;
     }
 
@@ -94,9 +97,9 @@ bool doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
 
         if (dup2(pipefd[PIPE_WRITE], STDOUT_FILENO) < 0) {
 
-            L_C("Load With FFMPEG (in child): Could not open write end of pipe "
+            L_C("%s (child): Could not open write end of pipe "
                 "as stdout: %s",
-                strerror(errno));
+                __func__, strerror(errno));
 
             exit(EXIT_FAILURE);
 
@@ -105,6 +108,7 @@ bool doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
 
         close(pipefd[PIPE_READ]);
 
+        // clang-format off
         int ret = execlp(
             "ffmpeg", 
             "ffmpeg", 
@@ -117,10 +121,11 @@ bool doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
             "-", 
             NULL
         );
+        // clang-format on
 
         if (ret < 0) {
-            L_C("Load With FFMPEG (in child): FFMPEG Could not be run: %s",
-                strerror(errno));
+
+            L_C("%s (child): execlp failed: %s", __func__, strerror(errno));
 
             exit(EXIT_FAILURE);
         }
@@ -131,8 +136,8 @@ bool doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
     }
 
     if (close(pipefd[PIPE_WRITE]) < 0) {
-        L_W("Load With FFMPEG: Could not close write stream: %s",
-            strerror(errno));
+
+        L_W("%s: Could not close write stream: %s", __func__, strerror(errno));
     }
 
     ssize_t bytesRead;
@@ -153,16 +158,15 @@ bool doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
             data.size--;
         }
 
-        L_D("Load With FFMPEG: Read %f megabytes from stdout",
-            BYTES_TO_MB(data.size));
+        L_D("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
     }
-    L_I("Load With FFMPEG: Read %f megabytes from stdout",
-        BYTES_TO_MB(data.size));
+    L_I("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
 
     wait(NULL);
     close(pipefd[PIPE_READ]);
 
     if (data.size > 0) {
+
         *im = LoadImageFromMemory(
             "." FFMPEG_CONVERT_MIDDLE_FMT, data.buffer, data.size
         );
@@ -176,21 +180,23 @@ bool doko_load_with_ffmpeg_stdout(const char* path, Image* im) {
 bool doko_load_with_magick_stdout(const char* path, Image* im) {
 
     L_I("About to read image using ImageMagick Convert");
-    L_D("ImageMagick Convert decode format is " MAGICK_CONVERT_MIDDLE_FMT);
+    L_D("%s: Convert decode format is " MAGICK_CONVERT_MIDDLE_FMT, __func__);
 
     int pipefd[2];
 
     if (pipe(pipefd) < 0) {
-        L_W("Load with ImageMagick Convert: Could not create a pipe: %s",
-            strerror(errno));
+
+        L_W("%s: Could not create a pipe: %s", __func__, strerror(errno));
+
         return false;
     }
 
     pid_t child = fork();
 
     if (child < 0) {
-        L_W("Load With ImageMagick Convert: Could not create fork: %s",
-            strerror(errno));
+
+        L_W("%s: Could not create fork: %s", __func__, strerror(errno));
+
         return false;
     }
 
@@ -198,9 +204,10 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
         // in child process
 
         if (dup2(pipefd[PIPE_WRITE], STDOUT_FILENO) < 0) {
-            L_C("Load With ImageMagick Convert (in child): Could not open "
+
+            L_C("%s (child): Could not open "
                 "write end of pipe as stdout: %s",
-                strerror(errno));
+                __func__, strerror(errno));
 
             exit(EXIT_FAILURE);
 
@@ -213,41 +220,48 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
         char*  new_path = doko_strdupn(path, 3, &n);
 
         if (new_path == NULL) {
-            L_C("Could not copy filename to append [0]. Assuming no memory: %s",
-                strerror(errno));
+
+            L_C("%s (child): Could not dup str: %s", __func__, strerror(errno));
 
             exit(EXIT_FAILURE);
 
             return false;
         }
 
-        // since convert doesn't have any other method to tell it you only want
-        // the first image we have to do it like this
+        // to tell imagemagick we want the first image only
+        // we have to append [0] to the end of the path
         new_path[n - 1] = ']';
         new_path[n - 2] = '0';
         new_path[n - 3] = '[';
 
+        // clang-format off
         int ret = execlp(
-            "convert", "convert", "-quiet", new_path,
-            MAGICK_CONVERT_MIDDLE_FMT ":-", NULL
+            "convert", 
+            "convert", 
+            "-quiet", 
+            new_path,
+            MAGICK_CONVERT_MIDDLE_FMT ":-", 
+            NULL
         );
+        // clang-format on
 
         free(new_path);
 
         if (ret < 0) {
-            L_C("Load With Image Magick Convert (in child): FFMPEG Could not "
-                "be run: %s",
-                strerror(errno));
+
+            L_C("%s: execlp failed: %s", __func__, strerror(errno));
+
             exit(EXIT_FAILURE);
         }
 
         exit(EXIT_SUCCESS);
+
         return false;
     }
 
     if (close(pipefd[PIPE_WRITE]) < 0) {
-        L_W("Load With Image Magick Convert: Could not close write stream: %s",
-            strerror(errno));
+
+        L_W("%s: Could not close write stream: %s", __func__, strerror(errno));
     }
 
     ssize_t bytesRead;
@@ -268,16 +282,16 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
             data.size--;
         }
 
-        L_D("Load With Image Magick Convert: Read %f megabytes from stdout",
-            BYTES_TO_MB(data.size));
+        L_D("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
     }
-    L_I("Load With Image Magick Convert: Read %f megabytes from stdout",
-        BYTES_TO_MB(data.size));
+
+    L_I("%s: Read %fmb from stdout", BYTES_TO_MB(data.size));
 
     wait(NULL);
     close(pipefd[0]);
 
     if (data.size > 0) {
+
         *im = LoadImageFromMemory(
             "." MAGICK_CONVERT_MIDDLE_FMT, data.buffer, data.size
         );
@@ -288,11 +302,12 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
     return im->data != NULL;
 }
 
+
 bool doko_load_with_imlib2(const char* path, Image* im) {
 
 #if (USE_IMLIB2 == 1)
 
-    #include <Imlib2.h>
+#include <Imlib2.h>
 
     L_I("About to read image using Imlib2");
 
@@ -309,16 +324,16 @@ bool doko_load_with_imlib2(const char* path, Image* im) {
 
     imlib_context_set_image(image);
 
-    im->width = imlib_image_get_width();
-    im->height = imlib_image_get_height();
+    im->width   = imlib_image_get_width();
+    im->height  = imlib_image_get_height();
     im->format  = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
     im->mipmaps = 1;
 
     size_t pixels = im->width * im->height;
 
-    uint32_t *argb = imlib_image_get_data();
+    uint32_t* argb = imlib_image_get_data();
 
-    if(!argb) {
+    if (!argb) {
 
         return false;
     }
@@ -326,7 +341,7 @@ bool doko_load_with_imlib2(const char* path, Image* im) {
     // we have to copy the buffer otherwise we can't free from imlib
     im->data = malloc(pixels * sizeof(Color));
 
-    if(!im->data) {
+    if (!im->data) {
 
         L_E("Could not make pixel data: %s", strerror(errno));
 
@@ -335,7 +350,7 @@ bool doko_load_with_imlib2(const char* path, Image* im) {
 
     Color* d = (Color*)im->data;
 
-    for(size_t i = 0; i < pixels; i++) {
+    for (size_t i = 0; i < pixels; i++) {
 
         d[i] = (Color){
             .a = (*argb) >> 24,
@@ -348,18 +363,16 @@ bool doko_load_with_imlib2(const char* path, Image* im) {
 
     imlib_free_image();
 
-
     L_I("Loaded with imlib2");
 
     return true;
 
-#else 
+#else
 
     return 0;
 
 #endif
 }
-
 
 #else
 
@@ -377,17 +390,17 @@ bool doko_load_with_imlib2(const char* path, Image* im) {
 
 #endif
 
-
-
 bool doko_loadImage(doko_image_t* image) {
 
-    if(image->status == IMAGE_STATUS_LOADED) {
+    if (image->status == IMAGE_STATUS_LOADED) {
         return 1;
     }
 
     if (!(USE_IMLIB2 && doko_load_with_imlib2(image->path, &image->rayim)) &&
-        !(USE_MAGICK_CONVERT && doko_load_with_magick_stdout(image->path, &image->rayim)) &&
-        !(USE_FFMPEG_CONVERT && doko_load_with_ffmpeg_stdout(image->path, &image->rayim))) {
+        !(USE_MAGICK && doko_load_with_magick_stdout(image->path, &image->rayim)
+        ) &&
+        !(USE_FFMPEG && doko_load_with_ffmpeg_stdout(image->path, &image->rayim)
+        )) {
 
         image->rayim = LoadImage(image->path);
     }
@@ -437,63 +450,65 @@ void doko_centerImage(doko_image_t* image) {
     image->dstPos.y = (sh / 2.0) - (ih * image->scale) / 2.0;
 }
 
-void doko_ensureImageNotLost(doko_image_t *image) {
+void doko_ensureImageNotLost(doko_image_t* image) {
 
-    int sw = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;
-    int sh = ImageViewHeight - IMAGE_INVERSE_MARGIN_X;
-    float iw = (-(image->srcRect.width * image->scale)) + IMAGE_INVERSE_MARGIN_X;
-    float ih = (-(image->srcRect.height * image->scale)) + IMAGE_INVERSE_MARGIN_Y;
+    int   sw = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;
+    int   sh = ImageViewHeight - IMAGE_INVERSE_MARGIN_X;
+    float iw = IMAGE_INVERSE_MARGIN_X - (image->srcRect.width * image->scale);
+    float ih = IMAGE_INVERSE_MARGIN_Y -(image->srcRect.height * image->scale);
 
     if (image->dstPos.x > sw) {
+
         image->dstPos.x = sw;
+
     } else if (image->dstPos.x < iw) {
+
         image->dstPos.x = iw;
     }
 
     if (image->dstPos.y > sh) {
+
         image->dstPos.y = sh;
+
     } else if (image->dstPos.y < ih) {
+
         image->dstPos.y = ih;
     }
 }
 
-
-void doko_moveScrFracImage(doko_image_t *im, double xFrac, double yFrac) {
+void doko_moveScrFracImage(doko_image_t* im, double xFrac, double yFrac) {
 
     im->dstPos.x += ImageViewWidth * xFrac;
     im->dstPos.y += ImageViewHeight * yFrac;
     doko_ensureImageNotLost(im);
 }
 
-void doko_zoomImageCenter(doko_image_t* im, double newScale) {
+void doko_zoomImageCenter(doko_image_t* im, double afterZoom) {
 
     double beforeZoom = im->scale;
-    double afterZoom = newScale;
 
     if (afterZoom < 0) {
         afterZoom = SMALLEST_SCALE_VALUE;
     }
 
-    #define beforeZoomWidth im->srcRect.width * beforeZoom
-    #define beforeZoomHeight im->srcRect.height * beforeZoom
+    //clang-format off
+    im->dstPos.x -= (int)((im->srcRect.width * afterZoom) -
+                          (im->srcRect.width * beforeZoom)) >> 1;
 
-    #define afterZoomWidth im->srcRect.width * afterZoom
-    #define afterZoomHeight im->srcRect.height * afterZoom
+    im->dstPos.y -= (int)((im->srcRect.height * afterZoom) -
+                          (im->srcRect.height * beforeZoom)) >> 1;
+    //clang-format on
 
-    im->dstPos.x -= (int)((afterZoomWidth) - (beforeZoomWidth)) >> 1;
-    im->dstPos.y -= (int)((afterZoomHeight) - (beforeZoomHeight)) >> 1;
     im->scale = afterZoom;
 
     doko_ensureImageNotLost(im);
 }
 
-
-void doko_zoomImageOnPoint(doko_image_t* im, double newScale, int x, int y) {
+void doko_zoomImageOnPoint(doko_image_t* im, double afterZoom, int x, int y) {
 
     double beforeZoom = im->scale;
-    double afterZoom = newScale;
 
-    if(afterZoom < 0) {
+    if (afterZoom < 0) {
         afterZoom = SMALLEST_SCALE_VALUE;
     }
 
@@ -510,19 +525,20 @@ void doko_zoomImageOnPoint(doko_image_t* im, double newScale, int x, int y) {
     doko_ensureImageNotLost(im);
 }
 
-
-
 void doko_zoomImageCenterFromClosest(doko_image_t* im, bool zoomIn) {
 
     size_t index;
     BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
 
     if (zoomIn) {
-        while(index != ZOOM_LEVELS_SIZE && ZOOM_LEVELS[index] <= im->scale) {
+
+        while (index != ZOOM_LEVELS_SIZE && ZOOM_LEVELS[index] <= im->scale) {
             index++;
         }
-    } else  {
-        while(index != 0 && ZOOM_LEVELS[index] >= im->scale) {
+
+    } else {
+
+        while (index != 0 && ZOOM_LEVELS[index] >= im->scale) {
             index--;
         }
     }
@@ -530,17 +546,22 @@ void doko_zoomImageCenterFromClosest(doko_image_t* im, bool zoomIn) {
     doko_zoomImageCenter(im, ZOOM_LEVELS[index]);
 }
 
-void doko_zoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int y) {
+void doko_zoomImageOnPointFromClosest(
+    doko_image_t* im, bool zoomIn, int x, int y
+) {
 
     size_t index;
     BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
 
     if (zoomIn) {
-        while(index != ZOOM_LEVELS_SIZE && ZOOM_LEVELS[index] <= im->scale) {
+
+        while (index != ZOOM_LEVELS_SIZE && ZOOM_LEVELS[index] <= im->scale) {
             index++;
         }
+
     } else {
-        while(index != 0 && ZOOM_LEVELS[index] >= im->scale) {
+
+        while (index != 0 && ZOOM_LEVELS[index] >= im->scale) {
             index--;
         }
     }
@@ -548,11 +569,11 @@ void doko_zoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int 
     doko_zoomImageOnPoint(im, ZOOM_LEVELS[index], x, y);
 }
 
-char *doko_strdupn(const char *str, size_t n, size_t* len_) {
+char* doko_strdupn(const char* str, size_t n, size_t* len_) {
 
     const size_t len = strlen(str);
 
-    char *newstr = malloc(len + n + 1);
+    char* newstr = malloc(len + n + 1);
 
     if (!newstr) {
         return NULL;
@@ -567,7 +588,7 @@ char *doko_strdupn(const char *str, size_t n, size_t* len_) {
 
     return newstr;
 }
-char *doko_strdup(const char *str) {
+char* doko_strdup(const char* str) {
 
 #ifdef _POSIX_C_SOURCE
 
@@ -580,38 +601,37 @@ char *doko_strdup(const char *str) {
 #endif
 }
 
+int doko_qsort_strcmp(const void* a, const void* b) {
 
-int doko_qsort_strcmp(const void *a, const void *b) {
-
-    char const *pa = *(char const **)a;
-    char const *pb = *(char const **)b;
+    char const* pa = *(char const**)a;
+    char const* pb = *(char const**)b;
 
     return strcmp(pa, pb);
 }
 
-int doko_qsort_natstrcmp(const void *a, const void *b) {
+int doko_qsort_natstrcmp(const void* a, const void* b) {
 
-    char const *pa = *(char const **)a;
-    char const *pb = *(char const **)b;
+    char const* pa = *(char const**)a;
+    char const* pb = *(char const**)b;
 
     return strnatcmp(pa, pb);
 }
 
-
 void set_image(doko_control_t* ctrl, size_t index) {
 
-    if(index >= ctrl->image_files.size) {
-        L_D("Cannot set the image index to %zu since it is out of bounds", index);
+    if (index >= ctrl->image_files.size) {
+
+        L_D("Cannot set the image index to %zu", index);
+
         return;
     }
 
     ctrl->selected_image = ctrl->image_files.buffer + index;
     ctrl->selected_index = index;
-    ctrl->renderFrames = RENDER_FRAMES;
+    ctrl->renderFrames   = RENDER_FRAMES;
 }
 
-
-void doko_log(log_level_t level, FILE* stream, const char *fmt, ...) {
+void doko_log(log_level_t level, FILE* stream, const char* fmt, ...) {
 
     if (log_level == __LOG_LEVEL_NOTHING)
         return;
@@ -676,7 +696,6 @@ void doko_log(log_level_t level, FILE* stream, const char *fmt, ...) {
     }
 }
 
-
 const char* get_pretty_screen_text(doko_screen_t screen) {
 
     switch (screen) {
@@ -694,7 +713,6 @@ const char* get_pretty_screen_text(doko_screen_t screen) {
         return "SCREEN_ANY";
     }
 }
-
 
 #define STRINGIFY(x) #x
 
@@ -825,7 +843,6 @@ const char* get_key_to_pretty_text(int key) {
     }
     return "UNKNOWN";
 }
-
 
 const char* get_mouse_to_pretty_text(int key) {
 

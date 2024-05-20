@@ -7,25 +7,24 @@
 #include "config.h"
 
 /**
- * Reads the given resource, and outputs the byte count into the given data pointer
+ * Reads the given resource, and outputs the byte count into the given data
+ * pointer
  */
-unsigned char* get_resource_data(const char* resource_path, size_t *data_size);
-
+unsigned char* get_resource_data(const char* resource_path, size_t* data_size);
 
 /**
  * Free the resource data
  */
 void free_resource_data(void* data);
 
-
 // If shaders are enabled, define them here
-#if(ENABLE_SHADERS == 1)
+#if (ENABLE_SHADERS == 1)
 
 // this lets us format stuff defined in config.h into the shaders
 #define VALUE_TO_STRING(value) #value
 #define STRINGIFY_MACRO(macro) VALUE_TO_STRING(macro)
 
-
+// clang-format off
 #if (GLSL_VERSION == 330)
 
     #define INVERT_AND_GRAYSCALE_SHADER_CODE                                       \
@@ -100,5 +99,6 @@ void free_resource_data(void* data);
 #endif
 
 #endif
+// clang-format on
 
 #endif

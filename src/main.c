@@ -2,44 +2,41 @@
 #include "input.h"
 #include "raylib.h"
 
-
-
-#include <stdio.h>
-#include <unistd.h>
 #include <errno.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "darray.h"
-#include "ui.h"
 #include "config.h"
+#include "darray.h"
 #include "doko.h"
+#include "ui.h"
 
 void* display;
 struct doko_control this;
 
 static inline void sort_file_list(FilePathList fpl) {
 
-    switch(this.filename_cmp) {
+    switch (this.filename_cmp) {
 
-        case SORT_ORDER__DEFAULT:
-            qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_strcmp);
-            break;
+    case SORT_ORDER__DEFAULT:
+        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_strcmp);
+        break;
 
-        case SORT_ORDER__NATURAL:
-            qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_natstrcmp);
-            break;
+    case SORT_ORDER__NATURAL:
+        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_natstrcmp);
+        break;
     }
 }
 
 void do_override_redirect() {
 
     /*
+    #include <GLFW/glfw3.h>
     #include <X11/Xlib.h>
     #include <X11/Xutil.h>
-    #include <GLFW/glfw3.h>
 
     display = XOpenDisplay(NULL);
 
@@ -57,7 +54,8 @@ void do_override_redirect() {
     XSetWindowAttributes attrs;
     attrs.override_redirect = 1;
 
-    int i = XChangeWindowAttributes(display, window, CWOverrideRedirect, &attrs);
+    int i = XChangeWindowAttributes(display, window, CWOverrideRedirect,
+    &attrs);
 
     L_E("XChangeWindowAttributes %d", i);
 
@@ -68,7 +66,7 @@ void do_override_redirect() {
 
 void add_file(const char* path_) {
 
-    char *path = doko_strdup(path_);
+    char* path = doko_strdup(path_);
 
     if (!path) {
         L_E("Cannot duplicate string '%s'! %s", strerror(errno));
@@ -77,29 +75,28 @@ void add_file(const char* path_) {
 
     L_D("Adding file %s", path);
 
-    const char *name = GetFileName(path);
+    const char* name = GetFileName(path);
 
     doko_image_t i = {
-        .path = path,
-        .name = name,
-        .rayim = {0},
-        .scale = 1,
-        .rotation = 0,
+        .path        = path,
+        .name        = name,
+        .rayim       = {0},
+        .scale       = 1,
+        .rotation    = 0,
         .rebuildBuff = 0,
-        .status = IMAGE_STATUS_NOT_LOADED,
-        .srcRect = {0},
-        .dstPos = {0},
+        .status      = IMAGE_STATUS_NOT_LOADED,
+        .srcRect     = {0},
+        .dstPos      = {0},
     };
 
     int setim = this.image_files.size == 0;
 
     DARRAY_APPEND(this.image_files, i);
 
-    if(setim) {
+    if (setim) {
         set_image(&this, 0);
     }
 }
-
 
 void handle_dropped_files() {
 
@@ -114,61 +111,72 @@ void handle_dropped_files() {
     UnloadDroppedFiles(fpl);
 }
 
-
-
 void do_mouse_input() {
 
-    int s = IsKeyDown(KEY_LEFT_SHIFT)    || IsKeyDown(KEY_RIGHT_SHIFT);
-    int c = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
-    int kc = 0;
+    int    s    = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    int    c    = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
+    int    kc   = 0;
     double time = GetTime();
 
     for (size_t i = 0; i < MOUSEBIND_COUNT; ++i) {
 
+        // clang-format off
         if (
-            (this.screen != mousebinds[i].screen && mousebinds[i].screen != DOKO_SCREEN__ALL) || 
-            (c != HAS_CTRL(mousebinds[i].key))                                                ||
-            (s != HAS_SHIFT(mousebinds[i].key))                                               || 
-            (time - mousebinds[i].lastPressedTime < mousebinds[i].keyTriggerRate)             ||
+
+            (this.screen != mousebinds[i].screen && 
+             mousebinds[i].screen != DOKO_SCREEN__ALL) ||
+
+            (c != HAS_CTRL(mousebinds[i].key)) ||
+            (s != HAS_SHIFT(mousebinds[i].key)) ||
+
+            (time - mousebinds[i].lastPressedTime < mousebinds[i].keyTriggerRate) ||
+
             !(GetMouseWheelMove() > 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_FWD) &&
             !(GetMouseWheelMove() < 0 && GET_RAYKEY(mousebinds[i].key) == MOUSE_WHEEL_BWD) &&
             !(IsMouseButtonDown(GET_RAYKEY(mousebinds[i].key)))
-        ) {
+            ) {
             continue;
         }
+        // clang-format on
 
         mousebinds[i].function(&this);
         mousebinds[i].lastPressedTime = GetTime();
-        this.renderFrames = RENDER_FRAMES;
+        this.renderFrames             = RENDER_FRAMES;
 
-        if(++kc == MOUSE_LIMIT) {
+        if (++kc == MOUSE_LIMIT) {
             return;
         }
     }
 }
 
-
 void do_keyboard_input() {
 
-    int s = IsKeyDown(KEY_LEFT_SHIFT)    || IsKeyDown(KEY_RIGHT_SHIFT);
-    int c = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
-    int kc = 0;
+    int    s    = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    int    c    = IsKeyDown(KEY_RIGHT_CONTROL) || IsKeyDown(KEY_LEFT_CONTROL);
+    int    kc   = 0;
     double time = GetTime();
 
     for (size_t i = 0; i < KEYBIND_COUNT; ++i) {
 
+        // clang-format off
         if (
-            (this.screen != keybinds[i].screen && keybinds[i].screen != DOKO_SCREEN__ALL) ||
+            (this.screen != keybinds[i].screen &&
+             keybinds[i].screen != DOKO_SCREEN__ALL) ||
+
             (time - keybinds[i].lastPressedTime < keybinds[i].keyTriggerRate) ||
+
             (c != HAS_CTRL(keybinds[i].key)) ||
             (s != HAS_SHIFT(keybinds[i].key)) ||
-            !IsKeyDown(GET_RAYKEY(keybinds[i].key))) {
+
+            !IsKeyDown(GET_RAYKEY(keybinds[i].key))
+            ) {
             continue;
         }
+        // clang-format on
 
         keybinds[i].function(&this);
         keybinds[i].lastPressedTime = time;
-        this.renderFrames = RENDER_FRAMES;
+        this.renderFrames           = RENDER_FRAMES;
 
         if (++kc == KEY_LIMIT) {
             return;
@@ -177,7 +185,9 @@ void do_keyboard_input() {
 }
 
 // returns the number of arguments to skip
-int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_value) {
+int handle_flags(
+    doko_config_t* config, const char* flag_str, const char* flag_value
+) {
 
     size_t flen = strlen(flag_str);
 
@@ -190,18 +200,17 @@ int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_v
 
         case 'f':
             config->window_flags |=
-                FLAG_BORDERLESS_WINDOWED_MODE | 
-                FLAG_WINDOW_TOPMOST;
+                FLAG_BORDERLESS_WINDOWED_MODE | FLAG_WINDOW_TOPMOST;
             continue;
 
         case 'B':
             config->show_bar = false;
-            info_bar_height = 0;
+            info_bar_height  = 0;
             continue;
 
         case 'b':
             config->show_bar = true;
-            info_bar_height = INFO_BAR_HEIGHT;
+            info_bar_height  = INFO_BAR_HEIGHT;
             continue;
 
         case 'D':
@@ -271,9 +280,8 @@ int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_v
 
             log_level = atoi(flag_value);
 
-            if(log_level < LOG_LEVEL_DEBUG || log_level > LOG_LEVEL_NOTHING) 
+            if (log_level < LOG_LEVEL_DEBUG || log_level > LOG_LEVEL_NOTHING)
                 DIE(CLI_HELP_l_FLAG);
-
 
             return 1;
         }
@@ -304,8 +312,9 @@ void handle_start_args(doko_config_t* config, int argc, char* argv[]) {
 
         L_I("Scanning directory %s for files", argv[i]);
 
-        FilePathList fpl = LoadDirectoryFilesEx(argv[i], IMAGE_FILE_FILTER,
-                                                SEARCH_DIRS_RECURSIVE);
+        FilePathList fpl = LoadDirectoryFilesEx(
+            argv[i], IMAGE_FILE_FILTER, SEARCH_DIRS_RECURSIVE
+        );
 
         sort_file_list(fpl);
 
@@ -342,8 +351,7 @@ void detach_from_terminal() {
 #endif
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     memset(&this, 0, sizeof(this));
 
     this.config.window_title          = WINDOW_TITLE;
@@ -367,11 +375,11 @@ int main(int argc, char* argv[])
         DIE("no arguments given\n\n" CLI_HELP);
 
     this.selected_image = this.image_files.buffer;
-    this.renderFrames = RENDER_FRAMES;
+    this.renderFrames   = RENDER_FRAMES;
 
     // we want to load the image before we lose the terminal
     // so that scripts know we have the image and can remove it
-    if(this.selected_image != NULL )
+    if (this.selected_image != NULL)
         doko_loadImage(this.selected_image);
 
     if (!this.config.terminal)
@@ -496,11 +504,11 @@ int main(int argc, char* argv[])
 
         doko_image_t im = this.image_files.buffer[i];
 
-        if(im.status == IMAGE_STATUS_LOADED) {
+        if (im.status == IMAGE_STATUS_LOADED) {
             UnloadImage(im.rayim);
         }
 
-        if(im.path != NULL) {
+        if (im.path != NULL) {
             free(im.path);
         }
     }

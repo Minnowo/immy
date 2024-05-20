@@ -4,10 +4,10 @@ AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 BreakBeforeBinaryOperators: false
 IndentAccessModifiers: true
-IndentWidth: 4
-SortIncludes: false
-NamespaceIndentation: All
+SortIncludes: true
 DerivePointerAlignment: false
+IndentWidth: 4
+NamespaceIndentation: All
 PointerAlignment: Left
 AlignAfterOpenBracket: BlockIndent
 AlignConsecutiveAssignments: Consecutive
