@@ -161,10 +161,12 @@ int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_v
 
         case 'B':
             config->show_bar = false;
+            info_bar_height = 0;
             continue;
 
         case 'b':
             config->show_bar = true;
+            info_bar_height = INFO_BAR_HEIGHT;
             continue;
 
         case 'D':

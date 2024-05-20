@@ -14,6 +14,8 @@
 #include "external/strnatcmp.h"
 
 
+int info_bar_height = INFO_BAR_HEIGHT;
+
 #ifdef __unix__
 
 #include <sys/wait.h>

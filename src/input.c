@@ -358,6 +358,15 @@ void kb_Toggle_Image_Filelist_Screen(doko_control_t* ctrl) {
 void kb_Toggle_Show_Bar(doko_control_t *ctrl) {
 
     ctrl->config.show_bar = !ctrl->config.show_bar;
+
+    if(ctrl->config.show_bar) {
+
+        info_bar_height = INFO_BAR_HEIGHT;
+
+    } else {
+
+        info_bar_height = 0;
+    }
 }
 
 void kb_Goto_Image_Screen(doko_control_t *ctrl) {

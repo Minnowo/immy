@@ -14,7 +14,7 @@
 #define BYTES_TO_MB(bytes) ((double)(bytes) / (1024 * 1024))
 
 #define ImageViewWidth (GetScreenWidth())
-#define ImageViewHeight ((GetScreenHeight()) - INFO_BAR_HEIGHT)
+#define ImageViewHeight ((GetScreenHeight()) - info_bar_height)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -169,6 +169,7 @@ typedef struct doko_control {
 } doko_control_t;
 
 
+extern int info_bar_height;
 
 /**
  * Loads an image and sets some default values.
