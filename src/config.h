@@ -262,6 +262,8 @@ static InputMapping keybinds[] = {
     BIND(KEY_L | SHIFT_MASK   , kb_Move_Image_Right         , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_K | SHIFT_MASK   , kb_Zoom_In_Center_Image     , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_J | SHIFT_MASK   , kb_Zoom_Out_Center_Image    , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_S                , kb_Zoom_In_Center_Image     , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_D                , kb_Zoom_Out_Center_Image    , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_H | CONTROL_MASK , kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_L | CONTROL_MASK , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_P                , kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
@@ -271,7 +273,7 @@ static InputMapping keybinds[] = {
     BIND(KEY_M                , kb_Flip_Horizontal          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_V                , kb_Flip_Vertical            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_B                , kb_Toggle_Show_Bar          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_O                , kb_Print_Debug_Info         , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_O                , kb_Print_Debug_Info         , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_SPACE            , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
 
 #if (ENABLE_SHADERS == 1)
