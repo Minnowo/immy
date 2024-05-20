@@ -3,6 +3,7 @@
 #include "raylib.h"
 
 
+
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
@@ -16,6 +17,7 @@
 #include "config.h"
 #include "doko.h"
 
+void* display;
 struct doko_control this;
 
 static inline void sort_file_list(FilePathList fpl) {
@@ -30,6 +32,38 @@ static inline void sort_file_list(FilePathList fpl) {
             qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_natstrcmp);
             break;
     }
+}
+
+void do_override_redirect() {
+
+    /*
+    #include <X11/Xlib.h>
+    #include <X11/Xutil.h>
+    #include <GLFW/glfw3.h>
+
+    display = XOpenDisplay(NULL);
+
+    if (!display) {
+
+        L_E("Could not open X11 display: %s", strerror(errno));
+
+        return;
+    }
+
+    // // we don't have this glfwGetX11Window function
+    // // the raylib GetWindowHandle function does not return the x11 handle
+    Window window =  glfwGetX11Window(GetWindowHandle());
+
+    XSetWindowAttributes attrs;
+    attrs.override_redirect = 1;
+
+    int i = XChangeWindowAttributes(display, window, CWOverrideRedirect, &attrs);
+
+    L_E("XChangeWindowAttributes %d", i);
+
+    XUnmapWindow(display, window);
+    XMapWindow(display, window);
+    */
 }
 
 void add_file(const char* path_) {
@@ -156,7 +190,8 @@ int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_v
 
         case 'f':
             config->window_flags |=
-                FLAG_BORDERLESS_WINDOWED_MODE | FLAG_WINDOW_TOPMOST;
+                FLAG_BORDERLESS_WINDOWED_MODE | 
+                FLAG_WINDOW_TOPMOST;
             continue;
 
         case 'B':
@@ -187,14 +222,14 @@ int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_v
 
         case 't':
 
-            DIE_IF_NULL(flag_value, "-t flag expects <string : window_title>");
+            DIE_IF_NULL(flag_value, CLI_HELP_t_FLAG);
 
             config->window_title = flag_value;
             return 1;
 
         case 'x':
 
-            DIE_IF_NULL(flag_value, "-x flag expects <int : x_position>");
+            DIE_IF_NULL(flag_value, CLI_HELP_x_FLAG);
 
             config->window_x         = atoi(flag_value);
             config->set_win_position = true;
@@ -202,7 +237,7 @@ int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_v
 
         case 'y':
 
-            DIE_IF_NULL(flag_value, "-y flag expects <int : y_position>");
+            DIE_IF_NULL(flag_value, CLI_HELP_y_FLAG);
 
             config->window_y         = atoi(flag_value);
             config->set_win_position = true;
@@ -210,23 +245,35 @@ int handle_flags(doko_config_t* config, const char* flag_str, const char* flag_v
 
         case 'w':
 
-            DIE_IF_NULL(flag_value, "-w flag expects <int : window_width>");
+            DIE_IF_NULL(flag_value, CLI_HELP_w_FLAG);
 
             config->window_width = atoi(flag_value);
 
             if (config->window_width == 0)
-                DIE("-w flag expects <int : window_width>");
+                DIE(CLI_HELP_w_FLAG);
 
             return 1;
 
         case 'h':
 
-            DIE_IF_NULL(flag_value, "-h flag expects <int : window_height>");
+            DIE_IF_NULL(flag_value, CLI_HELP_h_FLAG);
 
             config->window_height = atoi(flag_value);
 
             if (config->window_height == 0)
-                DIE("-h flag expects <int : window_height>");
+                DIE(CLI_HELP_h_FLAG);
+
+            return 1;
+
+        case 'l':
+
+            DIE_IF_NULL(flag_value, CLI_HELP_l_FLAG);
+
+            log_level = atoi(flag_value);
+
+            if(log_level < LOG_LEVEL_DEBUG || log_level > LOG_LEVEL_NOTHING) 
+                DIE(CLI_HELP_l_FLAG);
+
 
             return 1;
         }
@@ -316,9 +363,10 @@ int main(int argc, char* argv[])
 
     handle_start_args(&this.config, argc, argv);
 
-    if (this.image_files.size > 0)
-        this.selected_image = this.image_files.buffer;
+    if (this.image_files.size <= 0)
+        DIE("no arguments given\n\n" CLI_HELP);
 
+    this.selected_image = this.image_files.buffer;
     this.renderFrames = RENDER_FRAMES;
 
     // we want to load the image before we lose the terminal
@@ -330,6 +378,8 @@ int main(int argc, char* argv[])
         detach_from_terminal();
 
     ui_init(&this.config);
+
+    do_override_redirect();
 
     ui_loadCodepointsFromFileList(&this);
 

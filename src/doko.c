@@ -17,6 +17,7 @@
 
 
 int info_bar_height = INFO_BAR_HEIGHT;
+int log_level = LOG_LEVEL;
 
 #ifdef __unix__
 
@@ -612,7 +613,8 @@ void set_image(doko_control_t* ctrl, size_t index) {
 
 void doko_log(log_level_t level, FILE* stream, const char *fmt, ...) {
 
-#if (LOG_LEVEL != __LOG_LEVEL_NOTHING)
+    if (log_level == __LOG_LEVEL_NOTHING)
+        return;
 
     va_list ap;
 
@@ -622,58 +624,56 @@ void doko_log(log_level_t level, FILE* stream, const char *fmt, ...) {
         break;
 
     case LOG_LEVEL_DEBUG:
-#if (LOG_LEVEL <= __LOG_LEVEL_DEBUG)
-        va_start(ap, fmt);
-        fprintf(stream, "[DEBUG] ");
-        vfprintf(stream,  fmt, ap);
-        putc('\n', stream);
-        va_end(ap);
-#endif
+        if (log_level <= __LOG_LEVEL_DEBUG) {
+            va_start(ap, fmt);
+            fprintf(stream, "[DEBUG] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+            va_end(ap);
+        }
         break;
 
     case LOG_LEVEL_INFO:
-#if (LOG_LEVEL <= __LOG_LEVEL_INFO)
-        va_start(ap, fmt);
-        fprintf(stream, "[INFO] ");
-        vfprintf(stream,  fmt, ap);
-        putc('\n', stream);
-        va_end(ap);
-#endif
+        if (log_level <= __LOG_LEVEL_INFO) {
+            va_start(ap, fmt);
+            fprintf(stream, "[INFO] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+            va_end(ap);
+        }
         break;
 
     case LOG_LEVEL_WARN:
-#if (LOG_LEVEL <= __LOG_LEVEL_WARN)
-        va_start(ap, fmt);
-        fprintf(stream, "[WARNING] ");
-        vfprintf(stream, fmt, ap);
-        putc('\n', stream);
-        va_end(ap);
-#endif
+        if (log_level <= __LOG_LEVEL_WARN) {
+            va_start(ap, fmt);
+            fprintf(stream, "[WARNING] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+            va_end(ap);
+        }
         break;
 
     case LOG_LEVEL_ERROR:
-#if (LOG_LEVEL <= __LOG_LEVEL_ERROR)
-        va_start(ap, fmt);
-        fprintf(stream, "[ERROR] ");
-        vfprintf(stream, fmt, ap);
-        putc('\n', stream);
-        va_end(ap);
-#endif
+        if (log_level <= __LOG_LEVEL_ERROR) {
+            va_start(ap, fmt);
+            fprintf(stream, "[ERROR] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+            va_end(ap);
+        }
         break;
 
     case LOG_LEVEL_CRITICAL:
 
-#if (LOG_LEVEL <= __LOG_LEVEL_CRITICAL)
-        va_start(ap, fmt);
-        fprintf(stream, "[CRITICAL] ");
-        vfprintf(stream,  fmt, ap);
-        putc('\n', stream);
-        va_end(ap);
-#endif
+        if (log_level <= __LOG_LEVEL_CRITICAL) {
+            va_start(ap, fmt);
+            fprintf(stream, "[CRITICAL] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+            va_end(ap);
+        }
         break;
     }
-
-#endif
 }
 
 

@@ -378,9 +378,30 @@ static InputMapping mousebinds[] = {
 
 
 
+#define CLI_HELP_f_FLAG "-f       applies borderless window mode"
+#define CLI_HELP_B_FLAG "-B       hide the bottom bar"
+#define CLI_HELP_b_FLAG "-b       show the bottom bar"
+#define CLI_HELP_D_FLAG "-D       keep the terminal"
+#define CLI_HELP_d_FLAG "-d       discard the terminal"
+#define CLI_HELP_C_FLAG "-C       do not center the first loaded image"
+#define CLI_HELP_c_FLAG "-c       center the first loaded image"
 
+#define CLI_HELP_t_FLAG "-t <str> set the window title"
+#define CLI_HELP_x_FLAG "-x <int> set the window x pos"
+#define CLI_HELP_y_FLAG "-y <int> set the window y pos"
+#define CLI_HELP_w_FLAG "-w <int> set the window width"
+#define CLI_HELP_h_FLAG "-h <int> set the window height"
+#define CLI_HELP_l_FLAG "-l <int 1-6> set the log level"
 
-
+#define CLI_HELP                                                               \
+    "Usage: doko [options] filename/dirname\n"                                 \
+    "\n"                                                                       \
+    "Basic optionsa:"                                                          \
+    "\n  " CLI_HELP_f_FLAG "\n  " CLI_HELP_B_FLAG "\n  " CLI_HELP_b_FLAG       \
+    "\n  " CLI_HELP_D_FLAG "\n  " CLI_HELP_d_FLAG "\n  " CLI_HELP_C_FLAG       \
+    "\n  " CLI_HELP_c_FLAG "\n  " CLI_HELP_t_FLAG "\n  " CLI_HELP_x_FLAG       \
+    "\n  " CLI_HELP_y_FLAG "\n  " CLI_HELP_w_FLAG "\n  " CLI_HELP_h_FLAG       \
+    "\n  " CLI_HELP_l_FLAG
 
 // 
 // DO NOT CHANGE

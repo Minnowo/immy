@@ -176,6 +176,7 @@ typedef struct doko_control {
 
 
 extern int info_bar_height;
+extern int log_level;
 
 /**
  * Loads an image and sets some default values.
