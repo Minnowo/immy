@@ -403,3 +403,20 @@ void kb_Scroll_Keybind_List_Down(doko_control_t *ctrl){
     }
 }
 
+
+void kb_Copy_Image_To_Clipboard(doko_control_t *ctrl) {
+
+    _NO_IMAGE_WARN(ctrl);
+
+    doko_copy_image_to_clipboard(ctrl->selected_image);
+
+    ctrl->message = (doko_message_t){
+        .message =
+            TextFormat("Copied %s to clipboard", ctrl->selected_image->name),
+        .free_when_done  = false,
+        .show_for_frames = WINDOW_FPS * 3,
+    };
+}
+
+
+

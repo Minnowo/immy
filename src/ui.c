@@ -216,6 +216,8 @@ void ui_renderImage(doko_image_t* image) {
             if (!doko_loadImage(image)) {
                 return;
             }
+
+            doko_fitCenterImage(image);
         }
 
         Texture2D nimageBuf = LoadTextureFromImage(image->rayim);

@@ -81,4 +81,6 @@ void kb_Goto_Keybinds_Screen(doko_control_t *ctrl);
 void kb_Scroll_Keybind_List_Up(doko_control_t *ctrl);
 void kb_Scroll_Keybind_List_Down(doko_control_t *ctrl);
 
+void kb_Copy_Image_To_Clipboard(doko_control_t *ctrl);
+
 #endif

@@ -382,30 +382,51 @@ int main(int argc, char* argv[])
 
             switch (this.screen) {
 
-                case DOKO_SCREEN__ALL:
+            case DOKO_SCREEN__ALL:
+                break;
+
+            case DOKO_SCREEN_KEYBINDS:
+
+                ui_renderKeybinds(&this);
+                break;
+
+            case DOKO_SCREEN_FILE_LIST:
+                ui_renderFileList(&this);
+                break;
+
+            case DOKO_SCREEN_IMAGE:
+
+                if (this.selected_image == NULL) {
+                    ui_renderTextOnInfoBar(
+                        "There is no image selected! Drag an image to view."
+                    );
                     break;
+                }
 
-                case DOKO_SCREEN_KEYBINDS:
+                ui_renderImage(this.selected_image);
+                ui_renderPixelGrid(this.selected_image);
 
-                    ui_renderKeybinds(&this);
-                    break;
+                if (this.message.message != NULL &&
+                    this.message.show_for_frames > 0) {
 
-                case DOKO_SCREEN_FILE_LIST:
-                    ui_renderFileList(&this);
-                    break;
+                    this.message.show_for_frames--;
 
-                case DOKO_SCREEN_IMAGE:
-                    if (this.selected_image != NULL) {
+                    if (this.config.show_bar)
+                        ui_renderTextOnInfoBar(this.message.message);
 
-                        ui_renderImage(this.selected_image);
-                        ui_renderPixelGrid(this.selected_image);
-                        if (this.config.show_bar)
-                            ui_renderInfoBar(this.selected_image);
-                    } else {
-                        ui_renderTextOnInfoBar(
-                            "There is no image selected! Drag an image to view.");
+                    if (this.message.free_when_done &&
+                        this.message.show_for_frames == 0) {
+
+                        free(this.message.message);
+
+                        this.message.message = NULL;
                     }
-                    break;
+
+                } else if (this.config.show_bar) {
+
+                    ui_renderInfoBar(this.selected_image);
+                }
+                break;
             }
 
 #if DRAW_FPS == 1

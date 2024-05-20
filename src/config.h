@@ -65,6 +65,12 @@
 // this is the value set for the -loglevel and -v flags
 #define FFMPEG_VERBOSITY "error"
 
+
+// the command which is run to copy images to clipobard for X11
+// the command must accept png bytes through stdin
+#define X11_COPY_IMAGE_COMMAND "xclip -selection clipboard -target image/png"
+
+
 // window sizes
 #define START_WIDTH 512
 #define START_HEIGHT 512
@@ -260,9 +266,10 @@ static InputMapping keybinds[] = {
     BIND(KEY_L | CONTROL_MASK , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_P                , kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_N                , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_C                , kb_Fit_Center_Image         , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_M                , kb_Flip_Horizontal          , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_V                , kb_Flip_Vertical            , DOKO_SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_C | CONTROL_MASK , kb_Copy_Image_To_Clipboard  , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_C                , kb_Fit_Center_Image         , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_M                , kb_Flip_Horizontal          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_V                , kb_Flip_Vertical            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_B                , kb_Toggle_Show_Bar          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_O                , kb_Print_Debug_Info         , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_SPACE            , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),

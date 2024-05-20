@@ -111,32 +111,38 @@ DARRAY_DEF(dimage_arr, doko_image_t*);
 DARRAY_DEF(dint_arr, int*);
 DARRAY_DEF(dbyte_arr, unsigned char*);
 
+typedef struct doko_message {
+        char*  message;
+        bool   free_when_done;
+        size_t show_for_frames;
+} doko_message_t;
 
 typedef struct doko_config {
 
-    const char* window_title;
+        const char* window_title;
 
-    int window_x; 
-    int window_y;
-    int window_width; 
-    int window_height;
-    int window_min_width; 
-    int window_min_height;
-    int window_flags;
+        int window_x;
+        int window_y;
+        int window_width;
+        int window_height;
+        int window_min_width;
+        int window_min_height;
+        int window_flags;
 
-    bool center_image_on_start;
-    bool terminal;
-    bool set_win_position;
-    bool show_bar;
+        bool center_image_on_start;
+        bool terminal;
+        bool set_win_position;
+        bool show_bar;
 
 } doko_config_t;
-
 
 // the main control data
 // a singleton is passed to every keypress callback
 typedef struct doko_control {
 
     doko_config_t config;
+
+    doko_message_t message;
 
     // images files loaded or not
     dimage_arr_t image_files;
@@ -175,7 +181,7 @@ extern int info_bar_height;
  * Loads an image and sets some default values.
  * The function returns 0 on success and non-zero on failure.
  */
-int doko_loadImage(doko_image_t* im);
+bool doko_loadImage(doko_image_t* im);
 
 /**
  * Sets the image position and scale so that it centers on the screen.
@@ -269,6 +275,11 @@ const char* get_key_to_pretty_text(int key);
  * Gets a pretty name for raylib keys
  */
 const char* get_mouse_to_pretty_text(int key);
+
+/**
+ * Copy an image to clipboard
+ */
+bool doko_copy_image_to_clipboard(doko_image_t* im);
 
 // the max length of the output of get_key_to_pretty_text and get_mouse_to_pretty_text
 // which is len("MOUSE_BUTTON_RIGHT") plus 2 for C and S 
