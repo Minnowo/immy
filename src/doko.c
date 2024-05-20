@@ -392,7 +392,7 @@ bool doko_loadImage(doko_image_t* image) {
         image->rayim = LoadImage(image->path);
     }
 
-    if (image->rayim.data == NULL) {
+    if (!IsImageReady(image->rayim)) {
 
         image->status = IMAGE_STATUS_FAILED;
 
