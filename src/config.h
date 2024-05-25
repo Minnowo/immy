@@ -223,7 +223,7 @@ static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
 #define RAYLIB_QUIT_KEY KEY_Q
 
 // Time limit for triggering key presses (in seconds)
-#define DELAY_MEDIUM  (0.2)
+#define DELAY_MEDIUM  (0.17) /*(0.2)*/
 #define DELAY_FAST    (0.120)
 #define DELAY_VFAST   (0.08)
 #define DELAY_ALMOST_INSTANT (0.03)
@@ -271,7 +271,7 @@ static InputMapping keybinds[] = {
     BIND(KEY_H | CONTROL_MASK , kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_L | CONTROL_MASK , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_P                , kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_N                , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_VFAST),
+    BIND(KEY_N                , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_C | CONTROL_MASK , kb_Copy_Image_To_Clipboard  , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_C                , kb_Fit_Center_Image         , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_M                , kb_Flip_Horizontal          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
