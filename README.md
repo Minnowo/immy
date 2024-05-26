@@ -15,9 +15,18 @@ All settings which are easily configurable are located in `src/config.h`.
 
 This repository contains all the code required for building Doko as the Raylib version is baked right in.
 
-Clone the repo and call `make` from the root directory. This should produce a binary `bin/doko`.
+Using the legacy Makefile, simply call `make` from the root directory to build an executable. In order to comiple the resources directly into the binary, you will need to pass the `-DDOKO_BUNDLE` flag. This can be done by adding the value to the `CPPFLAGS` in the Makefile. It is automatically set when running `make install`.
 
-**Note**: The produced binary will search for resources the run directory. You can set the path it searches at compile-time using the `RESOURCE_PATH` (located in the `src/config.h`) which will be the root directory it searches in. (fixing this is a TODO)
+Using CMake:
+```sh
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+```
+
+This will bundle the resources and build everything. Your built executable will be `./build/doko`.
+
 
 #### Windows
 
@@ -30,11 +39,10 @@ Make sure you have MinGW installed, and run `make windows` to attempt to cross c
 
 ### Install
 
-On Linux systems, calling `make install` will build and place Doko in `/opt/doko/`. This will automatically set the `RESOURCE_PATH` to this folder to prevent problems finding fonts. It will then create a symlink to `/usr/bin/doko` which should hopefully be in path.
-
+On Linux systems, calling `make install` will build and place Doko in `/opt/doko/`. 
 
 ### Uninstall
 
 On Linux systems, calling `make uninstall` will uninstall the program.
 
-You can alternatively delete the files manually from `/opt/doko` and the file `/usr/bin/doko`.
+You can alternatively delete the files manually from `/opt/doko` and the symlinks `/usr/bin/doko` and `/usr/bin/im`.

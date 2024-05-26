@@ -2,8 +2,9 @@
 
 .PHONY: all build clean clean_raylib clean_doko rebuild windows build_doko build_raylib
 
-CC     ?= gcc
-CFLAGS ?= -Wall -Wextra -std=c23
+CC      ?= gcc
+CFLAGS  ?= -Wall -Wextra -std=c23
+CPFLAGS ?=
 
 DOKO_SRC_DIR   ?= src
 RAYLIB_SRC_DIR ?= raylib/raylib-5.0/src
