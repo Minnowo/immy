@@ -17,9 +17,6 @@
     if ((c)->selected_image == NULL) {                                         \
         L_W("There is no image!");                                             \
         return;                                                                \
-    }                                                                          \
-    if ((c)->selected_image->status != IMAGE_STATUS_LOADED) {                  \
-        return;                                                                \
     }
 
 #define I_X(i) (i)->selected_image->dstPos.x
@@ -67,8 +64,6 @@ void kb_Next_Image_By_N(doko_control_t* ctrl, int by) {
 
     _ZERO_SIZE_WARN(ctrl);
 
-    _NO_IMAGE_WARN(ctrl);
-
     // stop at the start when wrapping
     if (ctrl->selected_index == ctrl->image_files.size - 1) {
 
@@ -91,8 +86,6 @@ void kb_Next_Image_By_N(doko_control_t* ctrl, int by) {
 void kb_Prev_Image_N(doko_control_t* ctrl, int by) {
 
     _ZERO_SIZE_WARN(ctrl);
-
-    _NO_IMAGE_WARN(ctrl);
 
     // stop at the end when wrapping
     if (ctrl->selected_index == 0) {
@@ -139,8 +132,6 @@ void kb_Prev_Image_By_10(doko_control_t* ctrl) {
 void kb_Jump_Image_N(doko_control_t* ctrl, int to) {
 
     _ZERO_SIZE_WARN(ctrl);
-
-    _NO_IMAGE_WARN(ctrl);
 
     set_image(ctrl, to);
 }
