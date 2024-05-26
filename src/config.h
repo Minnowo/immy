@@ -198,13 +198,34 @@ static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
 //
 
 #define BACKGROUND_TILE_COLOR_A_RGBA                                           \
-    (Color){ 32, 32, 32, 255 }
+    (Color) {                                                                  \
+        32, 32, 32, 255                                                        \
+    }
 
 #define BACKGROUND_TILE_COLOR_B_RGBA                                           \
-    (Color){ 64, 64, 64, 255 }
+    (Color) {                                                                  \
+        64, 64, 64, 255                                                        \
+    }
 
 #define PIXEL_GRID_COLOR_RGBA                                                  \
-    (Color){ 200, 200, 200, 200 }
+    (Color) {                                                                  \
+        200, 200, 200, 200                                                     \
+    }
+
+#define TEXT_COLOR_RGBA                                                        \
+    (Color) {                                                                  \
+        212, 212, 212, 255                                                     \
+    }
+
+#define BAR_BACKGROUND_COLOR_RGBA                                              \
+    (Color) {                                                                  \
+        16, 16, 16, 255                                                        \
+    }
+
+#define SELECTED_COLOR_RGBA                                                    \
+    (Color) {                                                                  \
+        96, 64, 64, 255                                                        \
+    }
 
 // used in the grayscale gpu shader
 #define GRAYSCALE_COEF_R 0.299

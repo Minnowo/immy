@@ -201,11 +201,11 @@ void ui_renderTextOnInfoBar(const char* text) {
         textSize = MeasureTextEx(unifont, text, fontSize, UNIFONT_SPACING);
     } while (textSize.x > sw - INFO_BAR_LEFT_MARGIN && --fontSize);
 
-    DrawRectangle(0, sh, sw, INFO_BAR_HEIGHT, BLACK);
+    DrawRectangle(0, sh, sw, INFO_BAR_HEIGHT, BAR_BACKGROUND_COLOR_RGBA);
 
     DrawTextEx(
         unifont, text, (Vector2){INFO_BAR_LEFT_MARGIN, sh}, fontSize,
-        UNIFONT_SPACING, WHITE
+        UNIFONT_SPACING, TEXT_COLOR_RGBA
     );
 }
 
@@ -362,17 +362,17 @@ void ui_renderInfoBar(const doko_image_t* image) {
         textSize = MeasureTextEx(unifont, postfix, fontSize, UNIFONT_SPACING);
     } while (textSize.x > (sw - pretextSize.x) && --fontSize);
 
-    DrawRectangle(0, sh, sw, INFO_BAR_HEIGHT, BLACK);
+    DrawRectangle(0, sh, sw, INFO_BAR_HEIGHT, BAR_BACKGROUND_COLOR_RGBA);
 
     DrawTextEx(
         unifont, prefix, (Vector2){INFO_BAR_LEFT_MARGIN, sh}, unifont.baseSize,
-        UNIFONT_SPACING, WHITE
+        UNIFONT_SPACING, TEXT_COLOR_RGBA
     );
 
     DrawTextEx(
         unifont, postfix,
         (Vector2){pretextSize.x, sh + (INFO_BAR_HEIGHT - fontSize) / 2.0},
-        fontSize, UNIFONT_SPACING, WHITE
+        fontSize, UNIFONT_SPACING, TEXT_COLOR_RGBA
     );
 }
 
@@ -436,23 +436,23 @@ void ui_renderFileList(const doko_control_t* ctrl) {
         int y = startY + FZ * (i - startIndex);
 
         if (ctrl->selected_image == NULL || i != ctrl->selected_index) {
-            DrawRectangle(0, y, sw, FZ, BLACK);
+            DrawRectangle(0, y, sw, FZ, BAR_BACKGROUND_COLOR_RGBA);
         } else {
-            DrawRectangle(0, y, sw, FZ, GREEN);
+            DrawRectangle(0, y, sw, FZ, SELECTED_COLOR_RGBA);
         }
 
         DrawTextEx(
             unifont, TextFormat("%02d  %s", i + 1, im->name),
-            (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, WHITE
+            (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, TEXT_COLOR_RGBA
         );
     }
 
-    DrawRectangle(0, startY + FZ * (i - startIndex), sw, FZ, BLACK);
+    DrawRectangle(0, startY + FZ * (i - startIndex), sw, FZ, BAR_BACKGROUND_COLOR_RGBA);
 
     DrawTextEx(
         unifont, TextFormat("%d more files...", ctrl->image_files.size - i),
         (Vector2){FILE_LIST_LEFT_MARGIN, startY + FZ * (i - startIndex)}, FZ,
-        UNIFONT_SPACING, WHITE
+        UNIFONT_SPACING, TEXT_COLOR_RGBA
     );
 }
 
@@ -492,9 +492,9 @@ void ui_renderKeybinds(const doko_control_t* ctrl) {
         const int     KEY_PAD_LEN = 1 + STRLEN_KEY_STR - strlen(KEY_TEXT);
 
         if (i != ctrl->keybindPageScroll) {
-            DrawRectangle(0, y, sw, FZ, BLACK);
+            DrawRectangle(0, y, sw, FZ, BAR_BACKGROUND_COLOR_RGBA);
         } else {
-            DrawRectangle(0, y, sw, FZ, GREEN);
+            DrawRectangle(0, y, sw, FZ, SELECTED_COLOR_RGBA);
         }
 
         DrawTextEx(
@@ -503,7 +503,7 @@ void ui_renderKeybinds(const doko_control_t* ctrl) {
                 "%s%*.*s %s%*.*s %s", SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN,
                 PADDING, KEY_TEXT, KEY_PAD_LEN, KEY_PAD_LEN, PADDING, im->NAME
             ),
-            (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, WHITE
+            (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, TEXT_COLOR_RGBA 
         );
     }
 
@@ -517,9 +517,9 @@ void ui_renderKeybinds(const doko_control_t* ctrl) {
         const int     KEY_PAD_LEN = 1 + STRLEN_KEY_STR - strlen(KEY_TEXT);
 
         if (i != ctrl->keybindPageScroll) {
-            DrawRectangle(0, y, sw, FZ, BLACK);
+            DrawRectangle(0, y, sw, FZ, BAR_BACKGROUND_COLOR_RGBA);
         } else {
-            DrawRectangle(0, y, sw, FZ, GREEN);
+            DrawRectangle(0, y, sw, FZ, SELECTED_COLOR_RGBA);
         }
 
         DrawTextEx(
@@ -528,7 +528,7 @@ void ui_renderKeybinds(const doko_control_t* ctrl) {
                 "%s%*.*s %s%*.*s %s", SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN,
                 PADDING, KEY_TEXT, KEY_PAD_LEN, KEY_PAD_LEN, PADDING, im->NAME
             ),
-            (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, WHITE
+            (Vector2){FILE_LIST_LEFT_MARGIN, y}, FZ, UNIFONT_SPACING, TEXT_COLOR_RGBA 
         );
     }
 }
@@ -611,6 +611,6 @@ void ui_renderThumbs(const doko_control_t* ctrl) {
             y + (THUMBNAIL_SIZE - dim->thumb.height) / 2, 
             WHITE
         );
-        DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, WHITE);
+        DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, TEXT_COLOR_RGBA);
     }
 }
