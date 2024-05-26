@@ -305,7 +305,7 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
 
 bool doko_load_with_imlib2(const char* path, Image* im) {
 
-#if (USE_IMLIB2 == 1)
+#ifdef IMLIB2_ENABLED
 
 #include <Imlib2.h>
 
@@ -401,11 +401,20 @@ bool doko_loadImage(doko_image_t* image) {
         return 1;
     }
 
-    if (!(USE_IMLIB2 && doko_load_with_imlib2(image->path, &image->rayim)) &&
-        !(USE_MAGICK && doko_load_with_magick_stdout(image->path, &image->rayim)
-        ) &&
-        !(USE_FFMPEG && doko_load_with_ffmpeg_stdout(image->path, &image->rayim)
-        )) {
+    if (
+#ifdef IMLIB2_ENABLED
+        !(doko_load_with_imlib2(image->path, &image->rayim)) &&
+#endif
+
+#ifdef DOKO_USE_MAGICK
+        !(doko_load_with_magick_stdout(image->path, &image->rayim)) &&
+#endif
+
+#ifdef DOKO_USE_FFMPEG
+        !(doko_load_with_ffmpeg_stdout(image->path, &image->rayim)) &&
+#endif
+        true
+        ) {
 
         image->rayim = LoadImage(image->path);
     }

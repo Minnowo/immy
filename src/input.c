@@ -450,7 +450,7 @@ void kb_Copy_Image_To_Clipboard(doko_control_t* ctrl) {
     if (doko_copy_image_to_clipboard(ctrl->selected_image)) {
 
         ctrl->message = (doko_message_t){
-            .message = TextFormat(
+            .message = (char*)TextFormat(
                 "Copied %s to clipboard", ctrl->selected_image->name
             ),
             .free_when_done  = false,

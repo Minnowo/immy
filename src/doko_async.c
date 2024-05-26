@@ -151,9 +151,15 @@ void *async_image_load_thread_main(void * raw_arg) {
 
     // imlib2 is not thread-safe, we cannot use it here
     //
-    if (/*!(USE_IMLIB2 && doko_load_with_imlib2(thread->path, &thread->rayim)) &&*/
-        !(USE_MAGICK && doko_load_with_magick_stdout(thread->path, &thread->rayim)) &&
-        !(USE_FFMPEG && doko_load_with_ffmpeg_stdout(thread->path, &thread->rayim))) {
+    if (
+#ifdef DOKO_USE_MAGICK
+        !(doko_load_with_magick_stdout(thread->path, &thread->rayim)) &&
+#endif
+
+#ifdef DOKO_USE_FFMPEG
+        !(doko_load_with_ffmpeg_stdout(thread->path, &thread->rayim)) &&
+#endif
+        true) {
 
         thread->rayim = LoadImage(thread->path);
     }

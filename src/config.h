@@ -47,18 +47,24 @@
 #define DETACH_FROM_TERMINAL 1
 
 // use imlib2
-// you will also need to set -lImlib2 in the LDFLAGS of the makefile
-#define USE_IMLIB2 1
+// if defined and imlib2 is found at compiletime
+// enable using it to load images
+#define USE_IMLIB2
 
-// if 1 load images using image magick convert before raylib
+// don't change. determines if imlib can be used
+#if defined(DOKO_USE_IMLIB2) && defined(USE_IMLIB2)
+    #define IMLIB2_ENABLED
+#endif
+
+// if defined load images using image magick convert before raylib
 // requires image magick's `convert` added to path
-#define USE_MAGICK 1
+#define DOKO_USE_MAGICK
 // have magick convert to this format before raylib loads the image
 #define MAGICK_CONVERT_MIDDLE_FMT "qoi"
 
-// if 1 try and load images using ffmpeg before raylib
+// if defined try and load images using ffmpeg before raylib
 // requires `ffmpeg` added to path
-#define USE_FFMPEG 1
+#define DOKO_USE_FFMPEG
 // have ffmpeg convert to this format before raylib loads the image
 #define FFMPEG_CONVERT_MIDDLE_FMT "qoi"
 // see https://ffmpeg.org/ffmpeg.html
@@ -377,23 +383,57 @@ static InputMapping mousebinds[] = {
     "abcdefghijklmnopqrstuvwxyz{|}"
 
 
+//
 // extension filter, finds these files when searching directory
-#if(USE_IMLIB2)
-    #define IMAGE_FILE_FILTER                                                      \
-    ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;"     \
-    ".tiff;.heif;"
-#elif(USE_MAGICK_CONVERT)
-    #define IMAGE_FILE_FILTER                                                      \
-    ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;"     \
-    ".tiff;.heif;"
-#elif(USE_FFMPEG_CONVERT)
-    #define IMAGE_FILE_FILTER                                                      \
-    ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.webp;.jxl;.avif;"     \
-    ".tiff;"
-#else
-    #define IMAGE_FILE_FILTER ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;"
+//
+
+#define EXT_WEBP ""
+#define EXT_JXL  ""
+#define EXT_AVIF ""
+#define EXT_TIFF ""
+#define EXT_HEIF ""
+
+// raylib should be able to load these
+#define RAYLIB_FILE_FORMATS ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;"
+
+#ifdef IMLIB2_ENABLED
+    #undef EXT_WEBP 
+    #undef EXT_JXL  
+    #undef EXT_AVIF 
+    #undef EXT_TIFF 
+    #undef EXT_HEIF 
+    #define EXT_WEBP ".webp;"
+    #define EXT_JXL  ".jxl;"
+    #define EXT_AVIF ".avif;"
+    #define EXT_TIFF ".tiff;"
+    #define EXT_HEIF ".heif;"
 #endif
 
+#ifdef DOKO_USE_MAGICK
+    #undef EXT_WEBP 
+    #undef EXT_JXL  
+    #undef EXT_AVIF 
+    #undef EXT_TIFF 
+    #undef EXT_HEIF 
+    #define EXT_WEBP ".webp;"
+    #define EXT_JXL  ".jxl;"
+    #define EXT_AVIF ".avif;"
+    #define EXT_TIFF ".tiff;"
+    #define EXT_HEIF ".heif;"
+#endif
+
+#ifdef DOKO_USE_FFMPEG
+    #undef EXT_WEBP 
+    #undef EXT_JXL  
+    #undef EXT_AVIF 
+    #undef EXT_TIFF 
+    #define EXT_WEBP ".webp;"
+    #define EXT_JXL  ".jxl;"
+    #define EXT_AVIF ".avif;"
+    #define EXT_TIFF ".tiff;"
+#endif
+
+#define IMAGE_FILE_FILTER RAYLIB_FILE_FORMATS EXT_WEBP EXT_JXL EXT_AVIF EXT_TIFF EXT_HEIF
 
 
 
