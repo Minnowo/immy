@@ -288,7 +288,7 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
     L_I("%s: Read %fmb from stdout", BYTES_TO_MB(data.size));
 
     wait(NULL);
-    close(pipefd[0]);
+    close(pipefd[PIPE_READ]);
 
     if (data.size > 0) {
 
@@ -413,15 +413,6 @@ bool doko_loadImage(doko_image_t* image) {
 
         return 0;
     }
-
-    if(!CreateThumbnail( &image->rayim, &image->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE)) {
-        
-        L_E("Error creating thumbnail!");
-
-        memset(&image->thumb, 0, sizeof(image->thumb));
-    }
-
-    L_I("thumbnail created with size: %d x %d", image->thumb.width, image->thumb.height);
 
     image->srcRect = (Rectangle){
         0.0,
@@ -597,6 +588,7 @@ char* doko_strdupn(const char* str, size_t n, size_t* len_) {
 
     return newstr;
 }
+
 char* doko_strdup(const char* str) {
 
 #ifdef _POSIX_C_SOURCE
@@ -707,8 +699,8 @@ void doko_log(log_level_t level, FILE* stream, const char* fmt, ...) {
 
 
 // edited from the raylib ImageResizeNN function
-bool CopyAndResizeImageNN(
-    Image* image, Image* newimage, int newWidth, int newHeight
+bool doko_copy_and_resize_image_nn(
+    const Image* image, Image* newimage, int newWidth, int newHeight
 ) {
     // Security check to avoid program crash
     if ((image->data == NULL) || (image->width == 0) || (image->height == 0))
@@ -741,11 +733,11 @@ bool CopyAndResizeImageNN(
 
     int format = image->format;
 
-    newimage->data   = output;
-    newimage->width  = newWidth;
-    newimage->height = newHeight;
+    newimage->data    = output;
+    newimage->width   = newWidth;
+    newimage->height  = newHeight;
     newimage->mipmaps = 1;
-    newimage->format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+    newimage->format  = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 
     // Reformat 32bit RGBA image to original format
     ImageFormat(
@@ -759,7 +751,7 @@ bool CopyAndResizeImageNN(
     return true;
 }
 
-bool CreateThumbnail( Image* image, Image* newimage, int newWidth, int newHeight) {
+bool doko_create_thumbnail( const Image* image, Image* newimage, int newWidth, int newHeight) {
 
     double ratio;
 
@@ -767,12 +759,12 @@ bool CreateThumbnail( Image* image, Image* newimage, int newWidth, int newHeight
 
         ratio = (double)image->height / image->width;
 
-        return CopyAndResizeImageNN(image, newimage, newWidth, ratio * newHeight);
+        return doko_copy_and_resize_image_nn(image, newimage, newWidth, ratio * newHeight);
     }
     else {
         ratio = (double)image->width / image->height;
 
-        return CopyAndResizeImageNN(image, newimage, ratio * newWidth, newHeight);
+        return doko_copy_and_resize_image_nn(image, newimage, ratio * newWidth, newHeight);
     }
 
     return true;

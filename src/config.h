@@ -65,6 +65,8 @@
 // this is the value set for the -loglevel and -v flags
 #define FFMPEG_VERBOSITY "error"
 
+// if 1, load images in separate threads
+#define ASYNC_IMAGE_LOADING 1
 
 // the command which is run to copy images to clipobard for X11
 // the command must accept png bytes through stdin

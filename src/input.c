@@ -17,6 +17,9 @@
     if ((c)->selected_image == NULL) {                                         \
         L_W("There is no image!");                                             \
         return;                                                                \
+    }                                                                          \
+    if ((c)->selected_image->status != IMAGE_STATUS_LOADED) {                  \
+        return;                                                                \
     }
 
 #define I_X(i) (i)->selected_image->dstPos.x
@@ -288,7 +291,7 @@ void kb_Color_Invert(doko_control_t* ctrl) {
         FALLTHROUGH;
 
     case PIXELFORMAT_UNCOMPRESSED_R8G8B8A8:
-    case PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA: {
+    case PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA: 
 
         unsigned char* pixels = ctrl->selected_image->rayim.data;
 
@@ -305,7 +308,6 @@ void kb_Color_Invert(doko_control_t* ctrl) {
             ++i;
         }
         break;
-    }
     }
 }
 

@@ -9,7 +9,7 @@
 
 #include "darray.h"
 
-#define FALLTHROUGH
+#define FALLTHROUGH /* fall through */
 
 #define BYTES_TO_MB(bytes) ((double)(bytes) / (1024 * 1024))
 
@@ -62,6 +62,7 @@ typedef enum {
 
 typedef enum {
     IMAGE_STATUS_NOT_LOADED,
+    IMAGE_STATUS_LOADING,
     IMAGE_STATUS_LOADED,
     IMAGE_STATUS_FAILED
 } image_status_t;
@@ -95,6 +96,7 @@ typedef struct doko_image {
         const char* name;
 
         image_status_t status;
+        image_status_t thumb_status;
         Image          rayim;
         Image          thumb;
         Rectangle      srcRect;
@@ -228,12 +230,6 @@ void doko_zoomImageOnPointFromClosest(
 void doko_moveScrFracImage(doko_image_t* im, double xFrac, double yFrac);
 
 /**
- * Moves the image by the given xFrac and yFrac fractions of the screen.
- * xFrac = 1/5 moves the image 1/5th of the horizontal screen.
- */
-void doko_moveScrFracImage(doko_image_t* im, double xFrac, double yFrac);
-
-/**
  * Implementation of strdup, because yes
  */
 char* doko_strdup(const char* str);
@@ -285,19 +281,57 @@ const char* get_mouse_to_pretty_text(int key);
  */
 bool doko_copy_image_to_clipboard(doko_image_t* im);
 
-
 /**
- * Return a resized copy of the image
+ * Return a resized copy of the image using nearest neighbour algorithm
  */
-bool CopyAndResizeImageNN( Image* image, Image* newimage, int newWidth, int newHeight);
+bool doko_copy_and_resize_image_nn(const  Image* image, Image* newimage, int newWidth, int newHeight);
 
 /**
  * Create a thumbnail image from the given image
  */
-bool CreateThumbnail( Image* image, Image* newimage, int newWidth, int newHeight);
+bool doko_create_thumbnail(const Image* image, Image* newimage, int newWidth, int newHeight);
 
-inline static bool str_likely_means_true(const char* str) {
-    return strncmp(str, "true", 5) == 0 || atoi(str) != 0;
-}
+/**
+ * Loads an image using image magick through stdout.
+ * This method will call 'convert', and convert the image to
+ * MAGICK_CONVERT_MIDDLE_FMT before loading it using raylib
+ */
+bool doko_load_with_magick_stdout(const char* path, Image* im);
+
+/**
+ * Loads an image using ffmpeg through stdout.
+ * This method will call 'ffmpeg', and convert the image to
+ * FFMPEG_CONVERT_MIDDLE_FMT before loading it using raylib
+ */
+bool doko_load_with_ffmpeg_stdout(const char* path, Image* im);
+
+/**
+ * This method will load an image using imlib2.
+ * Requires imlib2 to be linked.
+ */
+bool doko_load_with_imlib2(const char* path, Image* im);
+
+// #####################
+// Async Functions Begin
+// #####################
+
+/**
+ * Begin loading the image without blocking
+ */
+bool doko_async_load_image(const doko_image_t* im);
+
+/**
+ * Checks if the image is in the internal map,
+ * Basically returns true if doko_async_load_image was called
+ */
+bool doko_async_has_image(const doko_image_t* im);
+
+/**
+ * Gets the image when it is ready
+ * Returns true if the image is done loading
+ */
+bool doko_async_get_image(doko_image_t* im);
+
 
 #endif
+

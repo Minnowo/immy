@@ -10,6 +10,8 @@
 #include "resources.h"
 #include "ui.h"
 
+#define UI_DRAW_TEXT(str) DrawTextEx( unifont, (str), (Vector2){0, 0}, unifont.baseSize, 1, WHITE)
+
 int hasInit = 0;
 
 char*     imageBufPath;
@@ -217,33 +219,84 @@ void ui_renderBackground() {
 
 void ui_renderImage(doko_image_t* image) {
 
-    if (image->status == IMAGE_STATUS_FAILED) {
-        return;
-    }
+    if (imageBufPath != image->path || imageBufPath == NULL) {
 
-    if (imageBufPath != image->path) {
+        switch(image->status){
 
-        if (image->status == IMAGE_STATUS_NOT_LOADED) {
+#if(ASYNC_IMAGE_LOADING == 1)
+
+        case IMAGE_STATUS_NOT_LOADED:
+
+            if (!doko_async_load_image(image)) {
+
+                L_W("Unable to start loading image async");
+
+                image->status = IMAGE_STATUS_FAILED;
+
+            } else {
+
+                image->status = IMAGE_STATUS_LOADING;
+            }
+
+            return;
+
+        case IMAGE_STATUS_LOADING:
+
+            if(!doko_async_get_image(image)) {
+
+                UI_DRAW_TEXT("image is loading");
+
+                return;
+            }
+
+            if (image->status == IMAGE_STATUS_LOADED)
+                doko_fitCenterImage(image);
+
+            // if the above function returns true
+            // the image is done loading and has a new status
+            // if we return here the new status will be handled next frame
+            return;
+
+#else
+        case IMAGE_STATUS_NOT_LOADED:
 
             if (!doko_loadImage(image)) {
                 return;
             }
 
             doko_fitCenterImage(image);
-        }
+            break;
 
-        Texture2D nimageBuf = LoadTextureFromImage(image->rayim);
+        case IMAGE_STATUS_LOADING:
 
-        if (nimageBuf.id == 0) {
+            L_E("%s: This should be unreachable when ASYNC_IMAGE_LOADING is not true", __func__);
+
+            UI_DRAW_TEXT("This should be unreachable when ASYNC_IMAGE_LOADING is not 1");
+
+            return;
+#endif
+
+        case IMAGE_STATUS_LOADED:
+            break;
+
+        case IMAGE_STATUS_FAILED:
             return;
         }
 
-        if (imageBuf.id > 0) {
+
+        Texture2D nimageBuf = LoadTextureFromImage(image->rayim);
+
+        if (!IsTextureReady(nimageBuf)) {
+            return;
+        }
+
+        if (IsTextureReady(imageBuf)) {
             UnloadTexture(imageBuf);
         }
 
         imageBufPath = image->path;
         imageBuf     = nimageBuf;
+
     } else if (image->rebuildBuff) {
 
         image->rebuildBuff = 0;
@@ -501,18 +554,36 @@ void ui_renderThumbs(const doko_control_t* ctrl) {
 
     DARRAY_FOR_EACH_I(ctrl->image_files, i) {
 
-        Image im = ctrl->image_files.buffer[i].thumb;
+        doko_image_t* dim = ctrl->image_files.buffer + i;
 
-        if (!IsImageReady(im)) {
-
+        if (dim->status != IMAGE_STATUS_LOADED ||
+            dim->thumb_status == IMAGE_STATUS_FAILED) {
             continue;
+        }
+
+        if (dim->thumb_status != IMAGE_STATUS_LOADED) {
+
+            if (!doko_create_thumbnail(
+                    &dim->rayim, &dim->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE
+                )) {
+
+                L_E("Error creating thumbnail!");
+
+                memset(&dim->thumb, 0, sizeof(dim->thumb));
+
+                dim->thumb_status = IMAGE_STATUS_FAILED;
+
+                continue;
+            }
+
+            dim->thumb_status = IMAGE_STATUS_LOADED;
         }
 
         Texture2D tex = thumbBufs.buffer[i];
 
         if (!IsTextureReady(tex)) {
 
-            tex = LoadTextureFromImage(im);
+            tex = LoadTextureFromImage(dim->thumb);
 
             if (!IsTextureReady(tex)) {
                 continue;
@@ -536,8 +607,8 @@ void ui_renderThumbs(const doko_control_t* ctrl) {
 
         DrawTexture(
             tex, 
-            x + (THUMBNAIL_SIZE - im.width) / 2,
-            y + (THUMBNAIL_SIZE - im.height) / 2, 
+            x + (THUMBNAIL_SIZE - dim->thumb.width) / 2,
+            y + (THUMBNAIL_SIZE - dim->thumb.height) / 2, 
             WHITE
         );
         DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, WHITE);
