@@ -1,7 +1,7 @@
 
 Raylib 5.0 Source Code downloaded from https://github.com/raysan5/raylib/releases/tag/5.0
 
-Removed everything except `./LICENSE` and `./src/`.
+Removed some stuff not needed for building.
 
 Enabled all image support.
 
