@@ -388,6 +388,11 @@ bool doko_load_with_imlib2(const char* path, Image* im) {
     return 0;
 }
 
+bool doko_copy_image_to_clipboard(doko_image_t* im) {
+
+    return false;
+}
+
 #endif
 
 bool doko_loadImage(doko_image_t* image) {

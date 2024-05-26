@@ -14,11 +14,13 @@ TARGET_DIR ?= build
 TARGET     := ${TARGET_DIR}/$(NAME)
 RESOURCES  := resources
 
-# RAYLIB_LIBTYPE ?= STATIC
+RAYLIB_LIBTYPE ?= STATIC
 # PLATFORM_OS    ?= LINUX
 
 ifeq ($(PLATFORM_OS), WINDOWS)
 	LDFLAGS += -lopengl32 -lgdi32 -lwinmm
+else
+	LDFLAGS += -lImlib2
 endif
 
 all: build
@@ -29,7 +31,8 @@ build: build_raylib build_doko
 
 windows: CC          := x86_64-w64-mingw32-gcc
 windows: PLATFORM_OS := WINDOWS
-windows: CFLAGS      += -Wl,--subsystem,windows     # remove console on windows
+windows: CPPFLAGS    += -DDOKO_BUNDLE
+windows: CFLAGS      := -Wall -Wextra -std=c2x -static -Wl,--subsystem,windows     # remove console on windows
 windows: LDFLAGS     += -lopengl32 -lgdi32 -lwinmm
 windows: all
 
@@ -83,7 +86,7 @@ build_doko: | $(TARGET_DIR)
 		CC="$(CC)" \
 		CFLAGS="$(CFLAGS)" \
 		CPPFLAGS="$(CPPFLAGS)" \
-		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm -lImlib2 $(LDFLAGS)" \
+		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm $(LDFLAGS)" \
 		INCLUDE_PATHS="-I\"$(abspath $(RAYLIB_SRC_DIR))\"" \
 		TARGET_DIR="$(abspath $(TARGET_DIR))" 
 

@@ -44,8 +44,8 @@ $(TARGET_DIR):
 	mkdir -p $(TARGET_DIR)
 
 $(TARGET_DIR)/bundler.o: bundler.c | $(TARGET_DIR)
-	$(_CC) $(CPPFLAGS) $(CFLAGS) $< -o $@ $(INCLUDE_PATHS)
-	$(TARGET_DIR)/bundler.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -o $@ $(INCLUDE_PATHS)
+	$(TARGET_DIR)/bundler.o || true
 
 $(TARGET): doko.o doko_async.o ui.o main.o input.o resources.o external/strnatcmp.o external/hashmap.o | $(TARGET_DIR) $(TARGET_DIR)/bundler.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@ $(INCLUDE_PATHS) $(LDFLAGS)

@@ -1,6 +1,5 @@
 
 
-#define _GNU_SOURCE
 #include <pthread.h>
 #include <raylib.h>
 #include <unistd.h>
@@ -11,9 +10,11 @@
 
 typedef struct {
 
-        pthread_t thread;
-        char*     path;
-        Image     rayim;
+        pthread_t       thread;
+        pthread_mutex_t mutex;
+        bool            finished;
+        char*           path;
+        Image           rayim;
 
 } doko_thread_t;
 
@@ -77,6 +78,7 @@ static void doko_async_destroy_thread(const doko_image_t* im, bool image_gotten)
 
     if (THREAD != NULL)
         if (THREAD->value != NULL) {
+            pthread_mutex_destroy(&THREAD->value->mutex);
             free(THREAD->value->path);
             free(THREAD->value);
         }
@@ -101,10 +103,13 @@ bool doko_async_get_image(doko_image_t* im) {
 
     doko_thread_t* thread = ITEM->value;
 
-    // requires GNU, but makes this very clean
-    int finished = pthread_tryjoin_np(thread->thread, NULL);
+    pthread_mutex_lock(&thread->mutex);
 
-    if(finished != 0) {
+    int finished = thread->finished;
+
+    pthread_mutex_unlock(&thread->mutex);
+
+    if(!finished) {
         return false;
     }
 
@@ -155,6 +160,10 @@ void *async_image_load_thread_main(void * raw_arg) {
 
     L_D("%s: Thread is done", __func__);
 
+    pthread_mutex_lock(&thread->mutex);
+    thread->finished = true;
+    pthread_mutex_unlock(&thread->mutex);
+
     return NULL;
 }
 
@@ -168,6 +177,7 @@ bool doko_async_load_image(const doko_image_t* im) {
     if (thread == NULL)
         return false;
 
+    thread->finished = false;
     thread->path = doko_strdup(im->path);
 
     if (thread->path == NULL) {
@@ -176,6 +186,8 @@ bool doko_async_load_image(const doko_image_t* im) {
 
         return false;
     }
+
+    pthread_mutex_init(&thread->mutex, NULL);
 
     if(pthread_create(&thread->thread, NULL, async_image_load_thread_main, (void*)thread) != 0) {
 
