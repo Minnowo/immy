@@ -105,6 +105,8 @@ typedef struct doko_image {
         double scale;
         double rotation;
 
+        TextureFilter interpolation;
+
         bool rebuildBuff; // updates the Texture2D
         bool applyGrayscaleShader;
         bool applyInvertShader;
@@ -277,6 +279,11 @@ const char* get_key_to_pretty_text(int key);
 const char* get_mouse_to_pretty_text(int key);
 
 /**
+ * Gets a pretty name for the TextureFilter
+ */
+const char* doko_get_interpolation_pretty_text(TextureFilter tf);
+
+/**
  * Copy an image to clipboard
  */
 bool doko_copy_image_to_clipboard(doko_image_t* im);
@@ -311,6 +318,9 @@ bool doko_load_with_ffmpeg_stdout(const char* path, Image* im);
  */
 bool doko_load_with_imlib2(const char* path, Image* im);
 
+
+void doko_dither_image(doko_image_t* im);
+
 // #####################
 // Async Functions Begin
 // #####################
@@ -331,7 +341,6 @@ bool doko_async_has_image(const doko_image_t* im);
  * Returns true if the image is done loading
  */
 bool doko_async_get_image(doko_image_t* im);
-
 
 #endif
 

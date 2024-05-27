@@ -15,6 +15,7 @@ typedef struct {
         bool            finished;
         char*           path;
         Image           rayim;
+        Image           thumb;
 
 } doko_thread_t;
 
@@ -73,8 +74,10 @@ static void doko_async_destroy_thread(const doko_image_t* im, bool image_gotten)
 
     const doko_hashmap_thread_t* THREAD = HM_DELETE(im);
 
-    if (!image_gotten)
+    if (!image_gotten) {
         UnloadImage(THREAD->value->rayim);
+        UnloadImage(THREAD->value->thumb);
+    }
 
     if (THREAD != NULL)
         if (THREAD->value != NULL) {
@@ -126,6 +129,7 @@ bool doko_async_get_image(doko_image_t* im) {
     }
 
     im->rayim = thread->rayim;
+    im->thumb = thread->thumb;
     im->srcRect = (Rectangle){
         0.0,
         0.0,
@@ -134,6 +138,12 @@ bool doko_async_get_image(doko_image_t* im) {
     };
     im->dstPos = (Vector2){0, 0};
     im->status = IMAGE_STATUS_LOADED;
+
+    if (IsImageReady(im->thumb)) {
+        im->thumb_status = IMAGE_STATUS_LOADED;
+    } else {
+        im->thumb_status = IMAGE_STATUS_FAILED;
+    }
 
 done:
     doko_async_destroy_thread(im, true);
@@ -165,6 +175,13 @@ void *async_image_load_thread_main(void * raw_arg) {
     }
 
     L_D("%s: Thread is done", __func__);
+
+    if (IsImageReady(thread->rayim))
+        if (!doko_create_thumbnail(
+                &thread->rayim, &thread->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE
+            )) {
+            L_W("%s: Could not create thumbnail", __func__);
+        }
 
     pthread_mutex_lock(&thread->mutex);
     thread->finished = true;

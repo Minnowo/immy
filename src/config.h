@@ -287,6 +287,8 @@ static InputMapping keybinds[] = {
     // ###########################
     // ##### image view page #####
     // ###########################
+    //
+    BIND(KEY_NINE             , kb_Dither                   , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_K                , kb_Move_Image_Up            , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_J                , kb_Move_Image_Down          , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_H                , kb_Move_Image_Left          , DOKO_SCREEN_IMAGE, DELAY_FAST),
@@ -306,6 +308,7 @@ static InputMapping keybinds[] = {
     BIND(KEY_M                , kb_Flip_Horizontal          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_V                , kb_Flip_Vertical            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_B                , kb_Toggle_Show_Bar          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_LEFT_BRACKET     , kb_Cycle_Image_Interpolation, DOKO_SCREEN_IMAGE, DELAY_MEDIUM), 
     BIND(KEY_O                , kb_Print_Debug_Info         , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_SPACE            , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
 
@@ -332,21 +335,23 @@ static InputMapping keybinds[] = {
     BIND(KEY_N | CONTROL_MASK             , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
     BIND(KEY_P | CONTROL_MASK | SHIFT_MASK, kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
     BIND(KEY_N | CONTROL_MASK | SHIFT_MASK, kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(KEY_G | SHIFT_MASK               , kb_Jump_Image_End  , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(KEY_G                            , kb_Jump_Image_Start, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_G | SHIFT_MASK               , kb_Jump_Image_End  , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_G                            , kb_Jump_Image_Start, DOKO_SCREEN_FILE_LIST, DELAY_FAST),
 
 
     // ###########################
     // ##### thumbs    page ######
     // ###########################
     BIND(KEY_K, kb_Scroll_Thumb_Page_Up  , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
-    BIND(KEY_K, kb_Scroll_Thumb_Page_Up  , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_J, kb_Scroll_Thumb_Page_Down, DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
 
     // ###########################
     // ##### keybind   page ######
     // ###########################
-    BIND(KEY_K, kb_Scroll_Keybind_List_Up  , DOKO_SCREEN_KEYBINDS, DELAY_FAST),
-    BIND(KEY_J, kb_Scroll_Keybind_List_Down, DOKO_SCREEN_KEYBINDS, DELAY_FAST),
+    BIND(KEY_K, kb_Scroll_Keybind_List_Up               , DOKO_SCREEN_KEYBINDS, DELAY_VFAST),
+    BIND(KEY_J, kb_Scroll_Keybind_List_Down             , DOKO_SCREEN_KEYBINDS, DELAY_VFAST),
+    BIND(KEY_K | SHIFT_MASK, kb_Scroll_Keybind_List_Up  , DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
+    BIND(KEY_J | SHIFT_MASK, kb_Scroll_Keybind_List_Down, DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
 };
 
 // define mouse input mappings
@@ -363,8 +368,8 @@ static InputMapping mousebinds[] = {
     BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Prev_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
     BIND(MOUSE_WHEEL_BWD | SHIFT_MASK, kb_Next_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
 
-    BIND(MOUSE_WHEEL_FWD, kb_Scroll_Keybind_List_Up  , DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_BWD, kb_Scroll_Keybind_List_Down, DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD             , kb_Scroll_Keybind_List_Up  , DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD             , kb_Scroll_Keybind_List_Down, DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
 
     BIND(MOUSE_WHEEL_FWD, kb_Scroll_Thumb_Page_Up  , DOKO_SCREEN_THUMB_GRID, DELAY_INSTANT),
     BIND(MOUSE_WHEEL_BWD, kb_Scroll_Thumb_Page_Down, DOKO_SCREEN_THUMB_GRID, DELAY_INSTANT),

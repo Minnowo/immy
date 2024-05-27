@@ -325,6 +325,7 @@ void ui_renderImage(doko_image_t* image) {
 
 #endif
 
+    SetTextureFilter(imageBuf, image->interpolation);
     DrawTextureEx(
         imageBuf, image->dstPos, image->rotation, image->scale, WHITE
     );
@@ -555,6 +556,17 @@ void ui_renderThumbs(const doko_control_t* ctrl) {
     DARRAY_FOR_EACH_I(ctrl->image_files, i) {
 
         doko_image_t* dim = ctrl->image_files.buffer + i;
+
+#ifdef ASYNC_IMAGE_LOADING
+        if (dim->status == IMAGE_STATUS_LOADING) {
+
+            if (!doko_async_get_image(dim))
+                continue;
+
+            if (dim->status == IMAGE_STATUS_LOADED)
+                doko_fitCenterImage(dim);
+        }
+#endif
 
         if (dim->status != IMAGE_STATUS_LOADED ||
             dim->thumb_status == IMAGE_STATUS_FAILED) {

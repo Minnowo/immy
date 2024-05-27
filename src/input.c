@@ -466,3 +466,30 @@ void kb_Copy_Image_To_Clipboard(doko_control_t* ctrl) {
         };
     }
 }
+
+
+void kb_Cycle_Image_Interpolation(doko_control_t* ctrl) {
+
+    _NO_IMAGE_WARN(ctrl);
+
+    ctrl->selected_image->interpolation ++;
+
+    if (ctrl->selected_image->interpolation > TEXTURE_FILTER_ANISOTROPIC_16X) {
+        ctrl->selected_image->interpolation = TEXTURE_FILTER_POINT;
+    }
+
+    ctrl->message = (doko_message_t){
+        .message = (char*)doko_get_interpolation_pretty_text(
+            ctrl->selected_image->interpolation
+        ),
+        .free_when_done  = false,
+        .show_for_frames = WINDOW_FPS * 0.75,
+    };
+}
+
+void kb_Dither(doko_control_t* ctrl) {
+
+    _NO_IMAGE_WARN(ctrl);
+
+    doko_dither_image(ctrl->selected_image);
+}

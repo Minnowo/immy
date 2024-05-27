@@ -784,6 +784,72 @@ bool doko_create_thumbnail( const Image* image, Image* newimage, int newWidth, i
     return true;
 }
 
+
+void doko_dither_image(doko_image_t* im) {
+
+    if (im->status != IMAGE_STATUS_LOADED)
+        return;
+
+    if (im->rayim.format >= PIXELFORMAT_COMPRESSED_DXT1_RGB)
+        return;
+
+    Color* pixels = LoadImageColors(im->rayim);
+
+    if (pixels == NULL)
+        return;
+
+    RL_FREE(im->rayim.data);
+
+    int w = im->rayim.width;
+    int h = im->rayim.height;
+    size_t pixels_count = w * h;
+
+    im->rayim.data = pixels;
+    im->rayim.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+    im->rebuildBuff = 1;
+
+    Color oldPixel = WHITE;
+    Color newPixel = WHITE;
+
+#define COLOR_MUL(x, y, z)                                                     \
+    (Color) {                                                                  \
+        .r = (x).r + (y).r * (z), .g = (x).g + (y).g * (z),                    \
+        .b = (x).b + (y).b * (z), .a = (x).a                                   \
+    }
+
+    for(int i = 0; i < pixels_count; ++i) {
+
+        oldPixel = pixels[i];
+
+        float lum = (oldPixel.r * GRAYSCALE_COEF_R + oldPixel.g * GRAYSCALE_COEF_G + oldPixel.b * GRAYSCALE_COEF_B) / 255.0f;
+
+        if(lum > 0.5)
+            newPixel = BLACK;
+        else
+            newPixel = WHITE;
+
+        Color error = (Color){oldPixel.r - lum, oldPixel.g - lum, oldPixel.b - lum, oldPixel.a};
+
+        pixels[i] = newPixel;
+
+        // x + 1
+        if(i + 1 < pixels_count) 
+            pixels[i + 1] = COLOR_MUL(pixels[i + 1], error, 7.0f / 16.0f);
+
+        // x - 1; y + 1
+        if(i - 1 + w < pixels_count) 
+            pixels[i - 1 + w] = COLOR_MUL(pixels[i - 1 + w], error, 3.0f / 16.0f);
+
+        // y + 1
+        if(i + w < pixels_count) 
+            pixels[i + w] = COLOR_MUL(pixels[i + w], error, 5.0f / 16.0f);
+
+        // x + 1; y + 1
+        if(i + w < pixels_count) 
+            pixels[i + 1 + w] = COLOR_MUL(pixels[i + 1 + w], error, 1.0f / 16.0f);
+    }
+}
+
 const char* get_pretty_screen_text(doko_screen_t screen) {
 
     switch (screen) {
@@ -802,6 +868,23 @@ const char* get_pretty_screen_text(doko_screen_t screen) {
 
     case DOKO_SCREEN__ALL:
         return "SCREEN_ANY";
+    }
+}
+
+const char* doko_get_interpolation_pretty_text(TextureFilter tf){
+    switch (tf) {
+    case TEXTURE_FILTER_POINT:
+        return "NEAREST_NEIGHBOUR";
+    case TEXTURE_FILTER_BILINEAR:
+        return "BILINEAR";
+    case TEXTURE_FILTER_TRILINEAR:
+        return "TRILINEAR";
+    case TEXTURE_FILTER_ANISOTROPIC_4X:
+        return "ANISOTROPIC_4X";
+    case TEXTURE_FILTER_ANISOTROPIC_8X:
+        return "ANISOTROPIC_8X";
+    case TEXTURE_FILTER_ANISOTROPIC_16X:
+        return "ANISOTROPIC_16X";
     }
 }
 
