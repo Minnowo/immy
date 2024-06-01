@@ -17,18 +17,25 @@
 typedef void (*InputCallback)(doko_control_t*);
 
 typedef struct {
-        unsigned int  key;
-        InputCallback function;
-        doko_screen_t screen;
-        double        lastPressedTime;
-        double        keyTriggerRate;
-        const char*   NAME;
+
+    unsigned int  key;             // key to trigger
+    InputCallback function;        // the callback of the key
+    doko_screen_t screen;          // the screen the keybind works on
+    double        lastPressedTime; // when the key was last pressed
+    double        keyTriggerRate;  // how fast the key can be triggered
+    unsigned int  keyIsWorth;      // how many keypress this adds to the limit
+    const char*   NAME;            // the name for the keybinds page
 } InputMapping;
 
 #define BIND(k, func, scr, rate)                                               \
     (InputMapping) {                                                           \
-        .key = k, .function = func, .screen = scr, .lastPressedTime = 0,       \
-        .keyTriggerRate = rate, .NAME = (#func) + 3                            \
+        .key = (k), .function = (func), .screen = (scr), .lastPressedTime = 0, \
+        .keyTriggerRate = (rate), .keyIsWorth = 1, .NAME = ((#func) + 3)       \
+    }
+#define BINDX(k, func, scr, worth, rate)                                       \
+    (InputMapping) {                                                           \
+        .key = (k), .function = (func), .screen = (scr), .lastPressedTime = 0, \
+        .keyTriggerRate = (rate), .keyIsWorth = (worth), .NAME = ((#func) + 3) \
     }
 
 void kb_Zoom_In_Center_Image(doko_control_t* ctrl);

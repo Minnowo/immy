@@ -8,259 +8,316 @@
 #include "doko.h"
 #include "input.h"
 
+//////////////////////
+// Do Not Change
+extern InputMapping keybinds[];
+extern InputMapping mousebinds[];
+extern const size_t KEYBIND_COUNT;
+extern const size_t MOUSEBIND_COUNT;
 
+extern const double ZOOM_LEVELS[];
+extern const size_t ZOOM_LEVELS_SIZE;
+// Do Not Change
+//////////////////////
+
+
+// the default log level
 #define LOG_LEVEL __LOG_LEVEL_INFO
 
+// default GLSL version
 #ifndef GLSL_VERSION
     #define GLSL_VERSION 330
 #endif
 
-// if 1, try to load shaders for grayscale and inverting color
+// if 1, shaders can be used
 #define ENABLE_SHADERS 1
 
 
+// ###########################
+// ##### Window Properties ###
+// ###########################
 
-//
-// Define window properties
-//
-
+// the default window title
+// if not changed by cli args
 #define WINDOW_TITLE "Doko?"
+
+// Default window width
+#define START_WIDTH 512
+
+// Default window height 
+#define START_HEIGHT 512
+
+// Minimum window width
+#define MIN_WINDOW_WIDTH 64
+
+// Minimum window height 
+#define MIN_WINDOW_HEIGHT 64
+
+// the target FPS
 #define WINDOW_FPS 60
 
-// forces a redraw everytime the frame count
-// becomes a multiple of this number
-#define REDRAW_ON_FRAME (WINDOW_FPS*3)
+// If set to true, render on every frame.
+// This ensures max smoothness / no flickering at the cost of more GPU usage.
+#define ALWAYS_DO_RENDER true
 
-// when defined always do render
-// this will prevent flickering on some systems
-#define ALWAYS_DO_RENDER
+// When ALWAYS_DO_RENDER is disabled, we might want to redraw every so often.
+// Forces a redraw everytime the frame count becomes a multiple of this number.
+#define REDRAW_ON_FRAME (WINDOW_FPS * 10)
 
-// how many frames to render when being told to render
-// this only applies if ALWAYS_DO_RENDER is not defined
-// if you get flickering, increase this number
-#define RENDER_FRAMES (1+(int)(WINDOW_FPS/4))
+// When ALWAYS_DO_RENDER is disabled, draw this many frames when needed.
+// If the window size changes    -> draw this many frames.
+// If the user presses any input -> draw this many frames.
+// etc...
+// If you see flickering, increase this number.
+#define RENDER_FRAMES (3)
 
-// if 1, enable detaching from terminal
-#define ALLOW_DETACH_FROM_TERMINAL 1
 
-// default value for detaching from terminal
-#define DETACH_FROM_TERMINAL 1
+// Feature flag for allowing detaching from the terminal.
+// If set true, the program can detach from the terminal.
+#define ALLOW_DETACH_FROM_TERMINAL true
 
-// use imlib2
-// if defined and imlib2 is found at compiletime
-// enable using it to load images
+// Default value for detaching from terminal
+#define DETACH_FROM_TERMINAL true
+
+
+// ###########################
+// ##### Image Loading #######
+// ###########################
+
+// Feature flag for loading images in separate threads.
+// If set to true, images will be loaded in separate threads.
+// Imlib2 will not be used for any loading done in thread.
+#define ASYNC_IMAGE_LOADING true
+
+// Feature flag for using Imlib2.
+// If defined and imlib2 is found at compiletime
+// enable using Imlib2 to load images.
+// NOTE: Imlib2 can only be used to load images syncronisly, and will not be
+//       used for async image loading.
 #define USE_IMLIB2
 
-// don't change. determines if imlib can be used
-#if defined(DOKO_USE_IMLIB2) && defined(USE_IMLIB2)
-    #define IMLIB2_ENABLED
-#endif
 
-// if defined load images using image magick convert before raylib
-// requires image magick's `convert` added to path
+//
+// ##### ImageMagick #######
+//
+
+// Feature flag for using ImageMagick.
+// If defined, ImageMagick will be called to load images.
+// Requires image magick's `convert` added to path.
 #define DOKO_USE_MAGICK
-// have magick convert to this format before raylib loads the image
+
+// Have ImageMagick convert to this format before raylib loads the image.
+// Tested options: (in order of my rank of best -> worst)
+//   "qoi" -> Very fast, lossless compression, has alpha
+//   "bmp" -> Very fast, no compression, has alpha 
+//   "png" -> Very slow, lossless compression, has alpha 
+//   "jpg" -> Relatively fast, lossy compression, no alpha
 #define MAGICK_CONVERT_MIDDLE_FMT "qoi"
 
-// if defined try and load images using ffmpeg before raylib
-// requires `ffmpeg` added to path
+
+//
+// ##### FFmpeg #######
+//
+
+// Feature flag for using FFmpeg.
+// If defined, FFmpeg will be called to load images.
+// Requires `ffmpeg` added to path.
 #define DOKO_USE_FFMPEG
-// have ffmpeg convert to this format before raylib loads the image
+
+// Have FFmpeg convert to this format before raylib loads the image.
+// Tested options: (in order of my rank of best -> worst)
+//   "qoi" -> Very fast, lossless compression, has alpha
+//   "bmp" -> Very fast, no compression, has alpha 
+//   "png" -> Very slow, lossless compression, has alpha 
 #define FFMPEG_CONVERT_MIDDLE_FMT "qoi"
-// see https://ffmpeg.org/ffmpeg.html
-// this is the value set for the -loglevel and -v flags
+
+// See https://ffmpeg.org/ffmpeg.html
+// This is the value set for the -loglevel and -v flags
 #define FFMPEG_VERBOSITY "error"
 
-// if 1, load images in separate threads
-#define ASYNC_IMAGE_LOADING 1
 
-// the command which is run to copy images to clipobard for X11
-// the command must accept png bytes through stdin
+// ###########################
+// ##### Clipboard ###########
+// ###########################
+
+// The command which is run to copy images to clipobard for X11.
+// Doko will write png bytes to stdin for this command.
+// This blocks the GUI thread.
 #define X11_COPY_IMAGE_COMMAND "xclip -selection clipboard -target image/png"
+
+// Pasting an image saves to this file before reading the image normally.
 #define X11_PASTE_COMMAND_OUTPUT_FILE "/tmp/clipboard.png"
+
+// The command which is run to paste images from the clipboard for X11.
+// Must write the image file to X11_PASTE_COMMAND_OUTPUT_FILE.
+// This blocks the GUI thread.
 #define X11_PASTE_IMAGE_COMMAND "xclip -selection clipboard -target image/png -o > " X11_PASTE_COMMAND_OUTPUT_FILE
 
 
+// ###########################
+// ##### Other ###############
+// ###########################
 
-// window sizes
-#define START_WIDTH 512
-#define START_HEIGHT 512
-#define MIN_WINDOW_WIDTH 64
-#define MIN_WINDOW_HEIGHT 64
-
+// The order files are sorted when reading a directory.
+// Options are:
+//  - SORT_ORDER__DEFAULT
+//  - SORT_ORDER__NATURAL
 #define DEFAULT_SORT_ORDER SORT_ORDER__NATURAL
 
-// if 1, center the first image on start
-#define CENTER_IMAGE_ON_FIRST_START 1
+// When set true, the first image is always centered.
+#define CENTER_IMAGE_ON_FIRST_START true
 
-// Size of the background tile pattern
+// Size of the background tile pattern.
 #define BACKGROUND_TILE_W 128
 #define BACKGROUND_TILE_H 128
 
-// always try and keep this many pixels of the image on screen
+// Always try and keep this many pixels of the image on screen.
 #define IMAGE_INVERSE_MARGIN_X 32
 #define IMAGE_INVERSE_MARGIN_Y 32
 
+// Size of thumbnails for the thumbnail page.
 #define THUMBNAIL_SIZE 256
 
-// define the height of the bar 
+// The height of the bar 
 #define INFO_BAR_HEIGHT 32
+
+// Left margin for bar text
 #define INFO_BAR_LEFT_MARGIN 8
 
+// Left margin for the file list
 #define FILE_LIST_LEFT_MARGIN INFO_BAR_LEFT_MARGIN
 
-// show the pixel grid when the scale is bigger than this value
-#define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20
+// Show the pixel grid when the scale is bigger than this value
+// This value x 100 = % zoom
+#define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20 /* 2000% Zoom */
 
-// draw the fps
+// When true, draw the fps in the corner
 #define DRAW_FPS 0
 
-// 1 searches directories recursivly
-// 0 does not search directories recursivly
-#define SEARCH_DIRS_RECURSIVE 1
+// When true, searches directories recursivly
+// When false, does not search directories recursivly
+#define SEARCH_DIRS_RECURSIVE true
 
-// the smallest scale value in the ZOOM_LEVELS array
+// The smallest scale value in the ZOOM_LEVELS array
 #define SMALLEST_SCALE_VALUE 0.01
 
 // Different scale values which provide a decent default experience.
-// Change as you see fit, just MAKE SURE it is sorted.
-static const double ZOOM_LEVELS[] = {SMALLEST_SCALE_VALUE,
-                                     0.04,
-                                     0.07,
-                                     0.10,
-                                     0.15,
-                                     0.20,
-                                     0.25,
-                                     0.30,
-                                     0.50,
-                                     0.70,
-                                     1.00,
-                                     1.50,
-                                     2.00,
-                                     3.00,
-                                     4.00,
-                                     5.00,
-                                     6.00,
-                                     7.00,
-                                     8.00,
-                                     12.00,
-                                     16.00,
-                                     20.00,
-                                     24.00,
-                                     28.00,
-                                     32.00,
-                                     36.00,
-                                     40.00,
-                                     44.00,
-                                     48.00,
-                                     52.00,
-                                     56.00,
-                                     60.00,
-                                     64.00,
-                                     68.00,
-                                     72.00,
-                                     76.00,
-                                     80.00,
-                                     84.00,
-                                     88.00,
-                                     92.00,
-                                     96.00,
-                                     100.00,
-                                     104.00,
-                                     108.00,
-                                     112.00,
-                                     116.00,
-                                     120.00,
-                                     124.00,
-                                     128.00,
-                                     132.00,
-                                     136.00,
-                                     140.00,
-                                     144.00,
-                                     148.00,
-                                     152.00,
-                                     156.00,
-                                     160.00,
-                                     164.00,
-                                     168.00,
-                                     172.00,
-                                     176.00,
-                                     180.00,
-                                     184.00,
-                                     188.00,
-                                     192.00,
-                                     196.00,
-                                     200.00};
+// This MUST be sorted.
+// The first value must be equal to SMALLEST_SCALE_VALUE
+#ifdef ZOOM_LEVELS_IMPLEMENTATION
+
+const double ZOOM_LEVELS[] = {
+    SMALLEST_SCALE_VALUE,
+    0.04, 0.07, 0.10, 0.15,
+    0.20, 0.25, 0.30, 0.50,
+    0.70, 1.00, 1.50, 2.00,
+    3.00, 4.00, 5.00, 6.00,
+    7.00, 8.00,
+
+    12.00, 16.00, 20.00, 24.00,
+    28.00, 32.00, 36.00, 40.00,
+    44.00, 48.00, 52.00, 56.00,
+    60.00, 64.00, 68.00, 72.00,
+    76.00, 80.00, 84.00, 88.00,
+    92.00, 96.00, 100.00,
+
+    104.00, 108.00, 112.00,
+    116.00, 120.00, 124.00,
+    128.00, 132.00, 136.00,
+    140.00, 144.00, 148.00,
+    152.00, 156.00, 160.00,
+    164.00, 168.00, 172.00,
+    176.00, 180.00, 184.00,
+    188.00, 192.00, 196.00,
+    200.00
+};
+
+//////////////////////
+// Do Not Change
+const size_t ZOOM_LEVELS_SIZE = (sizeof((ZOOM_LEVELS)) / sizeof((ZOOM_LEVELS[0])));
+// Do Not Change
+//////////////////////
+
+#endif
 
 
+// ###########################
+// ##### Define Colors #######
+// ###########################
 
-
-
-//
-// Define Colors, (r, g, b, a)
-//
-
+// The background tile color
 #define BACKGROUND_TILE_COLOR_A_RGBA                                           \
     (Color) {                                                                  \
         32, 32, 32, 255                                                        \
     }
 
+// The other backgroudn tile color
 #define BACKGROUND_TILE_COLOR_B_RGBA                                           \
     (Color) {                                                                  \
         64, 64, 64, 255                                                        \
     }
 
+// The pixel grid color
 #define PIXEL_GRID_COLOR_RGBA                                                  \
     (Color) {                                                                  \
         200, 200, 200, 200                                                     \
     }
 
+// The text color
 #define TEXT_COLOR_RGBA                                                        \
     (Color) {                                                                  \
         212, 212, 212, 255                                                     \
     }
 
+// The bar background color
 #define BAR_BACKGROUND_COLOR_RGBA                                              \
     (Color) {                                                                  \
         16, 16, 16, 255                                                        \
     }
 
+// The selected color (in the file list)
 #define SELECTED_COLOR_RGBA                                                    \
     (Color) {                                                                  \
         96, 64, 64, 255                                                        \
     }
 
-// used in the grayscale gpu shader
+// Magick numbers for calculating grayscale
+// Used in the grayscale GPU shader
 #define GRAYSCALE_COEF_R 0.299
 #define GRAYSCALE_COEF_G 0.587
 #define GRAYSCALE_COEF_B 0.114
 
 
 
-// 
-// Define Input
-//
+// ###########################
+// ##### Define Input ########
+// ###########################
 
-#define ENABLE_KEYBOARD_INPUT          // all keyboard input
-#define ENABLE_MOUSE_INPUT             // all mouse input
-#define ENABLE_FILE_DROP               // file drop into the app
+// Feature flag for enabling keybind input.
+// If defined, keyboad input works.
+#define ENABLE_KEYBOARD_INPUT
 
-// number of keybinds to interpret per render
-#define KEY_LIMIT 3
+// Feature flag for enabling mouse input.
+// If defined, mouse input works.
+#define ENABLE_MOUSE_INPUT
 
-// number of mouses inputs to interpret per render
+
+// Feature flag for enabling file drop.
+// If defined, file drop works.
+#define ENABLE_FILE_DROP
+
+// Number of keybinds to interpret per frame.
+#define KEY_LIMIT 1
+
+// Number of mousebinds to interpret per frame.
 #define MOUSE_LIMIT 1
 
-// button which quits the program
-#define RAYLIB_QUIT_KEY KEY_Q
-
 // Time limit for triggering key presses (in seconds)
-#define DELAY_MEDIUM  (0.17) /*(0.2)*/
-#define DELAY_FAST    (0.120)
-#define DELAY_VFAST   (0.08)
+#define DELAY_MEDIUM (0.17)
+#define DELAY_FAST (0.120)
+#define DELAY_VFAST (0.08)
 #define DELAY_ALMOST_INSTANT (0.03)
 #define DELAY_INSTANT (0)
-
 
 // To find all the keys you can bind see
 //  raylib/raylib-5.0/src/raylib.h about line 550 for keys
@@ -272,9 +329,13 @@ typedef enum {
     MOUSE_WHEEL_BWD = 667
 } MouseWheel;
 
-// define keybinds
-// define any new ones as you see fit
-static InputMapping keybinds[] = {
+// button which quits the program
+#define RAYLIB_QUIT_KEY KEY_Q
+
+// Define our keybinds
+#ifdef KEYBINDS_IMPLEMENTATION
+
+InputMapping keybinds[] = {
 
     // KEY,        KEY_CALLBACK,          SCREEN,     LAST_PRESSED,  KEY_TRIGGER_RATE
 
@@ -339,8 +400,8 @@ static InputMapping keybinds[] = {
     BIND(KEY_N | CONTROL_MASK             , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
     BIND(KEY_P | CONTROL_MASK | SHIFT_MASK, kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
     BIND(KEY_N | CONTROL_MASK | SHIFT_MASK, kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(KEY_G | SHIFT_MASK               , kb_Jump_Image_End  , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
-    BIND(KEY_G                            , kb_Jump_Image_Start, DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BINDX(KEY_G | SHIFT_MASK              , kb_Jump_Image_End  , DOKO_SCREEN_FILE_LIST, KEY_LIMIT, DELAY_MEDIUM),
+    BINDX(KEY_G                           , kb_Jump_Image_Start, DOKO_SCREEN_FILE_LIST, KEY_LIMIT, DELAY_MEDIUM),
 
 
     // ###########################
@@ -359,7 +420,7 @@ static InputMapping keybinds[] = {
 };
 
 // define mouse input mappings
-static InputMapping mousebinds[] = {
+InputMapping mousebinds[] = {
     BIND(MOUSE_WHEEL_FWD             , kb_Zoom_In_Mouse_Position   , DOKO_SCREEN_IMAGE, DELAY_INSTANT),
     BIND(MOUSE_WHEEL_BWD             , kb_Zoom_Out_Mouse_Position  , DOKO_SCREEN_IMAGE, DELAY_INSTANT),
     BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_VFAST),
@@ -379,13 +440,23 @@ static InputMapping mousebinds[] = {
     BIND(MOUSE_WHEEL_BWD, kb_Scroll_Thumb_Page_Down, DOKO_SCREEN_THUMB_GRID, DELAY_INSTANT),
 };
 
+// Do not touch
+const size_t KEYBIND_COUNT   = (sizeof(keybinds) / sizeof(keybinds[0]));
+const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
+
+#endif
 
 
 
-//
-// Define resource
-//
+
+// ###########################
+// ##### Define Resources ####
+// ###########################
+
 #ifdef DOKO_BUNDLE
+    // resource bundle has been created
+    // all resources will be compiled into the binary
+    // ensure their name is correct
     #ifdef RESOURCE_PATH
         #undef RESOURCE_PATH
     #endif
@@ -393,29 +464,34 @@ static InputMapping mousebinds[] = {
 #else
     // the directory which contains the 'resources' folder
     // when doing `make install` this is set to `/opt/doko/`
-    // important that this always ends with a /
+    // important that this always ends with a / when not empty
     #ifndef RESOURCE_PATH
         #define RESOURCE_PATH ""
     #endif
 #endif
 
-// path to unifont
+// Path to Unifont, the default font
 #define UNIFONT_PATH (RESOURCE_PATH "resources/fonts/unifont-15.1.04.otf")
 
-// the spacing for the above font
+// The spacing for the above font
 #define UNIFONT_SPACING 0
 
-// the codepoints to load for the above font at startup
-// if the font has utf8 you can put them here
+// The codepoints to load for the above font at startup
+// If the font has utf8 you can put them here
 #define CODEPOINT_INITIAL                                                      \
     " !\"#$%&'()*+,-./"                                                        \
     "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"                       \
     "abcdefghijklmnopqrstuvwxyz{|}"
 
 
-//
-// extension filter, finds these files when searching directory
-//
+// ###########################
+// ##### Extension Filter ####
+// ###########################
+
+// Determine if imlib can be used
+#if defined(DOKO_USE_IMLIB2) && defined(USE_IMLIB2)
+    #define IMLIB2_ENABLED
+#endif
 
 #define EXT_WEBP ""
 #define EXT_JXL  ""
@@ -423,10 +499,11 @@ static InputMapping mousebinds[] = {
 #define EXT_TIFF ""
 #define EXT_HEIF ""
 
-// raylib should be able to load these
+// Raylib should be able to load these formats
 #define RAYLIB_FILE_FORMATS ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;"
 
 #ifdef IMLIB2_ENABLED
+    // with imlib2, we assume it can load these exta formats
     #undef EXT_WEBP 
     #undef EXT_JXL  
     #undef EXT_AVIF 
@@ -440,6 +517,7 @@ static InputMapping mousebinds[] = {
 #endif
 
 #ifdef DOKO_USE_MAGICK
+    // with ImageMagick, we assume it can load these exta formats
     #undef EXT_WEBP 
     #undef EXT_JXL  
     #undef EXT_AVIF 
@@ -453,6 +531,7 @@ static InputMapping mousebinds[] = {
 #endif
 
 #ifdef DOKO_USE_FFMPEG
+    // with FFmpeg, we assume it can load these exta formats
     #undef EXT_WEBP 
     #undef EXT_JXL  
     #undef EXT_AVIF 
@@ -463,10 +542,14 @@ static InputMapping mousebinds[] = {
     #define EXT_TIFF ".tiff;"
 #endif
 
+// Build the final image search filter
 #define IMAGE_FILE_FILTER RAYLIB_FILE_FORMATS EXT_WEBP EXT_JXL EXT_AVIF EXT_TIFF EXT_HEIF
 
 
 
+// ###########################
+// ##### Commandline Args ####
+// ###########################
 #define CLI_HELP_f_FLAG "-f       applies borderless window mode"
 #define CLI_HELP_B_FLAG "-B       hide the bottom bar"
 #define CLI_HELP_b_FLAG "-b       show the bottom bar"
@@ -492,15 +575,7 @@ static InputMapping mousebinds[] = {
     "\n  " CLI_HELP_y_FLAG "\n  " CLI_HELP_w_FLAG "\n  " CLI_HELP_h_FLAG       \
     "\n  " CLI_HELP_l_FLAG
 
-// 
-// DO NOT CHANGE
-//
-
-#define ZOOM_LEVELS_SIZE (sizeof((ZOOM_LEVELS)) / sizeof((ZOOM_LEVELS[0])))
-
-#define KEYBIND_COUNT (sizeof(keybinds) / sizeof(keybinds[0]))
-
-#define MOUSEBIND_COUNT (sizeof(mousebinds) / sizeof(mousebinds[0]))
 
 
 #endif
+

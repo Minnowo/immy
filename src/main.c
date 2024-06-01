@@ -1,15 +1,25 @@
 
 #include "input.h"
+
+// // we are not using this yet
+// #define RAYGUI_IMPLEMENTATION
+// #include "raygui.h"
+// #undef RAYGUI_IMPLEMENTATION
+
 #include "raylib.h"
 
-#include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#define ZOOM_LEVELS_IMPLEMENTATION
+#define KEYBINDS_IMPLEMENTATION
 #include "config.h"
+#undef KEYBINDS_IMPLEMENTATION
+#undef ZOOM_LEVELS_IMPLEMENTATION
+
 #include "darray.h"
 #include "doko.h"
 #include "ui.h"
@@ -82,10 +92,13 @@ void do_mouse_input() {
         // clang-format on
 
         mousebinds[i].function(&this);
-        mousebinds[i].lastPressedTime = GetTime();
-        this.renderFrames             = RENDER_FRAMES;
+        mousebinds[i].lastPressedTime = time;
 
-        if (++kc == MOUSE_LIMIT) {
+        this.renderFrames = RENDER_FRAMES;
+
+        kc += mousebinds[i].keyIsWorth;
+
+        if (kc == MOUSE_LIMIT) {
             return;
         }
     }
@@ -120,7 +133,9 @@ void do_keyboard_input() {
         keybinds[i].lastPressedTime = time;
         this.renderFrames           = RENDER_FRAMES;
 
-        if (++kc == KEY_LIMIT) {
+        kc += keybinds[i].keyIsWorth;
+
+        if (kc == MOUSE_LIMIT) {
             return;
         }
     }
@@ -375,8 +390,10 @@ int main(int argc, char* argv[]) {
 
         if (this.renderFrames > 0) {
 
+            this.renderFrames--;
 #endif
             ui_renderBackground();
+
 
             switch (this.screen) {
 
@@ -435,7 +452,6 @@ int main(int argc, char* argv[]) {
             DrawFPS(0, 0);
 #endif
 
-            this.renderFrames -= 1 - (this.renderFrames <= 0);
 
 #ifndef ALWAYS_DO_RENDER
         }

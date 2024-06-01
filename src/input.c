@@ -511,3 +511,5 @@ void kb_Dither(doko_control_t* ctrl) {
 
     doko_dither_image(ctrl->selected_image);
 }
+
+
