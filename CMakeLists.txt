@@ -80,7 +80,7 @@ if(PACKAGE_RESOURCES)
     )
 
     # define the macro which says to use the bundle header
-    target_compile_definitions(doko PRIVATE DOKO_BUNDLE)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DOKO_BUNDLE)
 
 else()
 
@@ -92,11 +92,11 @@ else()
 endif()
 
 # optionally run the bundler
-add_dependencies(doko run_bundle)
-target_include_directories(doko PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+add_dependencies(${PROJECT_NAME} run_bundle)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(doko PUBLIC raylib)
-target_include_directories(doko PUBLIC "${RAYLIB_ROOT}/src")
+target_link_libraries(${PROJECT_NAME} PUBLIC raylib)
+target_include_directories(${PROJECT_NAME} PUBLIC "${RAYLIB_ROOT}/src")
 
 #########################
 # Config & Build Raylib #
@@ -157,8 +157,8 @@ if(IMLIB)
     message(STATUS "Imlib2 found")
 
     # add imlib2
-    target_link_libraries(doko PUBLIC Imlib2)
-    target_compile_definitions(doko PRIVATE DOKO_USE_IMLIB2)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Imlib2)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DOKO_USE_IMLIB2)
 
 else()
     message(STATUS "Imlib2 not found, proceeding without it")

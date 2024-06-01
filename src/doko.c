@@ -846,6 +846,14 @@ bool doko_create_thumbnail( const Image* image, Image* newimage, int newWidth, i
 }
 
 
+
+static inline unsigned char add_char_clamp(short a, short b) {
+    return (a + b) > 255 ? 255 : (a + b);
+}
+static inline unsigned char sub_char_clamp(short a, short b) {
+    return (a - b) < 0 ? 0 : (a - b);
+}
+
 void doko_dither_image(doko_image_t* im) {
 
     if (im->status != IMAGE_STATUS_LOADED)
@@ -872,42 +880,57 @@ void doko_dither_image(doko_image_t* im) {
     Color oldPixel = WHITE;
     Color newPixel = WHITE;
 
-#define COLOR_MUL(x, y, z)                                                     \
-    (Color) {                                                                  \
-        .r = (x).r + (y).r * (z), .g = (x).g + (y).g * (z),                    \
-        .b = (x).b + (y).b * (z), .a = (x).a                                   \
-    }
-
     for(int i = 0; i < pixels_count; ++i) {
 
         oldPixel = pixels[i];
 
         float lum = (oldPixel.r * GRAYSCALE_COEF_R + oldPixel.g * GRAYSCALE_COEF_G + oldPixel.b * GRAYSCALE_COEF_B) / 255.0f;
 
-        if(lum > 0.5)
+        if(lum < 0.5)
             newPixel = BLACK;
         else
             newPixel = WHITE;
 
-        Color error = (Color){oldPixel.r - lum, oldPixel.g - lum, oldPixel.b - lum, oldPixel.a};
+        Color error = (Color){
+            sub_char_clamp(oldPixel.r, newPixel.r), 
+            sub_char_clamp(oldPixel.g, newPixel.g), 
+            sub_char_clamp(oldPixel.b, newPixel.b), 
+            oldPixel.a
+        };
 
         pixels[i] = newPixel;
 
         // x + 1
-        if(i + 1 < pixels_count) 
-            pixels[i + 1] = COLOR_MUL(pixels[i + 1], error, 7.0f / 16.0f);
+        if (i + 1 < pixels_count) {
+            int k       = i + 1;
+            pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 7) >> 4);
+            pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 7) >> 4);
+            pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 7) >> 4);
+        }
 
         // x - 1; y + 1
-        if(i - 1 + w < pixels_count) 
-            pixels[i - 1 + w] = COLOR_MUL(pixels[i - 1 + w], error, 3.0f / 16.0f);
+        if(i - 1 + w < pixels_count) {
+            int k = i + w - 1;
+            pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 3) >> 4); 
+            pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 3) >> 4); 
+            pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 3) >> 4); 
+        }
 
         // y + 1
-        if(i + w < pixels_count) 
-            pixels[i + w] = COLOR_MUL(pixels[i + w], error, 5.0f / 16.0f);
+        if (i + w < pixels_count) {
+            int k       = i + w;
+            pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 5) >> 4);
+            pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 5) >> 4);
+            pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 5) >> 4);
+        }
 
         // x + 1; y + 1
-        if(i + w < pixels_count) 
-            pixels[i + 1 + w] = COLOR_MUL(pixels[i + 1 + w], error, 1.0f / 16.0f);
+        if (i + 1 + w < pixels_count) {
+            int k       = i + w + 1;
+            pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 1) >> 4);
+            pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 1) >> 4);
+            pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 1) >> 4);
+        }
     }
 }
 
