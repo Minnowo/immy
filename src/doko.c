@@ -26,11 +26,31 @@ int log_level       = LOG_LEVEL;
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 
+int doko_paste_image_from_clipboard_x11(doko_control_t* ctrl) {
+
+    L_I("%s: Pasting image", __func__);
+
+    // block until the command can get the clipboard data
+    if (system(X11_PASTE_IMAGE_COMMAND) == -1) {
+
+        L_E("%s: error saving clipboard to temp file: %s", __func__,
+            strerror(errno));
+
+        return false;
+    }
+
+    L_I("%s: Clipboard data saved to " X11_PASTE_COMMAND_OUTPUT_FILE, __func__);
+
+    // add the image to the control
+    return doko_add_image(ctrl, X11_PASTE_COMMAND_OUTPUT_FILE);
+}
+
 bool doko_copy_image_to_clipboard_x11(doko_image_t* im) {
 
     L_I("%s: Copying image: %d x %d", __func__, im->rayim.width,
         im->rayim.height);
 
+    // we will write the image to stdin
     FILE* fp = popen(X11_COPY_IMAGE_COMMAND, "w");
 
     if (!fp) {
@@ -42,6 +62,7 @@ bool doko_copy_image_to_clipboard_x11(doko_image_t* im) {
 
     int filesize;
 
+    // png is our only option just using raylib
     unsigned char* png_bytes =
         ExportImageToMemory(im->rayim, ".png", &filesize);
 
@@ -62,6 +83,11 @@ bool doko_copy_image_to_clipboard_x11(doko_image_t* im) {
     RL_FREE(png_bytes);
 
     return true;
+}
+
+int doko_paste_image_from_clipboard(doko_control_t* ctrl) {
+
+    return doko_paste_image_from_clipboard_x11(ctrl);
 }
 
 bool doko_copy_image_to_clipboard(doko_image_t* im) {
@@ -395,6 +421,41 @@ bool doko_copy_image_to_clipboard(doko_image_t* im) {
 
 #endif
 
+int doko_add_image(doko_control_t* ctrl, const char* path_) {
+
+    char* path = doko_strdup(path_);
+
+    if (!path) {
+
+        L_E("Cannot duplicate string '%s'! %s", strerror(errno));
+
+        return -1;
+    }
+
+    L_D("Adding file %s", path);
+
+    const char* name = GetFileName(path);
+
+    doko_image_t i = {
+        .path        = path,
+        .name        = name,
+        .rayim       = {0},
+        .scale       = 1,
+        .rotation    = 0,
+        .rebuildBuff = 0,
+        .status      = IMAGE_STATUS_NOT_LOADED,
+        .srcRect     = {0},
+        .dstPos      = {0},
+    };
+
+    int newImageIndex = ctrl->image_files.size;
+
+    DARRAY_APPEND(ctrl->image_files, i);
+
+    return newImageIndex;
+}
+
+
 bool doko_loadImage(doko_image_t* image) {
 
     if (image->status == IMAGE_STATUS_LOADED) {
@@ -632,7 +693,7 @@ int doko_qsort_natstrcmp(const void* a, const void* b) {
     return strnatcmp(pa, pb);
 }
 
-void set_image(doko_control_t* ctrl, size_t index) {
+void doko_set_image(doko_control_t* ctrl, size_t index) {
 
     if (index >= ctrl->image_files.size) {
 

@@ -245,7 +245,13 @@ char* doko_strdupn(const char* str, size_t n, size_t* len_);
 /**
  * Sets the image to this index if possible
  */
-void set_image(doko_control_t* ctrl, size_t index);
+void doko_set_image(doko_control_t* ctrl, size_t index);
+
+/**
+ * Append an image to the array 
+ * Return the new image index or -1 if there is an error
+ */
+int doko_add_image(doko_control_t* ctrl, const char* path_);
 
 /**
  * Str compare for use with qsort
@@ -287,6 +293,12 @@ const char* doko_get_interpolation_pretty_text(TextureFilter tf);
  * Copy an image to clipboard
  */
 bool doko_copy_image_to_clipboard(doko_image_t* im);
+
+/**
+ * Paste an image from the clipboard, creating a new image item in the array
+ * Returns the new image index or -1 if there is an error
+ */
+int doko_paste_image_from_clipboard(doko_control_t* ctrl);
 
 /**
  * Return a resized copy of the image using nearest neighbour algorithm

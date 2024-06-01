@@ -30,70 +30,13 @@ static inline void sort_file_list(FilePathList fpl) {
     }
 }
 
-void do_override_redirect() {
-
-    /*
-    #include <GLFW/glfw3.h>
-    #include <X11/Xlib.h>
-    #include <X11/Xutil.h>
-
-    display = XOpenDisplay(NULL);
-
-    if (!display) {
-
-        L_E("Could not open X11 display: %s", strerror(errno));
-
-        return;
-    }
-
-    // // we don't have this glfwGetX11Window function
-    // // the raylib GetWindowHandle function does not return the x11 handle
-    Window window =  glfwGetX11Window(GetWindowHandle());
-
-    XSetWindowAttributes attrs;
-    attrs.override_redirect = 1;
-
-    int i = XChangeWindowAttributes(display, window, CWOverrideRedirect,
-    &attrs);
-
-    L_E("XChangeWindowAttributes %d", i);
-
-    XUnmapWindow(display, window);
-    XMapWindow(display, window);
-    */
-}
 
 void add_file(const char* path_) {
 
-    char* path = doko_strdup(path_);
+    int imIndex = doko_add_image(&this, path_);
 
-    if (!path) {
-        L_E("Cannot duplicate string '%s'! %s", strerror(errno));
-        return;
-    }
-
-    L_D("Adding file %s", path);
-
-    const char* name = GetFileName(path);
-
-    doko_image_t i = {
-        .path        = path,
-        .name        = name,
-        .rayim       = {0},
-        .scale       = 1,
-        .rotation    = 0,
-        .rebuildBuff = 0,
-        .status      = IMAGE_STATUS_NOT_LOADED,
-        .srcRect     = {0},
-        .dstPos      = {0},
-    };
-
-    int setim = this.image_files.size == 0;
-
-    DARRAY_APPEND(this.image_files, i);
-
-    if (setim) {
-        set_image(&this, 0);
+    if (imIndex == 0) {
+        doko_set_image(&this, 0);
     }
 }
 
@@ -385,8 +328,6 @@ int main(int argc, char* argv[]) {
         detach_from_terminal();
 
     ui_init(&this.config);
-
-    do_override_redirect();
 
     ui_loadCodepointsFromFileList(&this);
 

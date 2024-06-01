@@ -67,19 +67,19 @@ void kb_Next_Image_By_N(doko_control_t* ctrl, int by) {
     // stop at the start when wrapping
     if (ctrl->selected_index == ctrl->image_files.size - 1) {
 
-        set_image(ctrl, 0);
+        doko_set_image(ctrl, 0);
     }
 
     // stop at the end when jumping
     else if (by > 1 && (ctrl->selected_index + by) >= ctrl->image_files.size) {
 
-        set_image(ctrl, ctrl->image_files.size - 1);
+        doko_set_image(ctrl, ctrl->image_files.size - 1);
     }
 
     // otherwise move however
     else {
 
-        set_image(ctrl, (ctrl->selected_index + by) % ctrl->image_files.size);
+        doko_set_image(ctrl, (ctrl->selected_index + by) % ctrl->image_files.size);
     }
 }
 
@@ -90,19 +90,19 @@ void kb_Prev_Image_N(doko_control_t* ctrl, int by) {
     // stop at the end when wrapping
     if (ctrl->selected_index == 0) {
 
-        set_image(ctrl, ctrl->image_files.size - 1);
+        doko_set_image(ctrl, ctrl->image_files.size - 1);
     }
 
     // stop at the start when jumping many
     else if (by > 1 && (ctrl->selected_index - by) <= 0) {
 
-        set_image(ctrl, 0);
+        doko_set_image(ctrl, 0);
     }
 
     // otherwise move however
     else {
 
-        set_image(
+        doko_set_image(
             ctrl, (ctrl->selected_index + ctrl->image_files.size - by) %
                       ctrl->image_files.size
         );
@@ -133,7 +133,7 @@ void kb_Jump_Image_N(doko_control_t* ctrl, int to) {
 
     _ZERO_SIZE_WARN(ctrl);
 
-    set_image(ctrl, to);
+    doko_set_image(ctrl, to);
 }
 
 void kb_Jump_Image_Start(doko_control_t* ctrl) {
@@ -454,7 +454,7 @@ void kb_Copy_Image_To_Clipboard(doko_control_t* ctrl) {
                 "Copied %s to clipboard", ctrl->selected_image->name
             ),
             .free_when_done  = false,
-            .show_for_frames = WINDOW_FPS * 3,
+            .show_for_frames = WINDOW_FPS * 2,
         };
 
     } else {
@@ -462,11 +462,29 @@ void kb_Copy_Image_To_Clipboard(doko_control_t* ctrl) {
         ctrl->message = (doko_message_t){
             .message = "Failed to copy to clipboard!",
             .free_when_done  = false,
-            .show_for_frames = WINDOW_FPS * 3,
+            .show_for_frames = WINDOW_FPS * 2,
         };
     }
 }
 
+
+void kb_Paste_Image_From_Clipboard(doko_control_t* ctrl) {
+
+    int index = doko_paste_image_from_clipboard(ctrl);
+
+    if (index != -1) {
+
+        doko_set_image(ctrl, index);
+
+    } else {
+
+        ctrl->message = (doko_message_t){
+            .message = "Failed to paste image from clipboard!",
+            .free_when_done  = false,
+            .show_for_frames = WINDOW_FPS * 2,
+        };
+    }
+}
 
 void kb_Cycle_Image_Interpolation(doko_control_t* ctrl) {
 

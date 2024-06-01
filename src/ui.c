@@ -280,6 +280,7 @@ void ui_renderImage(doko_image_t* image) {
             break;
 
         case IMAGE_STATUS_FAILED:
+            UI_DRAW_TEXT("The image could not be loaded!");
             return;
         }
 

@@ -77,6 +77,9 @@
 // the command which is run to copy images to clipobard for X11
 // the command must accept png bytes through stdin
 #define X11_COPY_IMAGE_COMMAND "xclip -selection clipboard -target image/png"
+#define X11_PASTE_COMMAND_OUTPUT_FILE "/tmp/clipboard.png"
+#define X11_PASTE_IMAGE_COMMAND "xclip -selection clipboard -target image/png -o > " X11_PASTE_COMMAND_OUTPUT_FILE
+
 
 
 // window sizes
@@ -288,6 +291,7 @@ static InputMapping keybinds[] = {
     // ##### image view page #####
     // ###########################
     //
+    BIND(KEY_V | CONTROL_MASK ,kb_Paste_Image_From_Clipboard, DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_NINE             , kb_Dither                   , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_K                , kb_Move_Image_Up            , DOKO_SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_J                , kb_Move_Image_Down          , DOKO_SCREEN_IMAGE, DELAY_FAST),

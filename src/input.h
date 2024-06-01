@@ -86,6 +86,7 @@ void kb_Scroll_Thumb_Page_Up(doko_control_t* ctrl);
 void kb_Scroll_Thumb_Page_Down(doko_control_t* ctrl);
 
 void kb_Copy_Image_To_Clipboard(doko_control_t* ctrl);
+void kb_Paste_Image_From_Clipboard(doko_control_t* ctrl);
 
 void kb_Dither(doko_control_t* ctrl);
 
