@@ -22,7 +22,7 @@
 
 #include "darray.h"
 #include "doko.h"
-#include "ui.h"
+#include "ui/ui.h"
 
 struct doko_control this;
 
@@ -308,6 +308,8 @@ void detach_from_terminal() {
 #endif
 }
 
+
+
 int main(int argc, char* argv[]) {
 
     // repalce raylib logging with our own
@@ -346,9 +348,9 @@ int main(int argc, char* argv[]) {
     if (!this.config.terminal)
         detach_from_terminal();
 
-    ui_init(&this.config);
+    uiInit(&this.config);
 
-    ui_loadCodepointsFromFileList(&this);
+    uiLoadCodepointsFromFileList(&this);
 
     // this loads the image and makes sure it is actually center
     // since my tiling wm spawns the window floating and then unfloats it
@@ -356,7 +358,7 @@ int main(int argc, char* argv[]) {
 
         for (int i = 0; i < 2; i++) {
             BeginDrawing();
-            ui_renderImage(this.selected_image);
+            uiRenderImage(this.selected_image);
             kb_Fit_Center_Image(&this);
             EndDrawing();
         }
@@ -396,7 +398,7 @@ int main(int argc, char* argv[]) {
 
             this.renderFrames--;
 #endif
-            ui_renderBackground();
+            uiRenderBackground();
 
 
             switch (this.screen) {
@@ -406,28 +408,31 @@ int main(int argc, char* argv[]) {
 
             case DOKO_SCREEN_KEYBINDS:
 
-                ui_renderKeybinds(&this);
+                uiRenderKeybinds(&this);
                 break;
 
             case DOKO_SCREEN_FILE_LIST:
-                ui_renderFileList(&this);
+                uiRenderFileList(&this);
                 break;
 
             case DOKO_SCREEN_THUMB_GRID:
-                ui_renderThumbs(&this);
+                uiRenderThumbs(&this);
                 break;
 
             case DOKO_SCREEN_IMAGE:
 
                 if (this.selected_image == NULL) {
-                    ui_renderTextOnInfoBar(
+                    uiRenderTextOnInfoBar(
                         "There is no image selected! Drag an image to view."
                     );
                     break;
                 }
 
-                ui_renderImage(this.selected_image);
-                ui_renderPixelGrid(this.selected_image);
+                uiRenderImage(this.selected_image);
+
+                if (this.selected_image->scale >= SHOW_PIXEL_GRID_SCALE_THRESHOLD) {
+                    uiRenderPixelGrid(this.selected_image);
+                }
 
                 if (this.message.message != NULL &&
                     this.message.show_for_frames > 0) {
@@ -435,7 +440,7 @@ int main(int argc, char* argv[]) {
                     this.message.show_for_frames--;
 
                     if (this.config.show_bar)
-                        ui_renderTextOnInfoBar(this.message.message);
+                        uiRenderTextOnInfoBar(this.message.message);
 
                     if (this.message.free_when_done &&
                         this.message.show_for_frames == 0) {
@@ -447,8 +452,9 @@ int main(int argc, char* argv[]) {
 
                 } else if (this.config.show_bar) {
 
-                    ui_renderInfoBar(this.selected_image);
+                    uiRenderInfoBar(this.selected_image);
                 }
+
                 break;
             }
 
@@ -480,7 +486,7 @@ int main(int argc, char* argv[]) {
 
     DARRAY_FREE(this.image_files);
 
-    ui_deinit();
+    uiDeinit();
 
     return 0;
 }

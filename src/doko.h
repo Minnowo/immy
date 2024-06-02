@@ -80,6 +80,11 @@ typedef enum {
 
 } doko_screen_t;
 
+typedef enum {
+    DOKO_COLOR_PANEL = 0,
+
+} doko_panel_t;
+
 // max width to render for the screen column on the keybinds page
 #define STRLEN_SCREEN_STR 17
 
@@ -111,6 +116,7 @@ typedef struct doko_image {
         bool rebuildBuff; // updates the Texture2D
         bool applyGrayscaleShader;
         bool applyInvertShader;
+        bool panels[1];
 
 } doko_image_t;
 

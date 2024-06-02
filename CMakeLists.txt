@@ -42,16 +42,22 @@ message(STATUS "Packaging Resources: ${PACKAGE_RESOURCES}")
 
 
 add_executable(${PROJECT_NAME} 
+    src/config.h
     src/main.c
     src/doko.c
     src/doko.h
     src/doko_async.c
     src/input.c
     src/input.h
-    src/ui.c
-    src/ui.h
     src/resources.c
     src/resources.h
+    src/ui/ui.c
+    src/ui/ui.h
+    src/ui/screen/files.c
+    src/ui/screen/image.c
+    src/ui/screen/keybinds.c
+    src/ui/screen/thumbs.c
+    # src/ui/panel/test.c
     src/external/hashmap.c
     src/external/hashmap.h
     src/external/strnatcmp.c
