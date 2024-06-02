@@ -311,7 +311,7 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
         L_D("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
     }
 
-    L_I("%s: Read %fmb from stdout", BYTES_TO_MB(data.size));
+    L_I("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
 
     wait(NULL);
     close(pipefd[PIPE_READ]);
@@ -705,6 +705,76 @@ void doko_set_image(doko_control_t* ctrl, size_t index) {
     ctrl->selected_image = ctrl->image_files.buffer + index;
     ctrl->selected_index = index;
     ctrl->renderFrames   = RENDER_FRAMES;
+}
+
+void doko_raylib_log(int msgType, const char *fmt, va_list ap) {
+
+    if (log_level == __LOG_LEVEL_NOTHING)
+        return;
+
+    log_level_t level = __LOG_LEVEL_DEBUG;
+
+	switch (msgType)
+	{
+		case LOG_INFO: level = LOG_LEVEL_INFO; break;
+		case LOG_ERROR: level = LOG_LEVEL_ERROR; break;
+		case LOG_WARNING: level = LOG_LEVEL_WARN; break;
+		case LOG_DEBUG: level = LOG_LEVEL_DEBUG; break;
+		default: break;
+	}
+
+    FILE* stream = stdout;
+
+    if(level == LOG_LEVEL_ERROR) {
+        stream = stderr;
+    }
+
+    switch (level) {
+
+    case LOG_LEVEL_NOTHING:
+        break;
+
+    case LOG_LEVEL_DEBUG:
+        if (log_level <= __LOG_LEVEL_DEBUG) {
+            fprintf(stream, "[DEBUG] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+        }
+        break;
+
+    case LOG_LEVEL_INFO:
+        if (log_level <= __LOG_LEVEL_INFO) {
+            fprintf(stream, "[INFO] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+        }
+        break;
+
+    case LOG_LEVEL_WARN:
+        if (log_level <= __LOG_LEVEL_WARN) {
+            fprintf(stream, "[WARNING] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+        }
+        break;
+
+    case LOG_LEVEL_ERROR:
+        if (log_level <= __LOG_LEVEL_ERROR) {
+            fprintf(stream, "[ERROR] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+        }
+        break;
+
+    case LOG_LEVEL_CRITICAL:
+
+        if (log_level <= __LOG_LEVEL_CRITICAL) {
+            fprintf(stream, "[CRITICAL] ");
+            vfprintf(stream, fmt, ap);
+            putc('\n', stream);
+        }
+        break;
+    }
 }
 
 void doko_log(log_level_t level, FILE* stream, const char* fmt, ...) {

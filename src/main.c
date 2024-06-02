@@ -309,6 +309,10 @@ void detach_from_terminal() {
 }
 
 int main(int argc, char* argv[]) {
+
+    // repalce raylib logging with our own
+	SetTraceLogCallback(doko_raylib_log);
+
     memset(&this, 0, sizeof(this));
 
     this.config.window_title          = WINDOW_TITLE;
@@ -459,6 +463,7 @@ int main(int argc, char* argv[]) {
 
         EndDrawing();
     }
+
 
     DARRAY_FOR_EACH(this.image_files, i) {
 

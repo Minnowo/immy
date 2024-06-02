@@ -45,6 +45,7 @@
         }                                                                      \
     } while (0)
 
+
 typedef enum {
     LOG_LEVEL_DEBUG    = __LOG_LEVEL_DEBUG,
     LOG_LEVEL_INFO     = __LOG_LEVEL_INFO,
@@ -269,6 +270,8 @@ int doko_qsort_natstrcmp(const void* a, const void* b);
  */
 void doko_log(log_level_t level, FILE* stream, const char* fmt, ...);
 
+void doko_raylib_log(int msgType, const char *text, va_list args);
+
 /**
  * Gets a pretty name for the screen
  */
@@ -353,6 +356,11 @@ bool doko_async_has_image(const doko_image_t* im);
  * Returns true if the image is done loading
  */
 bool doko_async_get_image(doko_image_t* im);
+
+/**
+ */
+bool doko_async_create_thumbnails(doko_control_t* ctrl);
+
 
 #endif
 

@@ -44,7 +44,7 @@ struct hashmap* thread_map;
 // to make stuff a little bit nicer to read
 #define HM_DELETE(x) hashmap_delete(thread_map, &(doko_hashmap_thread_t){.key = (x)})
 #define HM_GET(x) hashmap_get(thread_map, &(doko_hashmap_thread_t){.key = (x)})
-#define HM_PUT(x, y) hashmap_get(thread_map, &(doko_hashmap_thread_t){.key = (x), .value=(y)})
+#define HM_PUT(x, y) hashmap_set(thread_map, &(doko_hashmap_thread_t){.key = (x), .value=(y)})
 
 // annoyingly this hashmap can only be init using heap
 // so we can't just have it defined above
@@ -225,5 +225,13 @@ bool doko_async_load_image(const doko_image_t* im) {
 
     return true;
 }
+
+
+bool doko_async_create_thumbnails(doko_control_t* ctrl) {
+
+
+    return false;
+}
+
 
 

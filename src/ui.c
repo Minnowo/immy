@@ -231,8 +231,6 @@ void ui_renderImage(doko_image_t* image) {
 
                 L_W("Unable to start loading image async");
 
-                image->status = IMAGE_STATUS_FAILED;
-
             } else {
 
                 image->status = IMAGE_STATUS_LOADING;
@@ -576,9 +574,7 @@ void ui_renderThumbs(const doko_control_t* ctrl) {
 
         if (dim->thumb_status != IMAGE_STATUS_LOADED) {
 
-            if (!doko_create_thumbnail(
-                    &dim->rayim, &dim->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE
-                )) {
+            if (!doko_create_thumbnail( &dim->rayim, &dim->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE)) {
 
                 L_E("Error creating thumbnail!");
 
