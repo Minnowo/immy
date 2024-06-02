@@ -296,10 +296,13 @@ void ui_renderImage(doko_image_t* image) {
         imageBufPath = image->path;
         imageBuf     = nimageBuf;
 
+        GenTextureMipmaps(&imageBuf);
+
     } else if (image->rebuildBuff) {
 
         image->rebuildBuff = 0;
         UpdateTexture(imageBuf, image->rayim.data);
+        GenTextureMipmaps(&imageBuf);
     }
 
 #if (ENABLE_SHADERS == 1)
