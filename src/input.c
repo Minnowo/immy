@@ -513,3 +513,26 @@ void kb_Dither(doko_control_t* ctrl) {
 }
 
 
+void kb_Thumb_Page_Down(doko_control_t* ctrl) {
+
+    int cols = GetScreenWidth() / THUMBNAIL_SIZE;
+
+    doko_set_image(ctrl, ctrl->selected_index + cols);
+}
+
+void kb_Thumb_Page_Up(doko_control_t* ctrl) {
+
+    int cols = GetScreenWidth() / THUMBNAIL_SIZE;
+
+    doko_set_image(ctrl, ctrl->selected_index - cols);
+}
+
+void kb_Thumb_Page_Left(doko_control_t* ctrl) {
+
+    doko_set_image(ctrl, ctrl->selected_index - 1);
+}
+
+void kb_Thumb_Page_Right(doko_control_t* ctrl) {
+
+    doko_set_image(ctrl, ctrl->selected_index + 1);
+}

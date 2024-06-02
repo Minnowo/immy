@@ -402,13 +402,19 @@ InputMapping keybinds[] = {
     BIND(KEY_N | CONTROL_MASK | SHIFT_MASK, kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
     BINDX(KEY_G | SHIFT_MASK              , kb_Jump_Image_End  , DOKO_SCREEN_FILE_LIST, KEY_LIMIT, DELAY_MEDIUM),
     BINDX(KEY_G                           , kb_Jump_Image_Start, DOKO_SCREEN_FILE_LIST, KEY_LIMIT, DELAY_MEDIUM),
+    BIND(KEY_ENTER                        ,kb_Goto_Image_Screen, DOKO_SCREEN_FILE_LIST, DELAY_FAST),
 
 
     // ###########################
     // ##### thumbs    page ######
     // ###########################
-    BIND(KEY_K, kb_Scroll_Thumb_Page_Up  , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
-    BIND(KEY_J, kb_Scroll_Thumb_Page_Down, DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    // BIND(KEY_K, kb_Scroll_Thumb_Page_Up  , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    // BIND(KEY_J, kb_Scroll_Thumb_Page_Down, DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_K,         kb_Thumb_Page_Up       , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_J,         kb_Thumb_Page_Down     , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_H,         kb_Thumb_Page_Left     , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_L,         kb_Thumb_Page_Right    , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_ENTER,     kb_Goto_Image_Screen   , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
 
     // ###########################
     // ##### keybind   page ######

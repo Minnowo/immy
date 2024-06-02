@@ -99,4 +99,9 @@ void kb_Dither(doko_control_t* ctrl);
 
 void kb_Cycle_Image_Interpolation(doko_control_t* ctrl);
 
+void kb_Thumb_Page_Down(doko_control_t* ctrl);
+void kb_Thumb_Page_Up(doko_control_t* ctrl);
+void kb_Thumb_Page_Left(doko_control_t* ctrl);
+void kb_Thumb_Page_Right(doko_control_t* ctrl);
+
 #endif

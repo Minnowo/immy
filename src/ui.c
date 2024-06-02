@@ -624,6 +624,12 @@ void ui_renderThumbs(const doko_control_t* ctrl) {
             y + (THUMBNAIL_SIZE - dim->thumb.height) / 2, 
             WHITE
         );
-        DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, TEXT_COLOR_RGBA);
+
+        if(i == ctrl->selected_index) {
+            DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, RED);
+        }
+        else {
+            DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, TEXT_COLOR_RGBA);
+        }
     }
 }
