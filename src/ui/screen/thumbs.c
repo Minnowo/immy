@@ -101,18 +101,53 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
             row ++;
         }
 
-        DrawTexture(
-            tex, 
-            x + (THUMBNAIL_SIZE - dim->thumb.width) / 2,
-            y + (THUMBNAIL_SIZE - dim->thumb.height) / 2, 
-            WHITE
-        );
+        x += (THUMBNAIL_SIZE - dim->thumb.width) / 2.0f;
+        y += (THUMBNAIL_SIZE - dim->thumb.height) / 2.0f; 
+
+        int pad = 8;
+        int m = 2;
 
         if(i == ctrl->selected_index) {
-            DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, RED);
+            DrawRectangle( x, y, dim->thumb.width, dim->thumb.height, uiColorInvert(BAR_BACKGROUND_COLOR_RGBA));
+            DrawRectangleLinesEx(
+                (Rectangle){
+                    x + pad - m, 
+                    y + pad - m, 
+                    dim->thumb.width  - pad*2 + m*2,
+                    dim->thumb.height - pad*2 + m*2
+                },
+                m, BAR_BACKGROUND_COLOR_RGBA
+            );
         }
         else {
-            DrawRectangleLines(x, y, THUMBNAIL_SIZE, THUMBNAIL_SIZE, TEXT_COLOR_RGBA);
+            DrawRectangle(x, y, dim->thumb.width, dim->thumb.height, BAR_BACKGROUND_COLOR_RGBA);
+            DrawRectangleLinesEx(
+                (Rectangle){
+                    x + pad - m, 
+                    y + pad - m, 
+                    dim->thumb.width  - pad*2 + m*2,
+                    dim->thumb.height - pad*2 + m*2
+                },
+                m, uiColorInvert(BAR_BACKGROUND_COLOR_RGBA)
+            );
         }
+
+
+        DrawTexturePro(
+            tex,
+            (Rectangle){
+                x ,
+                y , 
+                dim->thumb.width,
+                dim->thumb.height
+            },
+            (Rectangle){
+                pad + x,
+                pad + y,
+                dim->thumb.width - pad*2, 
+                dim->thumb.height - pad*2,
+            },
+            (Vector2){0, 0}, 0, WHITE
+        );
     }
 }

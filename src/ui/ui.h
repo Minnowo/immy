@@ -71,6 +71,13 @@ static inline void uiDrawText(const char* str) {
     return uiDrawTextAt(str, 0, 0);
 }
 
+static inline Color uiColorInvert(Color c) {
+    c.r = 255 - c.r;
+    c.g = 255 - c.g;
+    c.b = 255 - c.b;
+    return c;
+}
+
 
 void uiInit(doko_config_t* ctrl); // init the ui
 void uiDeinit();                  // deinit the ui
