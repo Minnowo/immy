@@ -50,7 +50,7 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
                 continue;
 
             if (dim->status == IMAGE_STATUS_LOADED)
-                doko_fitCenterImage(dim);
+                uiFitCenterImage(dim);
         }
 #endif
 

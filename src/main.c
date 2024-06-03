@@ -162,12 +162,12 @@ int handle_flags(
 
         case 'B':
             config->show_bar = false;
-            info_bar_height  = 0;
+            uiSetScreenPaddingBottom(0);
             continue;
 
         case 'b':
             config->show_bar = true;
-            info_bar_height  = INFO_BAR_HEIGHT;
+            uiSetScreenPaddingBottom(INFO_BAR_HEIGHT);
             continue;
 
         case 'D':
@@ -334,8 +334,13 @@ int main(int argc, char* argv[]) {
 
     handle_start_args(&this.config, argc, argv);
 
+    if(this.config.show_bar) 
+        uiSetScreenPaddingBottom(INFO_BAR_HEIGHT);
+
+#if DIE_IF_NO_IMAGE == 1
     if (this.image_files.size <= 0)
         DIE("no arguments given\n\n" CLI_HELP);
+#endif
 
     this.selected_image = this.image_files.buffer;
     this.renderFrames   = RENDER_FRAMES;

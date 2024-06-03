@@ -56,6 +56,10 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // the target FPS
 #define WINDOW_FPS 60
 
+// if set true, the program will close when there is not image
+// This only applies at startup
+#define DIE_IF_NO_IMAGE 0
+
 // If set to true, render on every frame.
 // This ensures max smoothness / no flickering at the cost of more GPU usage.
 #define ALWAYS_DO_RENDER true
@@ -370,6 +374,7 @@ InputMapping keybinds[] = {
     BIND(KEY_N                , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_C | CONTROL_MASK , kb_Copy_Image_To_Clipboard  , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_C                , kb_Fit_Center_Image         , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_C | SHIFT_MASK   , kb_Center_Image             , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_M                , kb_Flip_Horizontal          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_V                , kb_Flip_Vertical            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_B                , kb_Toggle_Show_Bar          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),

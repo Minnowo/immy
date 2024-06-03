@@ -86,11 +86,25 @@ Texture2D uiLoadBackgroundTile(size_t w, size_t h, Color a, Color b); // get the
 void      uiRenderBackground();                                       // render the background
 
 // image screen functions
-void uiImagePageClearState();                      // clear any state
-void uiRenderImage(doko_image_t* im);              // draw the image
-void uiRenderPixelGrid(const doko_image_t* image); // draw a pixel grid
-void uiRenderTextOnInfoBar(const char* text);      // draw text onto the bar
-void uiRenderInfoBar(const doko_image_t* image);   // draw image info on the bar
+void uiImagePageClearState();                                                    // clear any state
+void uiRenderImage(doko_image_t* im);                                            // draw the image
+void uiRenderPixelGrid(const doko_image_t* image);                               // draw a pixel grid
+void uiRenderTextOnInfoBar(const char* text);                                    // draw text onto the bar
+void uiRenderInfoBar(const doko_image_t* image);                                 // draw image info on the bar
+void uiFitCenterImage(doko_image_t* image);                                      // fit the image & center the image
+void uiCenterImage(doko_image_t* image);                                         // center the image at current size
+void uiEnsureImageNotLost(doko_image_t* image);                                  // makes sure the image is partially on screen
+void uiMoveScrFracImage(doko_image_t* im, double xFrac, double yFrac);           // moves image by screen frac
+void uiZoomImageCenter(doko_image_t* im, double afterZoom);                      // zoom in on center
+void uiZoomImageOnPoint(doko_image_t* im, double afterZoom, int x, int y);       // zoom in on point
+void uiZoomImageCenterFromClosest(doko_image_t* im, bool zoomIn);                // zoom in on center but lock to ZOOM_LEVELS
+void uiZoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int y); // zoom in on point but lock to ZOOM_LEVELS
+Rectangle uiGetScreenPadding();                                                  // get the image viewport
+void uiSetScreenPadding(Rectangle viewPort);                                     // set the image viewport
+void uiSetScreenPaddingRight(float width);                                       // set right image padding
+void uiSetScreenPaddingBottom(float height);                                     // set bottom image padding
+void uiSetScreenPaddingLeft(float x);                                            // set left image padding
+void uiSetScreenPaddingTop(float y);                                             // set left image padding
 
 // thumbnail screen functions
 void uiThumbPageClearState();                    // clear any state

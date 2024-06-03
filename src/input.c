@@ -1,4 +1,5 @@
 
+#include "./ui/ui.h"
 #include "input.h"
 #include "config.h"
 #include "doko.h"
@@ -29,7 +30,7 @@ void kb_Zoom_In_Center_Image(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_zoomImageOnPointFromClosest(
+    uiZoomImageOnPointFromClosest(
         ctrl->selected_image, true, GetScreenWidth() / 2, GetScreenHeight() / 2
     );
 }
@@ -38,7 +39,7 @@ void kb_Zoom_Out_Center_Image(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_zoomImageOnPointFromClosest(
+    uiZoomImageOnPointFromClosest(
         ctrl->selected_image, false, GetScreenWidth() / 2, GetScreenHeight() / 2
     );
 }
@@ -47,7 +48,7 @@ void kb_Zoom_In_Mouse_Position(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_zoomImageOnPointFromClosest(
+    uiZoomImageOnPointFromClosest(
         ctrl->selected_image, true, GetMouseX(), GetMouseY()
     );
 }
@@ -55,7 +56,7 @@ void kb_Zoom_Out_Mouse_Position(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_zoomImageOnPointFromClosest(
+    uiZoomImageOnPointFromClosest(
         ctrl->selected_image, false, GetMouseX(), GetMouseY()
     );
 }
@@ -173,28 +174,28 @@ void kb_Move_Image_Up(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_moveScrFracImage(ctrl->selected_image, 0, -1 / 5.0);
+    uiMoveScrFracImage(ctrl->selected_image, 0, -1 / 5.0);
 }
 
 void kb_Move_Image_Down(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_moveScrFracImage(ctrl->selected_image, 0, 1 / 5.0);
+    uiMoveScrFracImage(ctrl->selected_image, 0, 1 / 5.0);
 }
 
 void kb_Move_Image_Left(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_moveScrFracImage(ctrl->selected_image, -1 / 5.0, 0);
+    uiMoveScrFracImage(ctrl->selected_image, -1 / 5.0, 0);
 }
 
 void kb_Move_Image_Right(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_moveScrFracImage(ctrl->selected_image, 1 / 5.0, 0);
+    uiMoveScrFracImage(ctrl->selected_image, 1 / 5.0, 0);
 }
 
 void kb_Move_Image_By_Mouse_Delta(doko_control_t* ctrl) {
@@ -223,14 +224,14 @@ void kb_Center_Image(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_centerImage(ctrl->selected_image);
+    uiCenterImage(ctrl->selected_image);
 }
 
 void kb_Fit_Center_Image(doko_control_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
-    doko_fitCenterImage(ctrl->selected_image);
+    uiFitCenterImage(ctrl->selected_image);
 }
 
 void kb_Flip_Vertical(doko_control_t* ctrl) {
@@ -366,11 +367,11 @@ void kb_Toggle_Show_Bar(doko_control_t* ctrl) {
 
     if (ctrl->config.show_bar) {
 
-        info_bar_height = INFO_BAR_HEIGHT;
+        uiSetScreenPaddingBottom(INFO_BAR_HEIGHT);
 
     } else {
 
-        info_bar_height = 0;
+        uiSetScreenPaddingBottom(0);
     }
 }
 

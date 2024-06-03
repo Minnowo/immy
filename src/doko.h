@@ -13,8 +13,6 @@
 
 #define BYTES_TO_MB(bytes) ((double)(bytes) / (1024 * 1024))
 
-#define ImageViewWidth (GetScreenWidth())
-#define ImageViewHeight ((GetScreenHeight()) - info_bar_height)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -181,8 +179,6 @@ typedef struct doko_control {
 
 } doko_control_t;
 
-// global for the info bar height
-extern int info_bar_height;
 
 // global for the log level
 extern int log_level;
@@ -192,51 +188,6 @@ extern int log_level;
  * The function returns 0 on success and non-zero on failure.
  */
 bool doko_loadImage(doko_image_t* im);
-
-/**
- * Sets the image position and scale so that it centers on the screen.
- */
-void doko_fitCenterImage(doko_image_t* im);
-
-/**
- * Sets the image position so that it centers on the screen.
- */
-void doko_centerImage(doko_image_t* im);
-
-/**
- * Ensures the image is not lost offscreen by moving it within
- * IMAGE_INVERSE_MARGIN.
- */
-void doko_ensureImageNotLost(doko_image_t* im);
-
-/**
- * Scales the image around its center to the new scale.
- */
-void doko_zoomImageCenter(doko_image_t* im, double newScale);
-
-/**
- * Scales the image at the given (x, y) point to the new scale.
- */
-void doko_zoomImageOnPoint(doko_image_t* im, double newScale, int x, int y);
-
-/**
- * Scales the image around its center to the next closest zoom in ZOOM_LEVELS.
- */
-void doko_zoomImageCenterFromClosest(doko_image_t* im, bool zoomIn);
-
-/**
- * Scales the image at the given (x, y) point to the next closest zoom in
- * ZOOM_LEVELS.
- */
-void doko_zoomImageOnPointFromClosest(
-    doko_image_t* im, bool zoomIn, int x, int y
-);
-
-/**
- * Moves the image by the given xFrac and yFrac fractions of the screen.
- * xFrac = 1/5 moves the image 1/5th of the horizontal screen.
- */
-void doko_moveScrFracImage(doko_image_t* im, double xFrac, double yFrac);
 
 /**
  * Implementation of strdup, because yes

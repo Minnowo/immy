@@ -18,6 +18,8 @@
             if ((arr)[mid] < (target)) {                                       \
                 low = mid + 1;                                                 \
             } else {                                                           \
+                if (mid == 0)                                                  \
+                    break;                                                     \
                 high = mid - 1;                                                \
             }                                                                  \
         }                                                                      \

@@ -2,11 +2,19 @@
 
 #include "../../config.h"
 #include "../ui.h"
+#include <math.h>
 #include <string.h>
+
+#define ImageViewWidth (GetScreenWidth() - screenPadding.width)
+#define ImageViewHeight (GetScreenHeight() - screenPadding.height)
 
 // state for the image screen
 static doko_image_t* image    = 0;   // identify the current image
 static Texture2D     imageBuf = {0}; // the buffer to show
+
+// x, y are added to image position
+// width, height are subtraced from screen size
+static Rectangle screenPadding = {0};
 
 void uiImagePageClearState() {
 
@@ -21,8 +29,8 @@ void uiRenderPixelGrid(const doko_image_t* image) {
 
     float x = image->dstPos.y;
     float y = image->dstPos.x;
-    float w = ImageViewWidth;
-    float h = ImageViewHeight;
+    float w = GetScreenWidth();
+    float h = GetScreenHeight();
 
     for (float i = x, j = y; i <= h || j <= w;) {
         DrawLine(0, i, w, i, g_pixelGridColor);
@@ -70,7 +78,7 @@ void uiRenderImage(doko_image_t* im) {
             }
 
             if (im->status == IMAGE_STATUS_LOADED)
-                doko_fitCenterImage(im);
+                uiFitCenterImage(im);
 
             // if the above function returns true
             // the image is done loading and has a new status
@@ -84,7 +92,7 @@ void uiRenderImage(doko_image_t* im) {
                 return;
             }
 
-            doko_fitCenterImage(image);
+            uiFitCenterImage(image);
             break;
 
         case IMAGE_STATUS_LOADING:
@@ -231,5 +239,173 @@ void uiRenderTextOnInfoBar(const char* text) {
         g_unifont, text, (Vector2){INFO_BAR_LEFT_MARGIN, sh}, fontSize,
         UNIFONT_SPACING, TEXT_COLOR_RGBA
     );
+}
+
+void uiFitCenterImage(doko_image_t* image) {
+
+    int sw = ImageViewWidth - screenPadding.x;
+    int sh = ImageViewHeight - screenPadding.y;
+    int iw = image->srcRect.width;
+    int ih = image->srcRect.height;
+
+    image->scale = fmin((double)sw / iw, (double)sh / ih);
+
+    image->dstPos.x = screenPadding.x + (sw / 2.0) - (iw * image->scale) / 2.0;
+    image->dstPos.y = screenPadding.y + (sh / 2.0) - (ih * image->scale) / 2.0;
+}
+
+void uiCenterImage(doko_image_t* image) {
+
+    int sw = ImageViewWidth - screenPadding.x;
+    int sh = ImageViewHeight - screenPadding.y;
+    int iw = image->srcRect.width;
+    int ih = image->srcRect.height;
+
+    image->dstPos.x = screenPadding.x + (sw / 2.0) - (iw * image->scale) / 2.0;
+    image->dstPos.y = screenPadding.y + (sh / 2.0) - (ih * image->scale) / 2.0;
+}
+
+void uiEnsureImageNotLost(doko_image_t* image) {
+
+    int   sw = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;
+    int   sh = ImageViewHeight - IMAGE_INVERSE_MARGIN_Y;
+    float iw = (screenPadding.x + IMAGE_INVERSE_MARGIN_X) - (image->srcRect.width * image->scale);
+    float ih = (screenPadding.y + IMAGE_INVERSE_MARGIN_Y) -(image->srcRect.height * image->scale);
+
+    if (image->dstPos.x > sw) {
+
+        image->dstPos.x = sw;
+
+    } else if (image->dstPos.x < iw) {
+
+        image->dstPos.x = iw;
+    }
+
+    if (image->dstPos.y > sh) {
+
+        image->dstPos.y = sh;
+
+    } else if (image->dstPos.y < ih) {
+
+        image->dstPos.y = ih;
+    }
+}
+
+void uiMoveScrFracImage(doko_image_t* im, double xFrac, double yFrac) {
+
+    im->dstPos.x += (ImageViewWidth - screenPadding.x) * xFrac;
+    im->dstPos.y += (ImageViewHeight - screenPadding.y) * yFrac;
+    uiEnsureImageNotLost(im);
+}
+
+void uiZoomImageCenter(doko_image_t* im, double afterZoom) {
+
+    double beforeZoom = im->scale;
+
+    if (afterZoom < 0) {
+        afterZoom = SMALLEST_SCALE_VALUE;
+    }
+
+    //clang-format off
+    im->dstPos.x -= (int)((im->srcRect.width * afterZoom) -
+                          (im->srcRect.width * beforeZoom)) >> 1;
+
+    im->dstPos.y -= (int)((im->srcRect.height * afterZoom) -
+                          (im->srcRect.height * beforeZoom)) >> 1;
+    //clang-format on
+
+    im->scale = afterZoom;
+
+    uiEnsureImageNotLost(im);
+}
+
+void uiZoomImageOnPoint(doko_image_t* im, double afterZoom, int x, int y) {
+
+    double beforeZoom = im->scale;
+
+    if (afterZoom < 0) {
+        afterZoom = SMALLEST_SCALE_VALUE;
+    }
+
+    double scaleRatio =
+        (im->srcRect.width * beforeZoom) / (im->srcRect.width * afterZoom);
+
+    double mouseOffsetX = x - im->dstPos.x;
+    double mouseOffsetY = y - im->dstPos.y;
+
+    im->dstPos.x -= (int)((mouseOffsetX / scaleRatio) - mouseOffsetX);
+    im->dstPos.y -= (int)((mouseOffsetY / scaleRatio) - mouseOffsetY);
+    im->scale = afterZoom;
+
+    uiEnsureImageNotLost(im);
+}
+
+void uiZoomImageCenterFromClosest(doko_image_t* im, bool zoomIn) {
+
+    size_t index;
+    BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
+
+    if (zoomIn) {
+
+        while (index + 1 < ZOOM_LEVELS_SIZE && ZOOM_LEVELS[index] <= im->scale) {
+            index++;
+        }
+
+    } else {
+
+        while (index != 0 && ZOOM_LEVELS[index] >= im->scale) {
+            index--;
+        }
+    }
+
+    uiZoomImageCenter(im, ZOOM_LEVELS[index]);
+}
+
+void uiZoomImageOnPointFromClosest(
+    doko_image_t* im, bool zoomIn, int x, int y
+) {
+
+    size_t index;
+    BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
+
+    if (zoomIn) {
+
+        while (index + 1 < ZOOM_LEVELS_SIZE && ZOOM_LEVELS[index] <= im->scale) {
+            index++;
+        }
+
+    } else {
+
+        while (index != 0 && ZOOM_LEVELS[index] >= im->scale) {
+            index--;
+        }
+    }
+
+    uiZoomImageOnPoint(im, ZOOM_LEVELS[index], x, y);
+}
+
+
+void uiSetScreenPadding(Rectangle vp) {
+    screenPadding = vp;
+}
+
+Rectangle uiGetScreenPadding() {
+    return screenPadding;
+}
+
+void uiSetScreenPaddingRight(float width) {
+    screenPadding.width = width;
+}
+
+void uiSetScreenPaddingBottom(float height) {
+    screenPadding.height = height;
+}
+
+void uiSetScreenPaddingLeft(float x) {
+    screenPadding.x = x;
+}
+
+void uiSetScreenPaddingTop(float y) {
+    screenPadding.y = y;
 }
 
