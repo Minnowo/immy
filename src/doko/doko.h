@@ -7,9 +7,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "darray.h"
+#include "../darray.h"
 
 #define FALLTHROUGH /* fall through */
+
+#define PIPE_READ 0
+#define PIPE_WRITE 1
 
 #define BYTES_TO_MB(bytes) ((double)(bytes) / (1024 * 1024))
 
@@ -43,6 +46,19 @@
         }                                                                      \
     } while (0)
 
+
+#define SHIFT_MASK 0x80000000   // 1000 0000 0000 0000 0000 0000 0000 0000
+#define CONTROL_MASK 0x40000000 // 0100 0000 0000 0000 0000 0000 0000 0000
+#define KEY_MASK ~(SHIFT_MASK | CONTROL_MASK)
+
+#define HAS_CTRL(k) ((((int)(k)) & CONTROL_MASK) != 0)
+#define HAS_SHIFT(k) ((((int)(k)) & SHIFT_MASK) != 0)
+#define GET_RAYKEY(k) ((k) & KEY_MASK)
+
+typedef enum { 
+    MOUSE_WHEEL_FWD = 666,
+    MOUSE_WHEEL_BWD = 667
+} MouseWheel;
 
 typedef enum {
     LOG_LEVEL_DEBUG    = __LOG_LEVEL_DEBUG,
@@ -132,6 +148,7 @@ typedef struct doko_message {
 
 typedef struct doko_config {
 
+        char* cacheDir;
         const char* window_title;
 
         int window_x;
@@ -190,17 +207,6 @@ extern int log_level;
 bool doko_loadImage(doko_image_t* im);
 
 /**
- * Implementation of strdup, because yes
- */
-char* doko_strdup(const char* str);
-
-/**
- * Implementation of strdup but adds n extra bytes to the string
- * If len_ is passed returns the length of the new string
- */
-char* doko_strdupn(const char* str, size_t n, size_t* len_);
-
-/**
  * Sets the image to this index if possible
  */
 void doko_set_image(doko_control_t* ctrl, size_t index);
@@ -210,6 +216,22 @@ void doko_set_image(doko_control_t* ctrl, size_t index);
  * Return the new image index or -1 if there is an error
  */
 int doko_add_image(doko_control_t* ctrl, const char* path_);
+
+/**
+ * Implementation of strdup, because yes
+ */
+char* doko_strdup(const char* str);
+
+/**
+ * strdup but dies instead of returning null
+ */
+char* doko_estrdup(const char* str);
+
+/**
+ * Implementation of strdup but adds n extra bytes to the string
+ * If len_ is passed returns the length of the new string
+ */
+char* doko_strdupn(const char* str, size_t n, size_t* len_);
 
 /**
  * Str compare for use with qsort
@@ -227,6 +249,9 @@ int doko_qsort_natstrcmp(const void* a, const void* b);
  */
 void doko_log(log_level_t level, FILE* stream, const char* fmt, ...);
 
+/**
+ * Log function to replace the raylib log function
+ */
 void doko_raylib_log(int msgType, const char *text, va_list args);
 
 /**
@@ -291,7 +316,25 @@ bool doko_load_with_ffmpeg_stdout(const char* path, Image* im);
 bool doko_load_with_imlib2(const char* path, Image* im);
 
 
+/**
+ * Apply a black and white floyd steinburg dither to the image
+ */
 void doko_dither_image(doko_image_t* im);
+
+/**
+ * Update the cacheDir path in the config
+ */
+void dokoSetCacheDir(doko_config_t* conf, const char* path);
+
+
+char* dokoStrJoin(const char* a, const char* b, const char* sep);
+bool dokoStrJoinInto( char* restrict buf, size_t bufSize, const char* a, const char* b, const char* sep);
+
+/**
+ * Returns the 
+ */
+char* dokoGetCacheDirectory();
+char* dokoGetThumbPath(const doko_config_t* conf, const char* imagePath);
 
 // #####################
 // Async Functions Begin

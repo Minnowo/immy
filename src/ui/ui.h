@@ -7,7 +7,7 @@
 #include <stddef.h>
 
 #include "../config.h"
-#include "../doko.h"
+#include "../doko/doko.h"
 
 extern bool       g_uiReady;        // is the ui ready for drawing
 extern Font       g_unifont;         // global font for ui text

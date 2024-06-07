@@ -1,54 +1,33 @@
 # Makefile for doko project
 
-.PHONY: all build clean clean_raylib clean_doko rebuild windows build_doko build_raylib
+.PHONY: all build build_debug
 
-CC      ?= gcc
-CFLAGS  ?= -Wall -Wextra -std=c23
-CPFLAGS ?=
-
-DOKO_SRC_DIR   ?= src
-RAYLIB_SRC_DIR ?= raylib/raylib-5.0/src
+SOURCE_DIR       := $(abspath .)
+BUILD_DIR        := build
+CMAKE_BUILD_TYPE := Release
 
 NAME       := doko
 NAME_ALT   := im
-TARGET_DIR ?= build
-TARGET     := ${TARGET_DIR}/$(NAME)
-RESOURCES  := resources
-
-RAYLIB_LIBTYPE ?= STATIC
-# PLATFORM_OS    ?= LINUX
-
-ifeq ($(PLATFORM_OS), WINDOWS)
-	LDFLAGS += -lopengl32 -lgdi32 -lwinmm
-else
-	LDFLAGS += -lImlib2
-endif
+TARGET     := ${BUILD_DIR}/$(NAME)
 
 all: build
 
-clean: clean_doko clean_raylib
+build_debug: CMAKE_BUILD_TYPE := Debug
+build_debug: build
 
-build: build_raylib build_doko
+build:
+	mkdir -p $(BUILD_DIR)
+	cd       $(BUILD_DIR) && cmake -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) $(SOURCE_DIR)
+	make -C  $(BUILD_DIR)
 
-windows: CC          := x86_64-w64-mingw32-gcc
-windows: PLATFORM_OS := WINDOWS
-windows: CPPFLAGS    += -DDOKO_BUNDLE
-windows: CFLAGS      := -Wall -Wextra -std=c2x -static -Wl,--subsystem,windows     # remove console on windows
-windows: LDFLAGS     += -lopengl32 -lgdi32 -lwinmm
-windows: all
-
-rebuild: clean_doko all
-
-install: CPPFLAGS      += -DDOKO_BUNDLE
-install: CFLAGS        += -O3
-install: uninstall build 
-	mkdir -p           /opt/doko
-	cp    -f $(TARGET) /opt/doko/$(NAME)
-	chmod 755          /opt/doko/$(NAME)
+install:
+	mkdir -p           /opt/$(NAME)
+	cp    -f $(TARGET) /opt/$(NAME)/$(NAME)
+	chmod 755          /opt/$(NAME)/$(NAME)
 
 	rm -f                   /usr/bin/$(NAME)
-	ln    /opt/doko/$(NAME) /usr/bin/$(NAME)
-	ln    /opt/doko/$(NAME) /usr/bin/$(NAME_ALT)
+	ln    /opt/$(NAME)/$(NAME) /usr/bin/$(NAME)
+	ln    /opt/$(NAME)/$(NAME) /usr/bin/$(NAME_ALT)
 
 	desktop-file-install    --dir=/usr/share/applications/ ./resources/doko.desktop
 	update-desktop-database       /usr/share/applications/
@@ -56,40 +35,6 @@ install: uninstall build
 uninstall:
 	rm -f /usr/bin/$(NAME)
 	rm -f /usr/bin/$(NAME_ALT)
-	rm -f /opt/doko/$(NAME)
+	rm -f /opt/$(NAME)/$(NAME)
 	rm -f /usr/share/applications/doko.desktop
-
-$(TARGET_DIR):
-	mkdir -p $(TARGET_DIR)
-
-clean_raylib:
-	$(MAKE) -C $(RAYLIB_SRC_DIR) \
-		RAYLIB_RELEASE_PATH="$(abspath $(TARGET_DIR))" \
-		clean
-
-build_raylib: | $(TARGET_DIR)
-
-	$(MAKE) -C $(RAYLIB_SRC_DIR) \
-		CC="$(CC)" \
-		PLATFORM=PLATFORM_DESKTOP \
-		PLATFORM_OS="$(PLATFORM_OS)" \
-		RAYLIB_LIBTYPE="$(RAYLIB_LIBTYPE)" \
-		RAYLIB_RELEASE_PATH="$(abspath $(TARGET_DIR))"
-
-clean_doko:
-	$(MAKE) -C $(DOKO_SRC_DIR) \
-		TARGET_DIR="$(abspath $(TARGET_DIR))" \
-		clean
-
-build_doko: | $(TARGET_DIR)
-
-	$(MAKE) -C $(DOKO_SRC_DIR) \
-		CC="$(CC)" \
-		CFLAGS="$(CFLAGS)" \
-		CPPFLAGS="$(CPPFLAGS)" \
-		LDFLAGS="-L\"$(abspath $(TARGET_DIR))\" -lraylib -lm $(LDFLAGS)" \
-		INCLUDE_PATHS="-I\"$(abspath $(RAYLIB_SRC_DIR))\"" \
-		TARGET_DIR="$(abspath $(TARGET_DIR))" 
-
-	cp -r $(RESOURCES) $(TARGET_DIR)
 

@@ -3,16 +3,9 @@
 #ifndef DOKO_KEYBINDS_H
 #define DOKO_KEYBINDS_H
 
-#include "doko.h"
+#include "doko/doko.h"
 #include <raylib.h>
 
-#define SHIFT_MASK 0x80000000   // 1000 0000 0000 0000 0000 0000 0000 0000
-#define CONTROL_MASK 0x40000000 // 0100 0000 0000 0000 0000 0000 0000 0000
-#define KEY_MASK ~(SHIFT_MASK | CONTROL_MASK)
-
-#define HAS_CTRL(k) ((((int)(k)) & CONTROL_MASK) != 0)
-#define HAS_SHIFT(k) ((((int)(k)) & SHIFT_MASK) != 0)
-#define GET_RAYKEY(k) ((k) & KEY_MASK)
 
 typedef void (*InputCallback)(doko_control_t*);
 

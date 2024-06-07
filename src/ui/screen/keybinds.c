@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../../doko.h"
+#include "../../doko/doko.h"
 #include "../ui.h"
 
 void uiRenderKeybinds(const doko_control_t* ctrl) {

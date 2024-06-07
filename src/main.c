@@ -21,7 +21,7 @@
 #undef ZOOM_LEVELS_IMPLEMENTATION
 
 #include "darray.h"
-#include "doko.h"
+#include "doko/doko.h"
 #include "ui/ui.h"
 
 struct doko_control this;

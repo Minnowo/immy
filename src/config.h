@@ -5,7 +5,7 @@
 
 #include <raylib.h>
 
-#include "doko.h"
+#include "doko/doko.h"
 #include "input.h"
 
 //////////////////////
@@ -328,10 +328,8 @@ const size_t ZOOM_LEVELS_SIZE = (sizeof((ZOOM_LEVELS)) / sizeof((ZOOM_LEVELS[0])
 
 // Since raylib doesn't have a key for the scroll wheel delta
 // Use these to bind a mouse wheel scroll
-typedef enum { 
-    MOUSE_WHEEL_FWD = 666,
-    MOUSE_WHEEL_BWD = 667
-} MouseWheel;
+// MOUSE_WHEEL_FWD = 666
+// MOUSE_WHEEL_BWD = 667
 
 // button which quits the program
 #define RAYLIB_QUIT_KEY KEY_Q

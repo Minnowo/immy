@@ -4,9 +4,9 @@
 #include <raylib.h>
 #include <unistd.h>
 
+#include "../config.h"
+#include "../external/hashmap.h"
 #include "doko.h"
-#include "config.h"
-#include "external/hashmap.h"
 
 typedef struct {
 

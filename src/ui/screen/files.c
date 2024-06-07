@@ -8,7 +8,7 @@
 #include "../ui.h"
 #include "../../config.h"
 #include "../../darray.h"
-#include "../../doko.h"
+#include "../../doko/doko.h"
 
 #define BOTTOM_MARGIN 1
 

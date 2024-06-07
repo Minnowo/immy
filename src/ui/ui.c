@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "../darray.h"
-#include "../doko.h"
+#include "../doko/doko.h"
 #include "../resources.h"
 #include "ui.h"
 

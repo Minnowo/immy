@@ -2,7 +2,7 @@
 #include "./ui/ui.h"
 #include "input.h"
 #include "config.h"
-#include "doko.h"
+#include "doko/doko.h"
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>

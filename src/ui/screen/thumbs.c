@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "../../darray.h"
-#include "../../doko.h"
+#include "../../doko/doko.h"
 #include "../ui.h"
 
 static Texture2D_dynamic_arr_t thumbBufs;
