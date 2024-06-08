@@ -31,13 +31,19 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
         DARRAY_GROW_SIZE_TO(thumbBufs, ctrl->image_files.length);
     }
 
-    int cols = sw / THUMBNAIL_SIZE;
+    int cols   = sw / THUMBNAIL_SIZE;
+    int rows   = sh / THUMBNAIL_SIZE + 1;
     int offset = (sw % THUMBNAIL_SIZE) / 2;
 
     int col = 0;
     int row = 0;
 
-    size_t i = ctrl->thumbPageScroll;
+    size_t i = 0;
+
+    if(ctrl->selected_index > 2 * cols) {
+
+        i = cols * ((ctrl->selected_index / cols) - 2);
+    }
 
     DARRAY_FOR_EACH_I(ctrl->image_files, i) {
 
@@ -54,18 +60,12 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
         }
 #endif
 
-        if (dim->status != IMAGE_STATUS_LOADED ||
-            dim->thumb_status == IMAGE_STATUS_FAILED) {
+        if (dim->thumb_status == IMAGE_STATUS_FAILED)
             continue;
-        }
 
         if (dim->thumb_status != IMAGE_STATUS_LOADED) {
 
-            if (!doko_create_thumbnail( &dim->rayim, &dim->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE)) {
-
-                L_E("Error creating thumbnail!");
-
-                memset(&dim->thumb, 0, sizeof(dim->thumb));
+            if (!dokoGetOrCreateThumb(dim)) {
 
                 dim->thumb_status = IMAGE_STATUS_FAILED;
 
@@ -100,6 +100,9 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
             col = 0;
             row ++;
         }
+
+        if(row > rows)
+            continue;
 
         x += (THUMBNAIL_SIZE - dim->thumb.width) / 2.0f;
         y += (THUMBNAIL_SIZE - dim->thumb.height) / 2.0f; 
@@ -136,8 +139,8 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
         DrawTexturePro(
             tex,
             (Rectangle){
-                x ,
-                y , 
+                0 ,
+                0 , 
                 dim->thumb.width,
                 dim->thumb.height
             },

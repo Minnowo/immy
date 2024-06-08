@@ -47,10 +47,12 @@ add_executable(${PROJECT_NAME}
     src/doko/doko.h
     src/doko/doko.c
     src/doko/doko_async.c
+    src/doko/image.c
     src/doko/str.c
     src/doko/tostring.c
     src/doko/ffmpeg.c
     src/doko/imagemagick.c
+    src/doko/imlib.c
     src/doko/clipboard.c
     src/input.c
     src/input.h

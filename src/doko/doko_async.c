@@ -1,7 +1,7 @@
 
-
 #include <pthread.h>
 #include <raylib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "../config.h"
@@ -13,10 +13,9 @@ typedef struct {
         pthread_t       thread;
         pthread_mutex_t mutex;
         bool            finished;
+        bool            dothumbnail;
         char*           path;
-        Image           rayim;
-        Image           thumb;
-
+        doko_image_t    im;
 } doko_thread_t;
 
 typedef struct {
@@ -67,24 +66,25 @@ static inline void hashmap_init() {
 // deletes the item from the hashmap and frees stuff
 static void doko_async_destroy_thread(const doko_image_t* im, bool image_gotten) {
 
-    // // this is not needed
-    // hashmap_init();
+    hashmap_init();
 
     L_D("%s: Removing item from thread hashmap", __func__);
 
     const doko_hashmap_thread_t* THREAD = HM_DELETE(im);
 
+    if (!THREAD)
+        return;
+
     if (!image_gotten) {
-        UnloadImage(THREAD->value->rayim);
-        UnloadImage(THREAD->value->thumb);
+        UnloadImage(THREAD->value->im.rayim);
+        UnloadImage(THREAD->value->im.thumb);
     }
 
-    if (THREAD != NULL)
-        if (THREAD->value != NULL) {
-            pthread_mutex_destroy(&THREAD->value->mutex);
-            free(THREAD->value->path);
-            free(THREAD->value);
-        }
+    if (THREAD->value != NULL) {
+        pthread_mutex_destroy(&THREAD->value->mutex);
+        free(THREAD->value->path);
+        free(THREAD->value);
+    }
 }
 
 
@@ -108,7 +108,8 @@ bool doko_async_get_image(doko_image_t* im) {
 
     pthread_mutex_lock(&thread->mutex);
 
-    int finished = thread->finished;
+    bool finished = thread->finished;
+    bool didThumb = thread->dothumbnail;
 
     pthread_mutex_unlock(&thread->mutex);
 
@@ -119,7 +120,7 @@ bool doko_async_get_image(doko_image_t* im) {
     // thread is gone
     L_D("%s: Async image load finished", __func__);
 
-    if (!IsImageReady(thread->rayim)) {
+    if (!IsImageReady(thread->im.rayim)) {
 
         im->status = IMAGE_STATUS_FAILED;
 
@@ -128,8 +129,7 @@ bool doko_async_get_image(doko_image_t* im) {
         goto done;
     }
 
-    im->rayim = thread->rayim;
-    im->thumb = thread->thumb;
+    im->rayim = thread->im.rayim;
     im->srcRect = (Rectangle){
         0.0,
         0.0,
@@ -139,11 +139,29 @@ bool doko_async_get_image(doko_image_t* im) {
     im->dstPos = (Vector2){0, 0};
     im->status = IMAGE_STATUS_LOADED;
 
-    if (IsImageReady(im->thumb)) {
-        im->thumb_status = IMAGE_STATUS_LOADED;
-    } else {
-        im->thumb_status = IMAGE_STATUS_FAILED;
+    // reset thumbnail status so we can maybe load it now
+    if(im->thumb_status == IMAGE_STATUS_FAILED)
+        im->thumb_status = IMAGE_STATUS_NOT_LOADED;
+
+#if GENERATE_THUMB_WHEN_LOADING_IMAGE == true
+
+    if (didThumb) {
+
+        if (IsImageReady(thread->im.thumb)) {
+
+            UnloadImage(im->thumb);
+
+            im->thumb = thread->im.thumb;
+            im->thumb_status = IMAGE_STATUS_LOADED;
+
+        } else if (!IsImageReady(im->thumb)) {
+
+            im->thumb_status = IMAGE_STATUS_NOT_LOADED;
+
+            memset(&im->thumb, 0, sizeof(im->thumb));
+        }
     }
+#endif
 
 done:
     doko_async_destroy_thread(im, true);
@@ -163,29 +181,36 @@ void *async_image_load_thread_main(void * raw_arg) {
     //
     if (
 #ifdef DOKO_USE_MAGICK
-        !(doko_load_with_magick_stdout(thread->path, &thread->rayim)) &&
+        !(doko_load_with_magick_stdout(thread->path, &thread->im.rayim)) &&
 #endif
 
 #ifdef DOKO_USE_FFMPEG
-        !(doko_load_with_ffmpeg_stdout(thread->path, &thread->rayim)) &&
+        !(doko_load_with_ffmpeg_stdout(thread->path, &thread->im.rayim)) &&
 #endif
         true) {
 
-        thread->rayim = LoadImage(thread->path);
+        thread->im.rayim = LoadImage(thread->path);
     }
 
-    L_D("%s: Thread is done", __func__);
 
-    if (IsImageReady(thread->rayim))
-        if (!doko_create_thumbnail(
-                &thread->rayim, &thread->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE
-            )) {
+#if GENERATE_THUMB_WHEN_LOADING_IMAGE == true
+
+    if (IsImageReady(thread->im.rayim)) {
+
+        thread->im.status = IMAGE_STATUS_LOADED;
+
+        if (!dokoGetOrCreateThumb(&thread->im)) 
+
             L_W("%s: Could not create thumbnail", __func__);
-        }
+    }
+        
+#endif
 
     pthread_mutex_lock(&thread->mutex);
     thread->finished = true;
     pthread_mutex_unlock(&thread->mutex);
+
+    L_D("%s: Thread is done", __func__);
 
     return NULL;
 }
@@ -195,13 +220,15 @@ bool doko_async_load_image(const doko_image_t* im) {
     if (doko_async_has_image(im))
         return false;
 
-    doko_thread_t* thread = malloc(sizeof(doko_thread_t));
+    doko_thread_t* thread = calloc(1, sizeof(doko_thread_t));
 
     if (thread == NULL)
         return false;
 
-    thread->finished = false;
-    thread->path = doko_strdup(im->path);
+    thread->finished    = false;
+    thread->path        = dokoStrdup(im->path);
+    thread->im.path     = thread->path; // so we can use dokoGetOrCreateThumb
+    thread->dothumbnail = im->thumb_status != IMAGE_STATUS_LOADED;
 
     if (thread->path == NULL) {
 

@@ -9,6 +9,7 @@
 
 #include "../darray.h"
 
+
 #define FALLTHROUGH /* fall through */
 
 #define PIPE_READ 0
@@ -68,6 +69,13 @@ typedef enum {
     LOG_LEVEL_CRITICAL = __LOG_LEVEL_CRITICAL,
     LOG_LEVEL_NOTHING  = __LOG_LEVEL_NOTHING
 } log_level_t;
+
+typedef enum {
+    IMG_PNG,
+    IMG_BMP,
+    IMG_JPG,
+    IMG_QOI,
+} ImageFormat_t;
 
 typedef enum {
     SORT_ORDER__DEFAULT, // using strcmp
@@ -130,6 +138,7 @@ typedef struct doko_image {
         bool rebuildBuff; // updates the Texture2D
         bool applyGrayscaleShader;
         bool applyInvertShader;
+        bool thumbIsCached;
         bool panels[1];
 
 } doko_image_t;
@@ -196,15 +205,50 @@ typedef struct doko_control {
 
 } doko_control_t;
 
+extern log_level_t log_level; // global for the log level
+extern char*       thumbCachePath;
 
-// global for the log level
-extern int log_level;
+static inline unsigned char add_char_clamp(short a, short b) {
+    return (a + b) > 255 ? 255 : (a + b);
+}
+
+static inline unsigned char sub_char_clamp(short a, short b) {
+    return (a - b) < 0 ? 0 : (a - b);
+}
+
+// 
+// string functions
+// 
+char* dokoStrdup(const char* str);  // just regular strdup
+char* dokoEstrdup(const char* str); // strdup but dies instead of returning null
+
+// strdup but adds n extra bytes to the string
+char* dokoStrdupn(const char* str, size_t n, size_t* len_);
+
+// join a b with sep
+char* dokoStrJoin(const char* a, const char* b, const char* sep);
+
+// joins a b with sep into buf
+bool dokoStrJoinInto(
+    char* restrict buf, size_t bufSize, const char* a, const char* b,
+    const char* sep
+);
+
+// strcmp for use with qsort
+int dokoQsortStrcmp(const void* a, const void* b);
+
+// natstrcmp for use with qsort
+int dokoQsortNatstrcmp(const void* a, const void* b);
+
+const char* dokoGetCacheDirectory();
+char* dokoGetThumbPath(const doko_config_t* conf, const char* imagePath);
+
 
 /**
  * Loads an image and sets some default values.
  * The function returns 0 on success and non-zero on failure.
  */
-bool doko_loadImage(doko_image_t* im);
+bool dokoLoadImage(doko_image_t* im);
 
 /**
  * Sets the image to this index if possible
@@ -216,32 +260,6 @@ void doko_set_image(doko_control_t* ctrl, size_t index);
  * Return the new image index or -1 if there is an error
  */
 int doko_add_image(doko_control_t* ctrl, const char* path_);
-
-/**
- * Implementation of strdup, because yes
- */
-char* doko_strdup(const char* str);
-
-/**
- * strdup but dies instead of returning null
- */
-char* doko_estrdup(const char* str);
-
-/**
- * Implementation of strdup but adds n extra bytes to the string
- * If len_ is passed returns the length of the new string
- */
-char* doko_strdupn(const char* str, size_t n, size_t* len_);
-
-/**
- * Str compare for use with qsort
- */
-int doko_qsort_strcmp(const void* a, const void* b);
-
-/**
- * Str natural compare for use with qsort
- */
-int doko_qsort_natstrcmp(const void* a, const void* b);
 
 /**
  * Prints a message to a stream if the log level is above or equal to the set
@@ -293,7 +311,7 @@ bool doko_copy_and_resize_image_nn(const  Image* image, Image* newimage, int new
 /**
  * Create a thumbnail image from the given image
  */
-bool doko_create_thumbnail(const Image* image, Image* newimage, int newWidth, int newHeight);
+bool dokoCreateThumbnail(const Image* image, Image* newimage, int newWidth, int newHeight);
 
 /**
  * Loads an image using image magick through stdout.
@@ -321,20 +339,16 @@ bool doko_load_with_imlib2(const char* path, Image* im);
  */
 void doko_dither_image(doko_image_t* im);
 
+bool  dokoGetOrCreateThumb(doko_image_t* im);
+char* dokoGetCachedPath(const char* path);
+bool  dokoCreateDirectory(const char* path);
+bool  dokoSaveThumbnail(const doko_image_t* im);
+bool  dokoSaveQOI(Image image, const char* path);
+
 /**
  * Update the cacheDir path in the config
  */
 void dokoSetCacheDir(doko_config_t* conf, const char* path);
-
-
-char* dokoStrJoin(const char* a, const char* b, const char* sep);
-bool dokoStrJoinInto( char* restrict buf, size_t bufSize, const char* a, const char* b, const char* sep);
-
-/**
- * Returns the 
- */
-char* dokoGetCacheDirectory();
-char* dokoGetThumbPath(const doko_config_t* conf, const char* imagePath);
 
 // #####################
 // Async Functions Begin

@@ -31,11 +31,11 @@ static inline void sort_file_list(FilePathList fpl) {
     switch (this.filename_cmp) {
 
     case SORT_ORDER__DEFAULT:
-        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_strcmp);
+        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), dokoQsortStrcmp);
         break;
 
     case SORT_ORDER__NATURAL:
-        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), doko_qsort_natstrcmp);
+        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), dokoQsortNatstrcmp);
         break;
     }
 }
@@ -348,7 +348,7 @@ int main(int argc, char* argv[]) {
     // we want to load the image before we lose the terminal
     // so that scripts know we have the image and can remove it
     if (this.selected_image != NULL)
-        doko_loadImage(this.selected_image);
+        dokoLoadImage(this.selected_image);
 
     if (!this.config.terminal)
         detach_from_terminal();

@@ -59,7 +59,7 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
         close(pipefd[PIPE_READ]);
 
         size_t n;
-        char*  new_path = doko_strdupn(path, 3, &n);
+        char*  new_path = dokoStrdupn(path, 3, &n);
 
         if (new_path == NULL) {
 

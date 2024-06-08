@@ -93,6 +93,11 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // Imlib2 will not be used for any loading done in thread.
 #define ASYNC_IMAGE_LOADING true
 
+// If true thumbnails will be created when the image is loaded.
+// Otherwise thumbnails will be created when using thumbnail page.
+// (lazy loading)
+#define GENERATE_THUMB_WHEN_LOADING_IMAGE true
+
 // Feature flag for using Imlib2.
 // If defined and imlib2 is found at compiletime
 // enable using Imlib2 to load images.
@@ -509,7 +514,7 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
 #define EXT_HEIF ""
 
 // Raylib should be able to load these formats
-#define RAYLIB_FILE_FORMATS ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;"
+#define RAYLIB_FILE_FORMATS ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.qoi;"
 
 #ifdef IMLIB2_ENABLED
     // with imlib2, we assume it can load these exta formats
