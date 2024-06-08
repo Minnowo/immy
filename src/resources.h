@@ -18,7 +18,7 @@ unsigned char* get_resource_data(const char* resource_path, size_t* data_size);
 void free_resource_data(void* data);
 
 // If shaders are enabled, define them here
-#if (ENABLE_SHADERS == 1)
+#if ENABLE_SHADERS
 
 // this lets us format stuff defined in config.h into the shaders
 #define VALUE_TO_STRING(value) #value

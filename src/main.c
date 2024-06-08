@@ -285,8 +285,7 @@ void handle_start_args(doko_config_t* config, int argc, char* argv[]) {
 
 void detach_from_terminal() {
 
-#if (ALLOW_DETACH_FROM_TERMINAL == 1)
-#ifdef __unix__
+#if ALLOW_DETACH_FROM_TERMINAL && defined(__unix__)
 
     int pid = fork();
 
@@ -304,7 +303,6 @@ void detach_from_terminal() {
     freopen("/dev/null", "w", stdout);
     freopen("/dev/null", "w", stderr);
 
-#endif
 #endif
 }
 
@@ -337,7 +335,7 @@ int main(int argc, char* argv[]) {
     if(this.config.show_bar) 
         uiSetScreenPaddingBottom(INFO_BAR_HEIGHT);
 
-#if DIE_IF_NO_IMAGE == 1
+#if DIE_IF_NO_IMAGE
     if (this.image_files.size <= 0)
         DIE("no arguments given\n\n" CLI_HELP);
 #endif
@@ -462,11 +460,6 @@ int main(int argc, char* argv[]) {
 
                 break;
             }
-
-#if DRAW_FPS == 1
-            DrawFPS(0, 0);
-#endif
-
 
 #ifndef ALWAYS_DO_RENDER
         }

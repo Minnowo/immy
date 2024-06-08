@@ -415,7 +415,7 @@ void kb_Scroll_Keybind_List_Down(doko_control_t* ctrl) {
 
 void kb_Scroll_Thumb_Page_Up(doko_control_t* ctrl) {
 
-    int cols = GetScreenWidth() / THUMBNAIL_SIZE;
+    int cols = GetScreenWidth() / THUMB_SIZE;
 
     if (cols < ctrl->thumbPageScroll) {
 
@@ -429,7 +429,7 @@ void kb_Scroll_Thumb_Page_Up(doko_control_t* ctrl) {
 
 void kb_Scroll_Thumb_Page_Down(doko_control_t* ctrl) {
 
-    int cols = GetScreenWidth() / THUMBNAIL_SIZE;
+    int cols = GetScreenWidth() / THUMB_SIZE;
     // int rows = 2 * ctrl->image_files.size / cols;
 
     // L_I("there are %d cols", cols);
@@ -516,14 +516,14 @@ void kb_Dither(doko_control_t* ctrl) {
 
 void kb_Thumb_Page_Down(doko_control_t* ctrl) {
 
-    int cols = GetScreenWidth() / THUMBNAIL_SIZE;
+    int cols = GetScreenWidth() / THUMB_SIZE;
 
     doko_set_image(ctrl, ctrl->selected_index + cols);
 }
 
 void kb_Thumb_Page_Up(doko_control_t* ctrl) {
 
-    int cols = GetScreenWidth() / THUMBNAIL_SIZE;
+    int cols = GetScreenWidth() / THUMB_SIZE;
 
     doko_set_image(ctrl, ctrl->selected_index - cols);
 }

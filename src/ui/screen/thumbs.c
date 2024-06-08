@@ -31,9 +31,9 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
         DARRAY_GROW_SIZE_TO(thumbBufs, ctrl->image_files.length);
     }
 
-    int cols   = sw / THUMBNAIL_SIZE;
-    int rows   = sh / THUMBNAIL_SIZE + 1;
-    int offset = (sw % THUMBNAIL_SIZE) / 2;
+    int cols   = sw / THUMB_SIZE;
+    int rows   = sh / THUMB_SIZE + 1;
+    int offset = (sw % THUMB_SIZE) / 2;
 
     int col = 0;
     int row = 0;
@@ -88,10 +88,10 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
             thumbBufs.buffer[i] = tex;
         }
 
-        int x = col * THUMBNAIL_SIZE;
-        int y = row * THUMBNAIL_SIZE;
+        int x = col * THUMB_SIZE;
+        int y = row * THUMB_SIZE;
 
-        x -= (x % THUMBNAIL_SIZE);
+        x -= (x % THUMB_SIZE);
         x += offset;
 
         col++;
@@ -104,8 +104,8 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
         if(row > rows)
             continue;
 
-        x += (THUMBNAIL_SIZE - dim->thumb.width) / 2.0f;
-        y += (THUMBNAIL_SIZE - dim->thumb.height) / 2.0f; 
+        x += (THUMB_SIZE - dim->thumb.width) / 2.0f;
+        y += (THUMB_SIZE - dim->thumb.height) / 2.0f; 
 
         int pad = 8;
         int m = 2;

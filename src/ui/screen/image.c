@@ -53,7 +53,7 @@ void uiRenderImage(doko_image_t* im) {
 
         switch(im->status){
 
-#if(ASYNC_IMAGE_LOADING == 1)
+#if ASYNC_IMAGE_LOADING
 
         case IMAGE_STATUS_NOT_LOADED:
 
@@ -135,7 +135,7 @@ void uiRenderImage(doko_image_t* im) {
         GenTextureMipmaps(&imageBuf);
     }
 
-#if (ENABLE_SHADERS == 1)
+#if ENABLE_SHADERS
 
     if (im->applyGrayscaleShader || im->applyInvertShader) {
 
@@ -171,7 +171,7 @@ void uiRenderImage(doko_image_t* im) {
         WHITE
     );
 
-#if (ENABLE_SHADERS == 1)
+#if ENABLE_SHADERS
 
     if (im->applyGrayscaleShader | im->applyInvertShader) {
 

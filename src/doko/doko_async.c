@@ -143,7 +143,7 @@ bool doko_async_get_image(doko_image_t* im) {
     if(im->thumb_status == IMAGE_STATUS_FAILED)
         im->thumb_status = IMAGE_STATUS_NOT_LOADED;
 
-#if GENERATE_THUMB_WHEN_LOADING_IMAGE == true
+#if GENERATE_THUMB_WHEN_LOADING_IMAGE
 
     if (didThumb) {
 
@@ -193,7 +193,7 @@ void *async_image_load_thread_main(void * raw_arg) {
     }
 
 
-#if GENERATE_THUMB_WHEN_LOADING_IMAGE == true
+#if GENERATE_THUMB_WHEN_LOADING_IMAGE
 
     if (IsImageReady(thread->im.rayim)) {
 
@@ -203,7 +203,7 @@ void *async_image_load_thread_main(void * raw_arg) {
 
             L_W("%s: Could not create thumbnail", __func__);
     }
-        
+
 #endif
 
     pthread_mutex_lock(&thread->mutex);

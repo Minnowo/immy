@@ -26,7 +26,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 
 // default GLSL version
 #ifndef GLSL_VERSION
-    #define GLSL_VERSION 330
+#define GLSL_VERSION 330
 #endif
 
 // if 1, shaders can be used
@@ -85,7 +85,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 
 
 // ###########################
-// ##### Image Loading #######
+// ##### Image Stuff #########
 // ###########################
 
 // Feature flag for loading images in separate threads.
@@ -97,6 +97,22 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // Otherwise thumbnails will be created when using thumbnail page.
 // (lazy loading)
 #define GENERATE_THUMB_WHEN_LOADING_IMAGE true
+
+// Cache thumbnails to disk
+// They are saved as QOI generally in $HOME/.cache/doko
+#define SHOULD_CACHE_THUMBNAILS true
+
+// Use THUMBNAIL_BASE_CACHE_PATH as the thumb cache base directory
+#define OVERRIDE_THUMBNAIL_CACHE_PATH false
+
+// If OVERRIDE_THUMBNAIL_CACHE_PATH is true.
+// This becomes the thumbnail cache base directory.
+#define THUMBNAIL_BASE_CACHE_PATH "/tmp"
+
+// Joins the THUMBNAIL_BASE_CACHE_PATH and the thumb file.
+// A cached thumbnail would be in:
+//   THUMBNAIL_BASE_CACHE_PATH / THUMBNAIL_CACHE_PATH / SHA256 Of Image Path
+#define THUMBNAIL_CACHE_PATH "/.cache/doko/"
 
 // Feature flag for using Imlib2.
 // If defined and imlib2 is found at compiletime
@@ -185,7 +201,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 #define IMAGE_INVERSE_MARGIN_Y 32
 
 // Size of thumbnails for the thumbnail page.
-#define THUMBNAIL_SIZE 256
+#define THUMB_SIZE 256
 
 // The height of the bar 
 #define INFO_BAR_HEIGHT 32
@@ -199,9 +215,6 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // Show the pixel grid when the scale is bigger than this value
 // This value x 100 = % zoom
 #define SHOW_PIXEL_GRID_SCALE_THRESHOLD 20 /* 2000% Zoom */
-
-// When true, draw the fps in the corner
-#define DRAW_FPS 0
 
 // When true, searches directories recursivly
 // When false, does not search directories recursivly
@@ -385,7 +398,7 @@ InputMapping keybinds[] = {
     BIND(KEY_O                , kb_Print_Debug_Info         , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_SPACE            , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
 
-#if (ENABLE_SHADERS == 1)
+#if ENABLE_SHADERS
     BIND(KEY_I, kb_Color_Invert_Shader   , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
     BIND(KEY_G, kb_Color_Grayscale_Shader, DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
 #else
@@ -497,7 +510,6 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
     "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"                       \
     "abcdefghijklmnopqrstuvwxyz{|}"
 
-
 // ###########################
 // ##### Extension Filter ####
 // ###########################
@@ -588,8 +600,6 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
     "\n  " CLI_HELP_c_FLAG "\n  " CLI_HELP_t_FLAG "\n  " CLI_HELP_x_FLAG       \
     "\n  " CLI_HELP_y_FLAG "\n  " CLI_HELP_w_FLAG "\n  " CLI_HELP_h_FLAG       \
     "\n  " CLI_HELP_l_FLAG
-
-
 
 #endif
 

@@ -17,7 +17,7 @@ extern dint_arr_t g_fontCodepoints; // codepoints for ui font
 extern Color     g_pixelGridColor; // the pixel grid color
 extern Texture2D g_backgroundBuf;  // the background texture
 
-#if (ENABLE_SHADERS == 1)
+#if ENABLE_SHADERS
 
 // just for the one shader
 extern Shader grayscaleShader;

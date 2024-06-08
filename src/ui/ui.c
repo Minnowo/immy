@@ -17,7 +17,7 @@ dint_arr_t g_fontCodepoints  = {0};   // codepoints for ui font
 Color     g_pixelGridColor = PIXEL_GRID_COLOR_RGBA; // the pixel grid color
 Texture2D g_backgroundBuf  = {0};                   // the background texture
 
-#if (ENABLE_SHADERS == 1)
+#if ENABLE_SHADERS
 
 Shader grayscaleShader              = {0};
 bool   applyInvertShaderValue       = false;
@@ -52,7 +52,7 @@ void uiInit(doko_config_t* config) {
         BACKGROUND_TILE_COLOR_B_RGBA
     );
 
-#if (ENABLE_SHADERS == 1)
+#if ENABLE_SHADERS
     grayscaleShader = LoadShaderFromMemory(NULL, INVERT_AND_GRAYSCALE_SHADER_CODE);
     invertShaderValueLocation = GetShaderLocation(grayscaleShader, "applyInvert");
     grayscaleShaderValueLocation =
@@ -85,7 +85,7 @@ void uiDeinit() {
 
     DARRAY_FREE(g_fontCodepoints);
 
-#if (ENABLE_SHADERS == 1)
+#if ENABLE_SHADERS
     UnloadShader(grayscaleShader);
 #endif
 

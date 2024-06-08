@@ -6,7 +6,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#include "../external/sha256.h"
 #include "../external/strnatcmp.h"
+#include "../config.h"
 #include "doko.h"
 
 
@@ -96,6 +99,11 @@ bool dokoStrJoinInto(
 
 const char* dokoGetCacheDirectory() {
 
+#if OVERRIDE_THUMBNAIL_CACHE_PATH
+
+    return THUMBNAIL_BASE_CACHE_PATH;
+#else
+
     char* cache = getenv("XDG_CACHE_HOME");
 
     if (!cache || *cache == 0)
@@ -105,17 +113,36 @@ const char* dokoGetCacheDirectory() {
         cache = "/tmp";
 
     return cache;
+#endif
 }
 
 char* dokoGetCachedPath(const char* path) {
 
-    char buf[FILENAME_MAX + 1];
+    char buf[DOKO_PATH_MAX + 1];
 
     char* ptr = realpath(path, buf);
 
+    // hash the absolute path for a 'unique' 
+    // short name for the cache
+    // we know DOKO_PATH_MAX can ALWAYS fit sha256 has bytes * 3
+    SHA256_CTX sha256;
+    sha256_init(&sha256);
+    sha256_update(&sha256, (BYTE*)ptr, strlen(ptr));
+    sha256_final(&sha256, (BYTE*)buf);
+
+    // 0 - 31  contains the sha256 hash bytes
+    // 32 - 96 contains the sha256 hex string
+    ptr += 32;
+
+    for (size_t i = 0; i < 32; ++i) {
+        sprintf(ptr + i * 2, "%02x", (unsigned char)buf[i]);
+    }
+
+    ptr[64] = 0;
+
     const char* cacheDir = dokoGetCacheDirectory();
 
-    char* cachedPath = dokoStrJoin(cacheDir, ptr, "/.cache/doko/");
+    char* cachedPath = dokoStrJoin( cacheDir, ptr, THUMBNAIL_CACHE_PATH);
 
     return cachedPath;
 }

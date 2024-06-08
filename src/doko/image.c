@@ -54,7 +54,7 @@ bool dokoLoadImage(doko_image_t* im) {
     im->dstPos = (Vector2){0, 0};
     im->status = IMAGE_STATUS_LOADED;
 
-#if GENERATE_THUMB_WHEN_LOADING_IMAGE == true
+#if GENERATE_THUMB_WHEN_LOADING_IMAGE
     dokoGetOrCreateThumb(im);
 #endif
 
@@ -140,44 +140,63 @@ bool dokoGetOrCreateThumb(doko_image_t* im) {
     if (im->thumb_status == IMAGE_STATUS_LOADED)
         return true;
 
+#if !SHOULD_CACHE_THUMBNAILS
+
+    return dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE);
+#else
+
     char* thumbPath = dokoGetCachedPath(im->path);
+
+    L_D("Trying to read thumb from: %s", thumbPath);
 
     qoi_desc desc;
 
     void* rgba_pixels = qoi_read(thumbPath, &desc, 0);
 
-    if(!rgba_pixels) {
+    if (!rgba_pixels) {
 
-        if(im->status != IMAGE_STATUS_LOADED)
-            return false;
+        L_D("Could not read thumb from cache");
 
-        if (!dokoCreateThumbnail(&im->rayim, &im->thumb, THUMBNAIL_SIZE, THUMBNAIL_SIZE))
-            return false;
+        bool r = false;
 
-        im->thumb_status = IMAGE_STATUS_LOADED;
+        if (im->status != IMAGE_STATUS_LOADED) {
+            FALLTHROUGH;
+        } else if (!dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
+            FALLTHROUGH;
+        } else {
 
-        dokoSaveThumbnail(im);
+            r = true;
 
-        return true;
+            im->thumb_status = IMAGE_STATUS_LOADED;
+
+            dokoSaveThumbnailAt(im, thumbPath);
+        }
+
+        free(thumbPath);
+
+        return r;
     }
 
-    im->thumb.width = desc.width;
-    im->thumb.height = desc.height;
-    im->thumb.data = rgba_pixels;
+    L_D("Cache hit for thumbnail");
+
+    free(thumbPath);
+
+    im->thumb.width   = desc.width;
+    im->thumb.height  = desc.height;
+    im->thumb.data    = rgba_pixels;
     im->thumb.mipmaps = 1;
 
-    if(desc.channels == 3) {
+    if (desc.channels == 3) {
         im->thumb.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8;
-    }
-    else {
+    } else {
         im->thumb.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
     }
 
     im->thumb_status = IMAGE_STATUS_LOADED;
 
     return true;
+#endif
 }
-
 
 bool dokoSaveQOI(Image image, const char* path) {
 
@@ -215,6 +234,40 @@ bool dokoSaveQOI(Image image, const char* path) {
     return result;
 }
 
+bool dokoSaveThumbnailAt(const doko_image_t* im, const char* path) {
+
+    if (im->thumb_status != IMAGE_STATUS_LOADED)
+        return false;
+
+    /*
+    struct stat b;
+
+    if(stat(path, &b) == 0) {
+
+        double timeInterval = 60 * 60 * 24;
+        double timeDifference = difftime(time(NULL), b.st_mtime);
+
+        if (timeDifference < timeInterval) {
+
+            L_I("Thumb cache was last modified today. Assuming still fine.");
+
+            return true;
+        }
+    }
+    */
+
+    bool r = false;
+
+    if (dokoCreateDirectory(path)) {
+
+        L_I("%s: saving thumbnail to %s", __func__, path);
+
+        r = dokoSaveQOI(im->thumb, path);
+    }
+
+    return r;
+}
+
 bool dokoSaveThumbnail(const doko_image_t* im) {
 
     if(im->thumb_status != IMAGE_STATUS_LOADED)
@@ -224,35 +277,7 @@ bool dokoSaveThumbnail(const doko_image_t* im) {
 
     DIE_IF_NULL(cachedPath, "%s: Cannot get cache path: %s", __func__, strerror(errno));
 
-    /*
-    struct stat b;
-
-    if(stat(cachedPath, &b) == 0) {
-
-        time_t currentTime = time(NULL);
-        double timeInterval = 60 * 60 * 24;
-        double timeDifference = difftime(currentTime, b.st_mtime);
-
-        if (timeDifference < timeInterval) {
-
-            L_I("Thumb cache was last modified today. Assuming still fine.");
-
-            return true;
-        } 
-    }
-    */
-
-    bool r = false;
-
-    if (dokoCreateDirectory(cachedPath)) {
-
-        L_E("%s: Could not create cache directory: %s", __func__,
-            strerror(errno));
-
-        L_I("%s: saving thumbnail to %s", __func__, cachedPath);
-
-        r = dokoSaveQOI(im->thumb, cachedPath);
-    }
+    bool r = dokoSaveThumbnailAt(im, cachedPath);
 
     free(cachedPath);
 

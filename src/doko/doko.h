@@ -10,6 +10,15 @@
 #include "../darray.h"
 
 
+// MUST be larger than 96
+// since we rely on having 96 bytes
+// when generating cache path
+#if FILENAME_MAX < 256
+    #define DOKO_PATH_MAX 256
+#else
+    #define DOKO_PATH_MAX FILENAME_MAX
+#endif
+
 #define FALLTHROUGH /* fall through */
 
 #define PIPE_READ 0
@@ -343,6 +352,7 @@ bool  dokoGetOrCreateThumb(doko_image_t* im);
 char* dokoGetCachedPath(const char* path);
 bool  dokoCreateDirectory(const char* path);
 bool  dokoSaveThumbnail(const doko_image_t* im);
+bool dokoSaveThumbnailAt(const doko_image_t* im, const char* path);
 bool  dokoSaveQOI(Image image, const char* path);
 
 /**

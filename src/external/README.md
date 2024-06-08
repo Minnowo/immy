@@ -9,3 +9,4 @@ Modifications are in the files with comments (if any).
 
 - `strnatcmp.c` and `strnatcmp.h`: https://github.com/sourcefrog/natsort
 
+- `sha256.c` and `sha256.h`: https://github.com/B-Con/crypto-algorithms

@@ -65,6 +65,8 @@ add_executable(${PROJECT_NAME}
     src/ui/screen/keybinds.c
     src/ui/screen/thumbs.c
     # src/ui/panel/test.c
+    src/external/sha256.c
+    src/external/sha256.h
     src/external/hashmap.c
     src/external/hashmap.h
     src/external/strnatcmp.c
