@@ -98,6 +98,11 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // (lazy loading)
 #define GENERATE_THUMB_WHEN_LOADING_IMAGE true
 
+// If the image is loaded and a thumbnail is not.
+// Instead of checking the cache and loading from it,
+// generate a thumbnail from the loaded image and update the cache.
+#define UPDATE_CACHE_IF_IMAGE_LOADED true
+
 // Cache thumbnails to disk
 // They are saved as QOI generally in $HOME/.cache/doko
 #define SHOULD_CACHE_THUMBNAILS true

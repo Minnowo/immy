@@ -109,25 +109,23 @@ bool doko_copy_and_resize_image_nn(
 
     int x2, y2;
 
-    for (int y = 0; y < newH; y++)
+    for (int y = 0; y < newH; y++) {
+
+        y2 = ((y * yRatio) >> 16);
 
         for (int x = 0; x < newW; x++) {
+
             x2 = ((x * xRatio) >> 16);
-            y2 = ((y * yRatio) >> 16);
 
             output[(y * newW) + x] = pixels[(y2 * im->width) + x2];
         }
-
-    int format = im->format;
+    }
 
     newim->data    = output;
     newim->width   = newW;
     newim->height  = newH;
     newim->mipmaps = 1;
     newim->format  = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
-
-    // Reformat 32bit RGBA image to original format
-    ImageFormat(newim, format);
 
     if (im->format != PIXELFORMAT_UNCOMPRESSED_R8G8B8A8)
         UnloadImageColors(pixels);
@@ -144,6 +142,23 @@ bool dokoGetOrCreateThumb(doko_image_t* im) {
 
     return dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE);
 #else
+
+#if UPDATE_CACHE_IF_IMAGE_LOADED
+
+    // if we've already loaded the image,
+    // we can just create a thumbnail.
+    if(im->status == IMAGE_STATUS_LOADED) {
+
+        if (dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
+
+            // update the cache
+            dokoSaveThumbnail(im);
+
+            return true;
+        } 
+    }
+
+#endif
 
     char* thumbPath = dokoGetCachedPath(im->path);
 
