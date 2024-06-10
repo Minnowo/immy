@@ -93,6 +93,16 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // Imlib2 will not be used for any loading done in thread.
 #define ASYNC_IMAGE_LOADING true
 
+// Number of threads that can be used when making thumbnails.
+// This is only used on the thumbnail page.
+// This MUST be >= 1.
+#define THUMB_ASYNC_LOAD_AMOUNT 1
+
+// When loading thumbnails without async input is blocked.
+// If async is disabled, a thumbnail will be loaded 
+// every this number of frames. This MUST be > 0.
+#define SYNC_IMAGE_LOADING_THUMB_INTERVAL (int)((WINDOW_FPS * 0.5))
+
 // If true thumbnails will be created when the image is loaded.
 // Otherwise thumbnails will be created when using thumbnail page.
 // (lazy loading)

@@ -135,15 +135,25 @@ bool doko_copy_and_resize_image_nn(
 
 bool dokoGetOrCreateThumb(doko_image_t* im) {
 
+    return dokoGetOrCreateThumbEx(im, false);
+}
+
+bool dokoGetOrCreateThumbEx(doko_image_t* im, bool createOnly) {
+
     if (im->thumb_status == IMAGE_STATUS_LOADED)
         return true;
 
 #if !SHOULD_CACHE_THUMBNAILS
 
-    return dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE);
-#else
+    if(dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
 
-#if UPDATE_CACHE_IF_IMAGE_LOADED
+        im->thumb_status = IMAGE_STATUS_LOADED;
+
+        return true;
+    }
+
+    return false;
+#else
 
     // if we've already loaded the image,
     // we can just create a thumbnail.
@@ -151,14 +161,18 @@ bool dokoGetOrCreateThumb(doko_image_t* im) {
 
         if (dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
 
-            // update the cache
+            im->thumb_status = IMAGE_STATUS_LOADED;
+
+#if UPDATE_CACHE_IF_IMAGE_LOADED
             dokoSaveThumbnail(im);
-
-            return true;
-        } 
-    }
-
 #endif
+            return true;
+        }
+    } 
+
+    if (createOnly) {
+        return false;
+    }
 
     char* thumbPath = dokoGetCachedPath(im->path);
 

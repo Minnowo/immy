@@ -124,7 +124,6 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
             data.size--;
         }
 
-        L_D("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
     }
 
     L_I("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));

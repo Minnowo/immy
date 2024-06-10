@@ -96,7 +96,7 @@ typedef enum {
     IMAGE_STATUS_NOT_LOADED,
     IMAGE_STATUS_LOADING,
     IMAGE_STATUS_LOADED,
-    IMAGE_STATUS_FAILED
+    IMAGE_STATUS_FAILED,
 } image_status_t;
 
 typedef enum {
@@ -147,7 +147,7 @@ typedef struct doko_image {
         bool rebuildBuff; // updates the Texture2D
         bool applyGrayscaleShader;
         bool applyInvertShader;
-        bool thumbIsCached;
+        bool isLoadingForThumbOnly;
         bool panels[1];
 
 } doko_image_t;
@@ -348,6 +348,7 @@ bool doko_load_with_imlib2(const char* path, Image* im);
  */
 void doko_dither_image(doko_image_t* im);
 
+bool dokoGetOrCreateThumbEx(doko_image_t* im, bool createOnly);
 bool  dokoGetOrCreateThumb(doko_image_t* im);
 char* dokoGetCachedPath(const char* path);
 bool  dokoCreateDirectory(const char* path);

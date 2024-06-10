@@ -9,7 +9,7 @@
 #define ImageViewHeight (GetScreenHeight() - screenPadding.height)
 
 // state for the image screen
-static doko_image_t* image    = 0;   // identify the current image
+static doko_image_t* cImage    = 0;   // identify the current image
 static Texture2D     imageBuf = {0}; // the buffer to show
 
 // x, y are added to image position
@@ -20,7 +20,7 @@ void uiImagePageClearState() {
 
     UnloadTexture(imageBuf);
 
-    image = NULL;
+    cImage = NULL;
 
     memset(&imageBuf, 0, sizeof(imageBuf));
 }
@@ -49,7 +49,11 @@ void uiRenderPixelGrid(const doko_image_t* image) {
 
 void uiRenderImage(doko_image_t* im) {
 
-    if (image != im) {
+    if (cImage != im) {
+
+        // ensure the image is not freed if 
+        // it was being loaded for a thumbnail already
+        im->isLoadingForThumbOnly = false;
 
         switch(im->status){
 
@@ -88,11 +92,11 @@ void uiRenderImage(doko_image_t* im) {
 #else
         case IMAGE_STATUS_NOT_LOADED:
 
-            if (!doko_loadImage(image)) {
+            if (!dokoLoadImage(im)) {
                 return;
             }
 
-            uiFitCenterImage(image);
+            uiFitCenterImage(im);
             break;
 
         case IMAGE_STATUS_LOADING:
@@ -112,7 +116,6 @@ void uiRenderImage(doko_image_t* im) {
             return;
         }
 
-
         Texture2D nimageBuf = LoadTextureFromImage(im->rayim);
 
         if (!IsTextureReady(nimageBuf)) {
@@ -123,7 +126,7 @@ void uiRenderImage(doko_image_t* im) {
             UnloadTexture(imageBuf);
         }
 
-        image    = im;
+        cImage    = im;
         imageBuf = nimageBuf;
 
         GenTextureMipmaps(&imageBuf);
@@ -140,8 +143,8 @@ void uiRenderImage(doko_image_t* im) {
     if (im->applyGrayscaleShader || im->applyInvertShader) {
 
         // these have to be global?? or static for the set value to work
-        applyInvertShaderValue    = image->applyInvertShader;
-        applyGrayscaleShaderValue = image->applyGrayscaleShader;
+        applyInvertShaderValue    = cImage->applyInvertShader;
+        applyGrayscaleShaderValue = cImage->applyGrayscaleShader;
 
         SetShaderValue(
             grayscaleShader, 

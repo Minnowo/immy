@@ -195,7 +195,7 @@ void *async_image_load_thread_main(void * raw_arg) {
 
 #if GENERATE_THUMB_WHEN_LOADING_IMAGE
 
-    if (IsImageReady(thread->im.rayim)) {
+    if (thread->dothumbnail && IsImageReady(thread->im.rayim)) {
 
         thread->im.status = IMAGE_STATUS_LOADED;
 

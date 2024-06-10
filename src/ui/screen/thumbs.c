@@ -10,6 +10,97 @@
 
 static Texture2D_dynamic_arr_t thumbBufs;
 
+#if ASYNC_IMAGE_LOADING
+
+static int           thumbsLoading = 0;                             // number of thumbs loading
+static doko_image_t* loadingThumbs[THUMB_ASYNC_LOAD_AMOUNT] = {0 }; // loading thumbs
+
+static inline int getThumbLoadingIndex(doko_image_t* im) {
+
+    for (int i = 0; i < THUMB_ASYNC_LOAD_AMOUNT; i++)
+
+        if (loadingThumbs[i] == im)
+
+            return i;
+
+    return -1;
+}
+
+static inline void handleThumbLoad(doko_image_t* im) {
+
+    switch (im->status) {
+
+    // we can load the thumb
+    case IMAGE_STATUS_NOT_LOADED:
+        break;
+
+    // wait for it to finish or fail
+    case IMAGE_STATUS_LOADING:
+        return;
+
+    case IMAGE_STATUS_LOADED:
+    case IMAGE_STATUS_FAILED:
+
+        if (thumbsLoading <= 0)
+            return;
+
+        int l = getThumbLoadingIndex(im);
+
+        // we did not loading this image
+        if (l == -1)
+            return;
+
+        // remove it from our list
+        thumbsLoading--;
+        loadingThumbs[l] = NULL;
+
+        if (im->status == IMAGE_STATUS_FAILED)
+            return;
+
+        // create a thumbnail
+        dokoGetOrCreateThumbEx(im, true);
+
+        // if this is false, the user tried to access
+        // the image while it was loading for a thumb.
+        // In this case, we don't want to free it.
+        if (im->isLoadingForThumbOnly) {
+
+            im->isLoadingForThumbOnly = false;
+            im->status                = IMAGE_STATUS_NOT_LOADED;
+
+            UnloadImage(im->rayim);
+        }
+
+        return;
+    }
+
+    if (thumbsLoading >= THUMB_ASYNC_LOAD_AMOUNT)
+        return;
+
+    L_I("We are starting to load a new image for it's thumb: %d / %d",
+        thumbsLoading, THUMB_ASYNC_LOAD_AMOUNT);
+
+    for (int i = 0; i < THUMB_ASYNC_LOAD_AMOUNT; i++) {
+
+        if(loadingThumbs[i] != NULL)
+            continue;
+
+        if (doko_async_load_image(im)) {
+
+            im->status = IMAGE_STATUS_LOADING;
+            im->isLoadingForThumbOnly = true;
+
+            thumbsLoading++;
+
+            loadingThumbs[i] = im;
+        }
+
+        break;
+    }
+}
+
+#endif
+
 void uiThumbPageClearState() {
 
     DARRAY_FOR_EACH(thumbBufs, i) {
@@ -31,6 +122,8 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
         DARRAY_GROW_SIZE_TO(thumbBufs, ctrl->image_files.length);
     }
 
+    bool syncLoadedThumb = false;
+
     int cols   = sw / THUMB_SIZE;
     int rows   = sh / THUMB_SIZE + 1;
     int offset = (sw % THUMB_SIZE) / 2;
@@ -40,6 +133,7 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
 
     size_t i = 0;
 
+    // show thumbs around the user's current image
     if(ctrl->selected_index > 2 * cols) {
 
         i = cols * ((ctrl->selected_index / cols) - 2);
@@ -47,9 +141,12 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
 
     DARRAY_FOR_EACH_I(ctrl->image_files, i) {
 
+        if(row >= rows)
+            continue;
+
         doko_image_t* dim = ctrl->image_files.buffer + i;
 
-#ifdef ASYNC_IMAGE_LOADING
+#if ASYNC_IMAGE_LOADING
         if (dim->status == IMAGE_STATUS_LOADING) {
 
             if (!doko_async_get_image(dim))
@@ -57,11 +154,31 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
 
             if (dim->status == IMAGE_STATUS_LOADED)
                 uiFitCenterImage(dim);
+
+            handleThumbLoad(dim);
         }
 #endif
 
-        if (dim->thumb_status == IMAGE_STATUS_FAILED)
+        if (dim->thumb_status == IMAGE_STATUS_FAILED) {
+
+#if ASYNC_IMAGE_LOADING
+
+            handleThumbLoad(dim);
+#else
+            if (!syncLoadedThumb &&
+                ctrl->frame % (int)SYNC_IMAGE_LOADING_THUMB_INTERVAL == 0 &&
+                dim->status == IMAGE_STATUS_NOT_LOADED && dokoLoadImage(dim)) {
+
+                syncLoadedThumb = true;
+                dokoGetOrCreateThumbEx(dim, true);
+
+                dim->status = IMAGE_STATUS_NOT_LOADED;
+                UnloadImage(dim->rayim);
+            }
+#endif
+
             continue;
+        }
 
         if (dim->thumb_status != IMAGE_STATUS_LOADED) {
 
@@ -100,9 +217,6 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
             col = 0;
             row ++;
         }
-
-        if(row > rows)
-            continue;
 
         x += (THUMB_SIZE - dim->thumb.width) / 2.0f;
         y += (THUMB_SIZE - dim->thumb.height) / 2.0f; 
