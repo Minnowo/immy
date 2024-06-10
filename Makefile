@@ -20,7 +20,7 @@ build:
 	cd       $(BUILD_DIR) && cmake -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) $(SOURCE_DIR)
 	make -C  $(BUILD_DIR)
 
-install:
+install: uninstall
 	mkdir -p           /opt/$(NAME)
 	cp    -f $(TARGET) /opt/$(NAME)/$(NAME)
 	chmod 755          /opt/$(NAME)/$(NAME)

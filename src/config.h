@@ -467,9 +467,12 @@ InputMapping mousebinds[] = {
     BIND(MOUSE_WHEEL_BWD, kb_Scroll_Thumb_Page_Down, DOKO_SCREEN_THUMB_GRID, DELAY_INSTANT),
 };
 
-// Do not touch
+//////////////////////
+// Do Not Change
 const size_t KEYBIND_COUNT   = (sizeof(keybinds) / sizeof(keybinds[0]));
 const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
+// Do Not Change
+//////////////////////
 
 #endif
 
