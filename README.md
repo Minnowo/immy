@@ -1,7 +1,7 @@
 
 ## A Simple Image Viewer
 
-doko is a simple, keyboard focused image viewer for Linux. Built using [Raylib](https://github.com/raysan5/raylib), it has a minimal and fast interface, and supports most common image formats. Doko can optionally call ImageMagick and FFmpeg to support many more image formats.
+Immy is a simple, keyboard focused image viewer for Linux. Built using [Raylib](https://github.com/raysan5/raylib), it has a minimal and fast interface, and supports most common image formats. Immy can optionally call ImageMagick and FFmpeg to support many more image formats.
 
 
 ### Configuration
@@ -26,7 +26,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
 
-This will bundle the resources and build everything. Your built executable will be `./build/doko`.
+This will bundle the resources and build everything. Your built executable will be `./build/immy`.
 
 
 #### Windows
@@ -35,14 +35,14 @@ It is possible to compile for Widnows, but I haven't tried since switching to cm
 
 ### Install
 
-First build doko using the build instructions. Then run `sudo make install`.
+First build Immy using the build instructions. Then run `sudo make install`.
 
 ### Uninstall
 
 On Linux systems, calling `sudo make uninstall` which should fully uninstall everything.
 
 You can alternatively delete the files manually:
-- Main directory from `/opt/doko`
-- The symlinks `/usr/bin/doko` and `/usr/bin/im`.
-- The Desktop file `/usr/share/applications/doko.desktop` and then run `update-desktop-database /usr/share/applications/`
+- Main directory from `/opt/immy`
+- The symlinks `/usr/bin/immy` and `/usr/bin/im`.
+- The Desktop file `/usr/share/applications/immy.desktop` and then run `update-desktop-database /usr/share/applications/`
 

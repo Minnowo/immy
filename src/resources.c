@@ -3,12 +3,12 @@
 
 #include "resources.h"
 
-#ifdef DOKO_BUNDLE
+#ifdef USE_RESOURCE_BUNDLE
 
 #include "bundle.h"
 
 #ifndef BUNDLE_H_
-#error "DOKO_BUNDLE is defined, but the bundle.h file does not define a bundle"
+#error "USE_RESOURCE_BUNDLE is defined, but the bundle.h file does not define a bundle"
 #endif
 
 unsigned char* get_resource_data(const char* resource_path, size_t* data_size) {

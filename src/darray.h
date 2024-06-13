@@ -1,7 +1,7 @@
 
 
-#ifndef DOKO_DARRAY_H
-#define DOKO_DARRAY_H
+#ifndef IMMY_DARRAY_H
+#define IMMY_DARRAY_H
 
 #include <stdlib.h>
 #include <stdio.h>

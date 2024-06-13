@@ -6,7 +6,7 @@
 
 #include "../config.h"
 #include "../external/hashmap.h"
-#include "doko.h"
+#include "core.h"
 
 typedef struct {
 
@@ -15,35 +15,35 @@ typedef struct {
         bool            finished;
         bool            dothumbnail;
         char*           path;
-        doko_image_t    im;
-} doko_thread_t;
+        immy_image_t    im;
+} immy_thread_t;
 
 typedef struct {
-        const doko_image_t* key;
-        doko_thread_t*      value;
-} doko_hashmap_thread_t;
+        const immy_image_t* key;
+        immy_thread_t*      value;
+} immy_hashmap_thread_t;
 
 
 // for hashmap key comparison
 int _thread_cmp(const void* a, const void* b, void* udata) {
-    const doko_hashmap_thread_t* at = a;
-    const doko_hashmap_thread_t* bt = b;
+    const immy_hashmap_thread_t* at = a;
+    const immy_hashmap_thread_t* bt = b;
     return at->key - bt->key;
 }
 
 // for hashmap hashing of key
 uint64_t _thread_hash(const void* item, uint64_t seed0, uint64_t seed1) {
-    const doko_hashmap_thread_t* THREAD = item;
+    const immy_hashmap_thread_t* THREAD = item;
     return hashmap_sip(THREAD->key, sizeof(THREAD->key), seed0, seed1);
 }
 
-// maps our doko_image_t* to the thread loading said image
+// maps our immy_image_t* to the thread loading said image
 struct hashmap* thread_map;
 
 // to make stuff a little bit nicer to read
-#define HM_DELETE(x) hashmap_delete(thread_map, &(doko_hashmap_thread_t){.key = (x)})
-#define HM_GET(x) hashmap_get(thread_map, &(doko_hashmap_thread_t){.key = (x)})
-#define HM_PUT(x, y) hashmap_set(thread_map, &(doko_hashmap_thread_t){.key = (x), .value=(y)})
+#define HM_DELETE(x) hashmap_delete(thread_map, &(immy_hashmap_thread_t){.key = (x)})
+#define HM_GET(x) hashmap_get(thread_map, &(immy_hashmap_thread_t){.key = (x)})
+#define HM_PUT(x, y) hashmap_set(thread_map, &(immy_hashmap_thread_t){.key = (x), .value=(y)})
 
 // annoyingly this hashmap can only be init using heap
 // so we can't just have it defined above
@@ -53,7 +53,7 @@ static inline void hashmap_init() {
 
         // this should only ever be run once
         thread_map = hashmap_new(
-            sizeof(doko_hashmap_thread_t), 0, 0, 0, _thread_hash, _thread_cmp,
+            sizeof(immy_hashmap_thread_t), 0, 0, 0, _thread_hash, _thread_cmp,
             NULL, NULL
         );
 
@@ -64,13 +64,13 @@ static inline void hashmap_init() {
 }
 
 // deletes the item from the hashmap and frees stuff
-static void doko_async_destroy_thread(const doko_image_t* im, bool image_gotten) {
+static void immy_async_destroy_thread(const immy_image_t* im, bool image_gotten) {
 
     hashmap_init();
 
     L_D("%s: Removing item from thread hashmap", __func__);
 
-    const doko_hashmap_thread_t* THREAD = HM_DELETE(im);
+    const immy_hashmap_thread_t* THREAD = HM_DELETE(im);
 
     if (!THREAD)
         return;
@@ -88,7 +88,7 @@ static void doko_async_destroy_thread(const doko_image_t* im, bool image_gotten)
 }
 
 
-bool doko_async_has_image(const doko_image_t* im) {
+bool immy_async_has_image(const immy_image_t* im) {
 
     hashmap_init();
 
@@ -96,15 +96,15 @@ bool doko_async_has_image(const doko_image_t* im) {
 }
 
 
-bool doko_async_get_image(doko_image_t* im) {
+bool immy_async_get_image(immy_image_t* im) {
 
-    const doko_hashmap_thread_t* ITEM = HM_GET(im);
+    const immy_hashmap_thread_t* ITEM = HM_GET(im);
 
     if(ITEM == NULL) { 
         return false;
     }
 
-    doko_thread_t* thread = ITEM->value;
+    immy_thread_t* thread = ITEM->value;
 
     pthread_mutex_lock(&thread->mutex);
 
@@ -164,7 +164,7 @@ bool doko_async_get_image(doko_image_t* im) {
 #endif
 
 done:
-    doko_async_destroy_thread(im, true);
+    immy_async_destroy_thread(im, true);
 
     return true;
 }
@@ -173,19 +173,19 @@ void *async_image_load_thread_main(void * raw_arg) {
 
     L_D("%s: Thread is running", __func__);
 
-    doko_thread_t* thread = raw_arg;
+    immy_thread_t* thread = raw_arg;
 
     L_D("%s: Thread is about to load %s", __func__, thread->path);
 
     // imlib2 is not thread-safe, we cannot use it here
     //
     if (
-#ifdef DOKO_USE_MAGICK
-        !(doko_load_with_magick_stdout(thread->path, &thread->im.rayim)) &&
+#ifdef IMMY_USE_MAGICK
+        !(immy_load_with_magick_stdout(thread->path, &thread->im.rayim)) &&
 #endif
 
-#ifdef DOKO_USE_FFMPEG
-        !(doko_load_with_ffmpeg_stdout(thread->path, &thread->im.rayim)) &&
+#ifdef IMMY_USE_FFMPEG
+        !(immy_load_with_ffmpeg_stdout(thread->path, &thread->im.rayim)) &&
 #endif
         true) {
 
@@ -199,7 +199,7 @@ void *async_image_load_thread_main(void * raw_arg) {
 
         thread->im.status = IMAGE_STATUS_LOADED;
 
-        if (!dokoGetOrCreateThumb(&thread->im)) 
+        if (!immyGetOrCreateThumb(&thread->im)) 
 
             L_W("%s: Could not create thumbnail", __func__);
     }
@@ -215,19 +215,19 @@ void *async_image_load_thread_main(void * raw_arg) {
     return NULL;
 }
 
-bool doko_async_load_image(const doko_image_t* im) {
+bool immy_async_load_image(const immy_image_t* im) {
 
-    if (doko_async_has_image(im))
+    if (immy_async_has_image(im))
         return false;
 
-    doko_thread_t* thread = calloc(1, sizeof(doko_thread_t));
+    immy_thread_t* thread = calloc(1, sizeof(immy_thread_t));
 
     if (thread == NULL)
         return false;
 
     thread->finished    = false;
-    thread->path        = dokoStrdup(im->path);
-    thread->im.path     = thread->path; // so we can use dokoGetOrCreateThumb
+    thread->path        = immyStrdup(im->path);
+    thread->im.path     = thread->path; // so we can use immyGetOrCreateThumb
     thread->dothumbnail = im->thumb_status != IMAGE_STATUS_LOADED;
 
     if (thread->path == NULL) {
@@ -246,7 +246,7 @@ bool doko_async_load_image(const doko_image_t* im) {
         return false;
     }
 
-    doko_hashmap_thread_t item = {.key = im, .value = thread};
+    immy_hashmap_thread_t item = {.key = im, .value = thread};
 
     hashmap_set(thread_map, &item);
 
@@ -254,7 +254,7 @@ bool doko_async_load_image(const doko_image_t* im) {
 }
 
 
-bool doko_async_create_thumbnails(doko_control_t* ctrl) {
+bool immy_async_create_thumbnails(immy_control_t* ctrl) {
 
 
     return false;

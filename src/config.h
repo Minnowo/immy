@@ -1,11 +1,11 @@
 
 
-#ifndef DOKO_CONFIG_H
-#define DOKO_CONFIG_H
+#ifndef IMMY_CONFIG_H
+#define IMMY_CONFIG_H
 
 #include <raylib.h>
 
-#include "doko/doko.h"
+#include "core/core.h"
 #include "input.h"
 
 //////////////////////
@@ -39,7 +39,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 
 // the default window title
 // if not changed by cli args
-#define WINDOW_TITLE "Doko?"
+#define WINDOW_TITLE "Immy"
 
 // Default window width
 #define START_WIDTH 512
@@ -114,7 +114,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 #define UPDATE_CACHE_IF_IMAGE_LOADED true
 
 // Cache thumbnails to disk
-// They are saved as QOI generally in $HOME/.cache/doko
+// They are saved as QOI generally in $HOME/.cache/immy
 #define SHOULD_CACHE_THUMBNAILS true
 
 // Use THUMBNAIL_BASE_CACHE_PATH as the thumb cache base directory
@@ -127,7 +127,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // Joins the THUMBNAIL_BASE_CACHE_PATH and the thumb file.
 // A cached thumbnail would be in:
 //   THUMBNAIL_BASE_CACHE_PATH / THUMBNAIL_CACHE_PATH / SHA256 Of Image Path
-#define THUMBNAIL_CACHE_PATH "/.cache/doko/"
+#define THUMBNAIL_CACHE_PATH "/.cache/immy/"
 
 // Feature flag for using Imlib2.
 // If defined and imlib2 is found at compiletime
@@ -144,7 +144,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // Feature flag for using ImageMagick.
 // If defined, ImageMagick will be called to load images.
 // Requires image magick's `convert` added to path.
-#define DOKO_USE_MAGICK
+#define IMMY_USE_MAGICK
 
 // Have ImageMagick convert to this format before raylib loads the image.
 // Tested options: (in order of my rank of best -> worst)
@@ -162,7 +162,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // Feature flag for using FFmpeg.
 // If defined, FFmpeg will be called to load images.
 // Requires `ffmpeg` added to path.
-#define DOKO_USE_FFMPEG
+#define IMMY_USE_FFMPEG
 
 // Have FFmpeg convert to this format before raylib loads the image.
 // Tested options: (in order of my rank of best -> worst)
@@ -181,7 +181,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // ###########################
 
 // The command which is run to copy images to clipobard for X11.
-// Doko will write png bytes to stdin for this command.
+// Immy will write png bytes to stdin for this command.
 // This blocks the GUI thread.
 #define X11_COPY_IMAGE_COMMAND "xclip -selection clipboard -target image/png"
 
@@ -377,109 +377,109 @@ InputMapping keybinds[] = {
     // ###########################
     // ##### all pages ###########
     // ###########################
-    BIND(KEY_T    , kb_Toggle_Image_Filelist_Screen, DOKO_SCREEN__ALL, DELAY_MEDIUM ),
-    BIND(KEY_ONE  , kb_Goto_Image_Screen           , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
-    BIND(KEY_TWO  , kb_Goto_File_List_Screen       , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
-    BIND(KEY_THREE, kb_Goto_Thumb_Screen           , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
-    BIND(KEY_FOUR , kb_Goto_Keybinds_Screen        , DOKO_SCREEN__ALL, DELAY_MEDIUM ),
+    BIND(KEY_T    , kb_Toggle_Image_Filelist_Screen, SCREEN_ALL, DELAY_MEDIUM ),
+    BIND(KEY_ONE  , kb_Goto_Image_Screen           , SCREEN_ALL, DELAY_MEDIUM ),
+    BIND(KEY_TWO  , kb_Goto_File_List_Screen       , SCREEN_ALL, DELAY_MEDIUM ),
+    BIND(KEY_THREE, kb_Goto_Thumb_Screen           , SCREEN_ALL, DELAY_MEDIUM ),
+    BIND(KEY_FOUR , kb_Goto_Keybinds_Screen        , SCREEN_ALL, DELAY_MEDIUM ),
 
     // ###########################
     // ##### image view page #####
     // ###########################
     //
-    BIND(KEY_V | CONTROL_MASK ,kb_Paste_Image_From_Clipboard, DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_NINE             , kb_Dither                   , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_K                , kb_Move_Image_Up            , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_J                , kb_Move_Image_Down          , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_H                , kb_Move_Image_Left          , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_L                , kb_Move_Image_Right         , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_H | SHIFT_MASK   , kb_Move_Image_Left          , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_L | SHIFT_MASK   , kb_Move_Image_Right         , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_K | SHIFT_MASK   , kb_Zoom_In_Center_Image     , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_J | SHIFT_MASK   , kb_Zoom_Out_Center_Image    , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_S                , kb_Zoom_In_Center_Image     , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_D                , kb_Zoom_Out_Center_Image    , DOKO_SCREEN_IMAGE, DELAY_FAST),
-    BIND(KEY_H | CONTROL_MASK , kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_L | CONTROL_MASK , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_P                , kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_N                , kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_C | CONTROL_MASK , kb_Copy_Image_To_Clipboard  , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_C                , kb_Fit_Center_Image         , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_C | SHIFT_MASK   , kb_Center_Image             , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_M                , kb_Flip_Horizontal          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_V                , kb_Flip_Vertical            , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_B                , kb_Toggle_Show_Bar          , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_LEFT_BRACKET     , kb_Cycle_Image_Interpolation, DOKO_SCREEN_IMAGE, DELAY_MEDIUM), 
-    BIND(KEY_O                , kb_Print_Debug_Info         , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_SPACE            , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
+    BIND(KEY_V | CONTROL_MASK ,kb_Paste_Image_From_Clipboard, SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_NINE             , kb_Dither                   , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_K                , kb_Move_Image_Up            , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_J                , kb_Move_Image_Down          , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_H                , kb_Move_Image_Left          , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_L                , kb_Move_Image_Right         , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_H | SHIFT_MASK   , kb_Move_Image_Left          , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_L | SHIFT_MASK   , kb_Move_Image_Right         , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_K | SHIFT_MASK   , kb_Zoom_In_Center_Image     , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_J | SHIFT_MASK   , kb_Zoom_Out_Center_Image    , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_S                , kb_Zoom_In_Center_Image     , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_D                , kb_Zoom_Out_Center_Image    , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_H | CONTROL_MASK , kb_Prev_Image               , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_L | CONTROL_MASK , kb_Next_Image               , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_P                , kb_Prev_Image               , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_N                , kb_Next_Image               , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_C | CONTROL_MASK , kb_Copy_Image_To_Clipboard  , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_C                , kb_Fit_Center_Image         , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_C | SHIFT_MASK   , kb_Center_Image             , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_M                , kb_Flip_Horizontal          , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_V                , kb_Flip_Vertical            , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_B                , kb_Toggle_Show_Bar          , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_LEFT_BRACKET     , kb_Cycle_Image_Interpolation, SCREEN_IMAGE, DELAY_MEDIUM), 
+    BIND(KEY_O                , kb_Print_Debug_Info         , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_SPACE            , kb_Move_Image_By_Mouse_Delta, SCREEN_IMAGE, DELAY_INSTANT),
 
 #if ENABLE_SHADERS
-    BIND(KEY_I, kb_Color_Invert_Shader   , DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
-    BIND(KEY_G, kb_Color_Grayscale_Shader, DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_I, kb_Color_Invert_Shader   , SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_G, kb_Color_Grayscale_Shader, SCREEN_IMAGE, DELAY_MEDIUM),
 #else
-    BIND(KEY_I, keybind_colorInvert, DOKO_SCREEN_IMAGE, DELAY_MEDIUM),
+    BIND(KEY_I, keybind_colorInvert, SCREEN_IMAGE, DELAY_MEDIUM),
 #endif
 
 
     // ###########################
     // ##### file list page ######
     // ###########################
-    BIND(KEY_K                            , kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
-    BIND(KEY_J                            , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
-    BIND(KEY_K | SHIFT_MASK               , kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(KEY_J | SHIFT_MASK               , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(KEY_D | CONTROL_MASK             , kb_Next_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_FAST),
-    BIND(KEY_U | CONTROL_MASK             , kb_Prev_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_FAST),
-    BIND(KEY_D | CONTROL_MASK | SHIFT_MASK, kb_Next_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(KEY_U | CONTROL_MASK | SHIFT_MASK, kb_Prev_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(KEY_P | CONTROL_MASK             , kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
-    BIND(KEY_N | CONTROL_MASK             , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_FAST),
-    BIND(KEY_P | CONTROL_MASK | SHIFT_MASK, kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(KEY_N | CONTROL_MASK | SHIFT_MASK, kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BINDX(KEY_G | SHIFT_MASK              , kb_Jump_Image_End  , DOKO_SCREEN_FILE_LIST, KEY_LIMIT, DELAY_MEDIUM),
-    BINDX(KEY_G                           , kb_Jump_Image_Start, DOKO_SCREEN_FILE_LIST, KEY_LIMIT, DELAY_MEDIUM),
-    BIND(KEY_ENTER                        ,kb_Goto_Image_Screen, DOKO_SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_K                            , kb_Prev_Image      , SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_J                            , kb_Next_Image      , SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_K | SHIFT_MASK               , kb_Prev_Image      , SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_J | SHIFT_MASK               , kb_Next_Image      , SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_D | CONTROL_MASK             , kb_Next_Image_By_10, SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_U | CONTROL_MASK             , kb_Prev_Image_By_10, SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_D | CONTROL_MASK | SHIFT_MASK, kb_Next_Image_By_10, SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_U | CONTROL_MASK | SHIFT_MASK, kb_Prev_Image_By_10, SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_P | CONTROL_MASK             , kb_Prev_Image      , SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_N | CONTROL_MASK             , kb_Next_Image      , SCREEN_FILE_LIST, DELAY_FAST),
+    BIND(KEY_P | CONTROL_MASK | SHIFT_MASK, kb_Prev_Image      , SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(KEY_N | CONTROL_MASK | SHIFT_MASK, kb_Next_Image      , SCREEN_FILE_LIST, DELAY_INSTANT),
+    BINDX(KEY_G | SHIFT_MASK              , kb_Jump_Image_End  , SCREEN_FILE_LIST, KEY_LIMIT, DELAY_MEDIUM),
+    BINDX(KEY_G                           , kb_Jump_Image_Start, SCREEN_FILE_LIST, KEY_LIMIT, DELAY_MEDIUM),
+    BIND(KEY_ENTER                        ,kb_Goto_Image_Screen, SCREEN_FILE_LIST, DELAY_FAST),
 
 
     // ###########################
     // ##### thumbs    page ######
     // ###########################
-    // BIND(KEY_K, kb_Scroll_Thumb_Page_Up  , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
-    // BIND(KEY_J, kb_Scroll_Thumb_Page_Down, DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
-    BIND(KEY_K,         kb_Thumb_Page_Up       , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
-    BIND(KEY_J,         kb_Thumb_Page_Down     , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
-    BIND(KEY_H,         kb_Thumb_Page_Left     , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
-    BIND(KEY_L,         kb_Thumb_Page_Right    , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
-    BIND(KEY_ENTER,     kb_Goto_Image_Screen   , DOKO_SCREEN_THUMB_GRID, DELAY_FAST),
+    // BIND(KEY_K, kb_Scroll_Thumb_Page_Up  , SCREEN_THUMB_GRID, DELAY_FAST),
+    // BIND(KEY_J, kb_Scroll_Thumb_Page_Down, SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_K,         kb_Thumb_Page_Up       , SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_J,         kb_Thumb_Page_Down     , SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_H,         kb_Thumb_Page_Left     , SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_L,         kb_Thumb_Page_Right    , SCREEN_THUMB_GRID, DELAY_FAST),
+    BIND(KEY_ENTER,     kb_Goto_Image_Screen   , SCREEN_THUMB_GRID, DELAY_FAST),
 
     // ###########################
     // ##### keybind   page ######
     // ###########################
-    BIND(KEY_K, kb_Scroll_Keybind_List_Up               , DOKO_SCREEN_KEYBINDS, DELAY_VFAST),
-    BIND(KEY_J, kb_Scroll_Keybind_List_Down             , DOKO_SCREEN_KEYBINDS, DELAY_VFAST),
-    BIND(KEY_K | SHIFT_MASK, kb_Scroll_Keybind_List_Up  , DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
-    BIND(KEY_J | SHIFT_MASK, kb_Scroll_Keybind_List_Down, DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
+    BIND(KEY_K, kb_Scroll_Keybind_List_Up               , SCREEN_KEYBINDS, DELAY_VFAST),
+    BIND(KEY_J, kb_Scroll_Keybind_List_Down             , SCREEN_KEYBINDS, DELAY_VFAST),
+    BIND(KEY_K | SHIFT_MASK, kb_Scroll_Keybind_List_Up  , SCREEN_KEYBINDS, DELAY_INSTANT),
+    BIND(KEY_J | SHIFT_MASK, kb_Scroll_Keybind_List_Down, SCREEN_KEYBINDS, DELAY_INSTANT),
 };
 
 // define mouse input mappings
 InputMapping mousebinds[] = {
-    BIND(MOUSE_WHEEL_FWD             , kb_Zoom_In_Mouse_Position   , DOKO_SCREEN_IMAGE, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_BWD             , kb_Zoom_Out_Mouse_Position  , DOKO_SCREEN_IMAGE, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Next_Image               , DOKO_SCREEN_IMAGE, DELAY_VFAST),
-    BIND(MOUSE_WHEEL_BWD | SHIFT_MASK, kb_Prev_Image               , DOKO_SCREEN_IMAGE, DELAY_VFAST),
-    BIND(MOUSE_BUTTON_LEFT           , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
-    BIND(MOUSE_BUTTON_RIGHT          , kb_Move_Image_By_Mouse_Delta, DOKO_SCREEN_IMAGE, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD             , kb_Zoom_In_Mouse_Position   , SCREEN_IMAGE, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD             , kb_Zoom_Out_Mouse_Position  , SCREEN_IMAGE, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Next_Image               , SCREEN_IMAGE, DELAY_VFAST),
+    BIND(MOUSE_WHEEL_BWD | SHIFT_MASK, kb_Prev_Image               , SCREEN_IMAGE, DELAY_VFAST),
+    BIND(MOUSE_BUTTON_LEFT           , kb_Move_Image_By_Mouse_Delta, SCREEN_IMAGE, DELAY_INSTANT),
+    BIND(MOUSE_BUTTON_RIGHT          , kb_Move_Image_By_Mouse_Delta, SCREEN_IMAGE, DELAY_INSTANT),
 
-    BIND(MOUSE_WHEEL_FWD             , kb_Prev_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_BWD             , kb_Next_Image      , DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Prev_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_BWD | SHIFT_MASK, kb_Next_Image_By_10, DOKO_SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD             , kb_Prev_Image      , SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD             , kb_Next_Image      , SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Prev_Image_By_10, SCREEN_FILE_LIST, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD | SHIFT_MASK, kb_Next_Image_By_10, SCREEN_FILE_LIST, DELAY_INSTANT),
 
-    BIND(MOUSE_WHEEL_FWD             , kb_Scroll_Keybind_List_Up  , DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_BWD             , kb_Scroll_Keybind_List_Down, DOKO_SCREEN_KEYBINDS, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD             , kb_Scroll_Keybind_List_Up  , SCREEN_KEYBINDS, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD             , kb_Scroll_Keybind_List_Down, SCREEN_KEYBINDS, DELAY_INSTANT),
 
-    BIND(MOUSE_WHEEL_FWD, kb_Scroll_Thumb_Page_Up  , DOKO_SCREEN_THUMB_GRID, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_BWD, kb_Scroll_Thumb_Page_Down, DOKO_SCREEN_THUMB_GRID, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_FWD, kb_Scroll_Thumb_Page_Up  , SCREEN_THUMB_GRID, DELAY_INSTANT),
+    BIND(MOUSE_WHEEL_BWD, kb_Scroll_Thumb_Page_Down, SCREEN_THUMB_GRID, DELAY_INSTANT),
 };
 
 //////////////////////
@@ -498,7 +498,7 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
 // ##### Define Resources ####
 // ###########################
 
-#ifdef DOKO_BUNDLE
+#ifdef USE_RESOURCE_BUNDLE
     // resource bundle has been created
     // all resources will be compiled into the binary
     // ensure their name is correct
@@ -508,7 +508,7 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
     #define RESOURCE_PATH "../"
 #else
     // the directory which contains the 'resources' folder
-    // when doing `make install` this is set to `/opt/doko/`
+    // when doing `make install` this is set to `/opt/immy/`
     // important that this always ends with a / when not empty
     #ifndef RESOURCE_PATH
         #define RESOURCE_PATH ""
@@ -533,7 +533,7 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
 // ###########################
 
 // Determine if imlib can be used
-#if defined(DOKO_USE_IMLIB2) && defined(USE_IMLIB2)
+#if defined(IMLIB_AVAILABLE) && defined(USE_IMLIB2)
     #define IMLIB2_ENABLED
 #endif
 
@@ -560,7 +560,7 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
     #define EXT_HEIF ".heif;"
 #endif
 
-#ifdef DOKO_USE_MAGICK
+#ifdef IMMY_USE_MAGICK
     // with ImageMagick, we assume it can load these exta formats
     #undef EXT_WEBP 
     #undef EXT_JXL  
@@ -574,7 +574,7 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
     #define EXT_HEIF ".heif;"
 #endif
 
-#ifdef DOKO_USE_FFMPEG
+#ifdef IMMY_USE_FFMPEG
     // with FFmpeg, we assume it can load these exta formats
     #undef EXT_WEBP 
     #undef EXT_JXL  
@@ -610,7 +610,7 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
 #define CLI_HELP_l_FLAG "-l <int 1-6> set the log level"
 
 #define CLI_HELP                                                               \
-    "Usage: doko [options] filename/dirname\n"                                 \
+    "Usage: immy [options] filename/dirname\n"                                 \
     "\n"                                                                       \
     "Basic optionsa:"                                                          \
     "\n  " CLI_HELP_f_FLAG "\n  " CLI_HELP_B_FLAG "\n  " CLI_HELP_b_FLAG       \

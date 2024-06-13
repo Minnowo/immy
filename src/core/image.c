@@ -11,24 +11,24 @@
 #include "external/qoi.h" // from raylib
 
 #include "../config.h"
-#include "doko.h"
+#include "core.h"
 
-bool dokoLoadImage(doko_image_t* im) {
+bool immyLoadImage(immy_image_t* im) {
 
     if (im->status == IMAGE_STATUS_LOADED)
         return true;
 
     if (
 #ifdef IMLIB2_ENABLED
-        !(doko_load_with_imlib2(im->path, &im->rayim)) &&
+        !(immy_load_with_imlib2(im->path, &im->rayim)) &&
 #endif
 
-#ifdef DOKO_USE_MAGICK
-        !(doko_load_with_magick_stdout(im->path, &im->rayim)) &&
+#ifdef IMMY_USE_MAGICK
+        !(immy_load_with_magick_stdout(im->path, &im->rayim)) &&
 #endif
 
-#ifdef DOKO_USE_FFMPEG
-        !(doko_load_with_ffmpeg_stdout(im->path, &im->rayim)) &&
+#ifdef IMMY_USE_FFMPEG
+        !(immy_load_with_ffmpeg_stdout(im->path, &im->rayim)) &&
 #endif
         true
         ) {
@@ -55,13 +55,13 @@ bool dokoLoadImage(doko_image_t* im) {
     im->status = IMAGE_STATUS_LOADED;
 
 #if GENERATE_THUMB_WHEN_LOADING_IMAGE
-    dokoGetOrCreateThumb(im);
+    immyGetOrCreateThumb(im);
 #endif
 
     return true;
 }
 
-bool dokoCreateThumbnail(const Image* im, Image* newim, int newW, int newH) {
+bool immyCreateThumbnail(const Image* im, Image* newim, int newW, int newH) {
 
     double ratio;
     bool   result;
@@ -70,13 +70,13 @@ bool dokoCreateThumbnail(const Image* im, Image* newim, int newW, int newH) {
 
         ratio = (double)im->height / im->width;
 
-        result = doko_copy_and_resize_image_nn(im, newim, newW, ratio * newH);
+        result = immy_copy_and_resize_image_nn(im, newim, newW, ratio * newH);
 
     } else {
 
         ratio = (double)im->width / im->height;
 
-        result = doko_copy_and_resize_image_nn(im, newim, ratio * newW, newH);
+        result = immy_copy_and_resize_image_nn(im, newim, ratio * newW, newH);
     }
 
     if (!result)
@@ -86,7 +86,7 @@ bool dokoCreateThumbnail(const Image* im, Image* newim, int newW, int newH) {
 }
 
 // edited from the raylib ImageResizeNN function
-bool doko_copy_and_resize_image_nn(
+bool immy_copy_and_resize_image_nn(
     const Image* im, Image* newim, int newW, int newH
 ) {
     // Security check to avoid program crash
@@ -133,19 +133,19 @@ bool doko_copy_and_resize_image_nn(
     return true;
 }
 
-bool dokoGetOrCreateThumb(doko_image_t* im) {
+bool immyGetOrCreateThumb(immy_image_t* im) {
 
-    return dokoGetOrCreateThumbEx(im, false);
+    return immyGetOrCreateThumbEx(im, false);
 }
 
-bool dokoGetOrCreateThumbEx(doko_image_t* im, bool createOnly) {
+bool immyGetOrCreateThumbEx(immy_image_t* im, bool createOnly) {
 
     if (im->thumb_status == IMAGE_STATUS_LOADED)
         return true;
 
 #if !SHOULD_CACHE_THUMBNAILS
 
-    if(dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
+    if(immyCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
 
         im->thumb_status = IMAGE_STATUS_LOADED;
 
@@ -159,12 +159,12 @@ bool dokoGetOrCreateThumbEx(doko_image_t* im, bool createOnly) {
     // we can just create a thumbnail.
     if(im->status == IMAGE_STATUS_LOADED) {
 
-        if (dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
+        if (immyCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
 
             im->thumb_status = IMAGE_STATUS_LOADED;
 
 #if UPDATE_CACHE_IF_IMAGE_LOADED
-            dokoSaveThumbnail(im);
+            immySaveThumbnail(im);
 #endif
             return true;
         }
@@ -174,7 +174,7 @@ bool dokoGetOrCreateThumbEx(doko_image_t* im, bool createOnly) {
         return false;
     }
 
-    char* thumbPath = dokoGetCachedPath(im->path);
+    char* thumbPath = immyGetCachedPath(im->path);
 
     L_D("Trying to read thumb from: %s", thumbPath);
 
@@ -190,7 +190,7 @@ bool dokoGetOrCreateThumbEx(doko_image_t* im, bool createOnly) {
 
         if (im->status != IMAGE_STATUS_LOADED) {
             FALLTHROUGH;
-        } else if (!dokoCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
+        } else if (!immyCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
             FALLTHROUGH;
         } else {
 
@@ -198,7 +198,7 @@ bool dokoGetOrCreateThumbEx(doko_image_t* im, bool createOnly) {
 
             im->thumb_status = IMAGE_STATUS_LOADED;
 
-            dokoSaveThumbnailAt(im, thumbPath);
+            immySaveThumbnailAt(im, thumbPath);
         }
 
         free(thumbPath);
@@ -227,7 +227,7 @@ bool dokoGetOrCreateThumbEx(doko_image_t* im, bool createOnly) {
 #endif
 }
 
-bool dokoSaveQOI(Image image, const char* path) {
+bool immySaveQOI(Image image, const char* path) {
 
     unsigned char* pixels = image.data;
 
@@ -263,7 +263,7 @@ bool dokoSaveQOI(Image image, const char* path) {
     return result;
 }
 
-bool dokoSaveThumbnailAt(const doko_image_t* im, const char* path) {
+bool immySaveThumbnailAt(const immy_image_t* im, const char* path) {
 
     if (im->thumb_status != IMAGE_STATUS_LOADED)
         return false;
@@ -287,26 +287,26 @@ bool dokoSaveThumbnailAt(const doko_image_t* im, const char* path) {
 
     bool r = false;
 
-    if (dokoCreateDirectory(path)) {
+    if (immyCreateDirectory(path)) {
 
         L_I("%s: saving thumbnail to %s", __func__, path);
 
-        r = dokoSaveQOI(im->thumb, path);
+        r = immySaveQOI(im->thumb, path);
     }
 
     return r;
 }
 
-bool dokoSaveThumbnail(const doko_image_t* im) {
+bool immySaveThumbnail(const immy_image_t* im) {
 
     if(im->thumb_status != IMAGE_STATUS_LOADED)
         return false;
 
-    char* cachedPath = dokoGetCachedPath(im->path);
+    char* cachedPath = immyGetCachedPath(im->path);
 
     DIE_IF_NULL(cachedPath, "%s: Cannot get cache path: %s", __func__, strerror(errno));
 
-    bool r = dokoSaveThumbnailAt(im, cachedPath);
+    bool r = immySaveThumbnailAt(im, cachedPath);
 
     free(cachedPath);
 
@@ -314,7 +314,7 @@ bool dokoSaveThumbnail(const doko_image_t* im) {
 }
 
 
-void doko_dither_image(doko_image_t* im) {
+void immy_dither_image(immy_image_t* im) {
 
     if (im->status != IMAGE_STATUS_LOADED)
         return;

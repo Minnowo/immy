@@ -2,9 +2,9 @@
 #include <raylib.h>
 #include <unistd.h>
 
-#include "doko.h"
+#include "core.h"
 
-bool doko_load_with_imlib2(const char* path, Image* im) {
+bool immy_load_with_imlib2(const char* path, Image* im) {
 
 #if !defined(__unix__) || !defined(IMLIB2_ENABLED)
 

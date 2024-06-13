@@ -21,21 +21,21 @@
 #undef ZOOM_LEVELS_IMPLEMENTATION
 
 #include "darray.h"
-#include "doko/doko.h"
+#include "core/core.h"
 #include "ui/ui.h"
 
-struct doko_control this;
+struct immy_control this;
 
 static inline void sort_file_list(FilePathList fpl) {
 
     switch (this.filename_cmp) {
 
     case SORT_ORDER__DEFAULT:
-        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), dokoQsortStrcmp);
+        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), immyQsortStrcmp);
         break;
 
     case SORT_ORDER__NATURAL:
-        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), dokoQsortNatstrcmp);
+        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), immyQsortNatstrcmp);
         break;
     }
 }
@@ -43,10 +43,10 @@ static inline void sort_file_list(FilePathList fpl) {
 
 void add_file(const char* path_) {
 
-    int imIndex = doko_add_image(&this, path_);
+    int imIndex = immy_add_image(&this, path_);
 
     if (imIndex == 0) {
-        doko_set_image(&this, 0);
+        immy_set_image(&this, 0);
     }
 }
 
@@ -76,7 +76,7 @@ void do_mouse_input() {
         if (
 
             (this.screen != mousebinds[i].screen && 
-             mousebinds[i].screen != DOKO_SCREEN__ALL) ||
+             mousebinds[i].screen != SCREEN_ALL) ||
 
             (c != HAS_CTRL(mousebinds[i].key)) ||
             (s != HAS_SHIFT(mousebinds[i].key)) ||
@@ -116,7 +116,7 @@ void do_keyboard_input() {
         // clang-format off
         if (
             (this.screen != keybinds[i].screen &&
-             keybinds[i].screen != DOKO_SCREEN__ALL) ||
+             keybinds[i].screen != SCREEN_ALL) ||
 
             (time - keybinds[i].lastPressedTime < keybinds[i].keyTriggerRate) ||
 
@@ -143,7 +143,7 @@ void do_keyboard_input() {
 
 // returns the number of arguments to skip
 int handle_flags(
-    doko_config_t* config, const char* flag_str, const char* flag_value
+    immy_config_t* config, const char* flag_str, const char* flag_value
 ) {
 
     size_t flen = strlen(flag_str);
@@ -246,7 +246,7 @@ int handle_flags(
     return 0;
 }
 
-void handle_start_args(doko_config_t* config, int argc, char* argv[]) {
+void handle_start_args(immy_config_t* config, int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
 
@@ -311,7 +311,7 @@ void detach_from_terminal() {
 int main(int argc, char* argv[]) {
 
     // repalce raylib logging with our own
-	SetTraceLogCallback(doko_raylib_log);
+	SetTraceLogCallback(immy_raylib_log);
 
     memset(&this, 0, sizeof(this));
 
@@ -346,7 +346,7 @@ int main(int argc, char* argv[]) {
     // we want to load the image before we lose the terminal
     // so that scripts know we have the image and can remove it
     if (this.selected_image != NULL)
-        dokoLoadImage(this.selected_image);
+        immyLoadImage(this.selected_image);
 
     if (!this.config.terminal)
         detach_from_terminal();
@@ -406,23 +406,23 @@ int main(int argc, char* argv[]) {
 
             switch (this.screen) {
 
-            case DOKO_SCREEN__ALL:
+            case SCREEN_ALL:
                 break;
 
-            case DOKO_SCREEN_KEYBINDS:
+            case SCREEN_KEYBINDS:
 
                 uiRenderKeybinds(&this);
                 break;
 
-            case DOKO_SCREEN_FILE_LIST:
+            case SCREEN_FILE_LIST:
                 uiRenderFileList(&this);
                 break;
 
-            case DOKO_SCREEN_THUMB_GRID:
+            case SCREEN_THUMB_GRID:
                 uiRenderThumbs(&this);
                 break;
 
-            case DOKO_SCREEN_IMAGE:
+            case SCREEN_IMAGE:
 
                 if (this.selected_image == NULL) {
                     uiRenderTextOnInfoBar(
@@ -471,7 +471,7 @@ int main(int argc, char* argv[]) {
 
     DARRAY_FOR_EACH(this.image_files, i) {
 
-        doko_image_t im = this.image_files.buffer[i];
+        immy_image_t im = this.image_files.buffer[i];
 
         if (im.status == IMAGE_STATUS_LOADED) {
             UnloadImage(im.rayim);

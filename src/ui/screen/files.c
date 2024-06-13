@@ -8,13 +8,13 @@
 #include "../ui.h"
 #include "../../config.h"
 #include "../../darray.h"
-#include "../../doko/doko.h"
+#include "../../core/core.h"
 
 #define BOTTOM_MARGIN 1
 
 
 
-void uiRenderFileList(const doko_control_t* ctrl) {
+void uiRenderFileList(const immy_control_t* ctrl) {
 
     const int sw = GetScreenWidth();
     const int sh = GetScreenHeight() - g_unifontSize;
@@ -42,7 +42,7 @@ void uiRenderFileList(const doko_control_t* ctrl) {
 
     DARRAY_FOR_I(ctrl->image_files, i, startIndex + scrollOffset * 2) {
 
-        doko_image_t* im = ctrl->image_files.buffer + i;
+        immy_image_t* im = ctrl->image_files.buffer + i;
 
         int y = startY + g_unifontSize * (i - startIndex);
 

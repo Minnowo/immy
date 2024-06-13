@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../../doko/doko.h"
+#include "../../core/core.h"
 #include "../ui.h"
 
-void uiRenderKeybinds(const doko_control_t* ctrl) {
+void uiRenderKeybinds(const immy_control_t* ctrl) {
 
     const size_t SCROLL_COUNT = KEYBIND_COUNT + MOUSEBIND_COUNT;
     const int    sw           = GetScreenWidth();

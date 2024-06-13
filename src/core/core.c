@@ -7,14 +7,14 @@
 
 #include "../config.h"
 #include "../darray.h"
-#include "doko.h"
+#include "core.h"
 
 log_level_t log_level      = LOG_LEVEL;
 char*       thumbCachePath = NULL;
 
-int doko_add_image(doko_control_t* ctrl, const char* path_) {
+int immy_add_image(immy_control_t* ctrl, const char* path_) {
 
-    char* path = dokoStrdup(path_);
+    char* path = immyStrdup(path_);
 
     if (!path) {
 
@@ -27,7 +27,7 @@ int doko_add_image(doko_control_t* ctrl, const char* path_) {
 
     const char* name = GetFileName(path);
 
-    doko_image_t i = {
+    immy_image_t i = {
         .path        = path,
         .name        = name,
         .rayim       = {0},
@@ -46,7 +46,7 @@ int doko_add_image(doko_control_t* ctrl, const char* path_) {
     return newImageIndex;
 }
 
-void doko_set_image(doko_control_t* ctrl, size_t index) {
+void immy_set_image(immy_control_t* ctrl, size_t index) {
 
     if (index >= ctrl->image_files.size) {
 
@@ -60,7 +60,7 @@ void doko_set_image(doko_control_t* ctrl, size_t index) {
     ctrl->renderFrames   = RENDER_FRAMES;
 }
 
-void doko_raylib_log(int msgType, const char* fmt, va_list ap) {
+void immy_raylib_log(int msgType, const char* fmt, va_list ap) {
 
     if (log_level == __LOG_LEVEL_NOTHING)
         return;
@@ -138,7 +138,7 @@ void doko_raylib_log(int msgType, const char* fmt, va_list ap) {
     }
 }
 
-void doko_log(log_level_t level, FILE* stream, const char* fmt, ...) {
+void immy_log(log_level_t level, FILE* stream, const char* fmt, ...) {
 
     if (log_level == __LOG_LEVEL_NOTHING)
         return;

@@ -1,6 +1,6 @@
 
-#ifndef DOKO_RESOURCES_H
-#define DOKO_RESOURCES_H
+#ifndef IMMY_RESOURCES_H
+#define IMMY_RESOURCES_H
 
 #include <stdlib.h>
 

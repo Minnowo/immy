@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "../darray.h"
-#include "../doko/doko.h"
+#include "../core/core.h"
 #include "../resources.h"
 #include "ui.h"
 
@@ -27,7 +27,7 @@ int    grayscaleShaderValueLocation = 0;
 
 #endif
 
-void uiInit(doko_config_t* config) {
+void uiInit(immy_config_t* config) {
 
     InitWindow(config->window_width, 
                config->window_height, 
@@ -163,11 +163,11 @@ void uiLoadCodepoints(const char* text, bool reload) {
     }
 }
 
-void uiLoadCodepointsFromFileList(const doko_control_t* ctrl) {
+void uiLoadCodepointsFromFileList(const immy_control_t* ctrl) {
 
     DARRAY_FOR_EACH(ctrl->image_files, i) {
 
-        doko_image_t* im = ctrl->image_files.buffer + i;
+        immy_image_t* im = ctrl->image_files.buffer + i;
 
         uiLoadCodepoints(im->path, false);
     }

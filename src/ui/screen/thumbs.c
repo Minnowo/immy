@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "../../darray.h"
-#include "../../doko/doko.h"
+#include "../../core/core.h"
 #include "../ui.h"
 
 static Texture2D_dynamic_arr_t thumbBufs;
@@ -13,9 +13,9 @@ static Texture2D_dynamic_arr_t thumbBufs;
 #if ASYNC_IMAGE_LOADING
 
 static int           thumbsLoading = 0;                             // number of thumbs loading
-static doko_image_t* loadingThumbs[THUMB_ASYNC_LOAD_AMOUNT] = {0 }; // loading thumbs
+static immy_image_t* loadingThumbs[THUMB_ASYNC_LOAD_AMOUNT] = {0 }; // loading thumbs
 
-static inline int getThumbLoadingIndex(doko_image_t* im) {
+static inline int getThumbLoadingIndex(immy_image_t* im) {
 
     for (int i = 0; i < THUMB_ASYNC_LOAD_AMOUNT; i++)
 
@@ -26,7 +26,7 @@ static inline int getThumbLoadingIndex(doko_image_t* im) {
     return -1;
 }
 
-static inline void handleThumbLoad(doko_image_t* im) {
+static inline void handleThumbLoad(immy_image_t* im) {
 
     switch (im->status) {
 
@@ -58,7 +58,7 @@ static inline void handleThumbLoad(doko_image_t* im) {
             return;
 
         // create a thumbnail
-        dokoGetOrCreateThumbEx(im, true);
+        immyGetOrCreateThumbEx(im, true);
 
         // if this is false, the user tried to access
         // the image while it was loading for a thumb.
@@ -85,7 +85,7 @@ static inline void handleThumbLoad(doko_image_t* im) {
         if(loadingThumbs[i] != NULL)
             continue;
 
-        if (doko_async_load_image(im)) {
+        if (immy_async_load_image(im)) {
 
             im->status = IMAGE_STATUS_LOADING;
             im->isLoadingForThumbOnly = true;
@@ -111,7 +111,7 @@ void uiThumbPageClearState() {
 }
 
 
-void uiRenderThumbs(const doko_control_t* ctrl) {
+void uiRenderThumbs(const immy_control_t* ctrl) {
 
     const int sw = GetScreenWidth();
     const int sh = GetScreenHeight();
@@ -144,12 +144,12 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
         if(row >= rows)
             continue;
 
-        doko_image_t* dim = ctrl->image_files.buffer + i;
+        immy_image_t* dim = ctrl->image_files.buffer + i;
 
 #if ASYNC_IMAGE_LOADING
         if (dim->status == IMAGE_STATUS_LOADING) {
 
-            if (!doko_async_get_image(dim))
+            if (!immy_async_get_image(dim))
                 continue;
 
             if (dim->status == IMAGE_STATUS_LOADED)
@@ -167,10 +167,10 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
 #else
             if (!syncLoadedThumb &&
                 ctrl->frame % (int)SYNC_IMAGE_LOADING_THUMB_INTERVAL == 0 &&
-                dim->status == IMAGE_STATUS_NOT_LOADED && dokoLoadImage(dim)) {
+                dim->status == IMAGE_STATUS_NOT_LOADED && immyLoadImage(dim)) {
 
                 syncLoadedThumb = true;
-                dokoGetOrCreateThumbEx(dim, true);
+                immyGetOrCreateThumbEx(dim, true);
 
                 dim->status = IMAGE_STATUS_NOT_LOADED;
                 UnloadImage(dim->rayim);
@@ -182,7 +182,7 @@ void uiRenderThumbs(const doko_control_t* ctrl) {
 
         if (dim->thumb_status != IMAGE_STATUS_LOADED) {
 
-            if (!dokoGetOrCreateThumb(dim)) {
+            if (!immyGetOrCreateThumb(dim)) {
 
                 dim->thumb_status = IMAGE_STATUS_FAILED;
 

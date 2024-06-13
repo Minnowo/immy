@@ -13,16 +13,16 @@
 #include "../config.h"
 #include "../darray.h"
 #include "../external/strnatcmp.h"
-#include "doko.h"
+#include "core.h"
 
 
 #ifdef __unix__
 
 
-bool doko_load_with_magick_stdout(const char* path, Image* im) {
+bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
 
-    L_I("About to read image using ImageMagick Convert");
-    L_D("%s: Convert decode format is " MAGICK_CONVERT_MIDDLE_FMT, __func__);
+    L_I("About to read image using FFMPEG");
+    L_D("%s: decode format is " FFMPEG_CONVERT_MIDDLE_FMT, __func__);
 
     int pipefd[2];
 
@@ -47,8 +47,8 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
 
         if (dup2(pipefd[PIPE_WRITE], STDOUT_FILENO) < 0) {
 
-            L_C("%s (child): Could not open "
-                "write end of pipe as stdout: %s",
+            L_C("%s (child): Could not open write end of pipe "
+                "as stdout: %s",
                 __func__, strerror(errno));
 
             exit(EXIT_FAILURE);
@@ -58,40 +58,24 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
 
         close(pipefd[PIPE_READ]);
 
-        size_t n;
-        char*  new_path = dokoStrdupn(path, 3, &n);
-
-        if (new_path == NULL) {
-
-            L_C("%s (child): Could not dup str: %s", __func__, strerror(errno));
-
-            exit(EXIT_FAILURE);
-
-            return false;
-        }
-
-        // to tell imagemagick we want the first image only
-        // we have to append [0] to the end of the path
-        new_path[n - 1] = ']';
-        new_path[n - 2] = '0';
-        new_path[n - 3] = '[';
-
         // clang-format off
         int ret = execlp(
-            "convert", 
-            "convert", 
-            "-quiet", 
-            new_path,
-            MAGICK_CONVERT_MIDDLE_FMT ":-", 
+            "ffmpeg", 
+            "ffmpeg", 
+            "-v", FFMPEG_VERBOSITY, 
+            "-nostdin",
+            "-hide_banner", 
+            "-i", path, 
+            "-c:v", FFMPEG_CONVERT_MIDDLE_FMT, 
+            "-f", "image2pipe", 
+            "-", 
             NULL
         );
         // clang-format on
 
-        free(new_path);
-
         if (ret < 0) {
 
-            L_C("%s: execlp failed: %s", __func__, strerror(errno));
+            L_C("%s (child): execlp failed: %s", __func__, strerror(errno));
 
             exit(EXIT_FAILURE);
         }
@@ -125,7 +109,6 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
         }
 
     }
-
     L_I("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
 
     wait(NULL);
@@ -134,7 +117,7 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
     if (data.size > 0) {
 
         *im = LoadImageFromMemory(
-            "." MAGICK_CONVERT_MIDDLE_FMT, data.buffer, data.size
+            "." FFMPEG_CONVERT_MIDDLE_FMT, data.buffer, data.size
         );
     }
 
@@ -143,10 +126,12 @@ bool doko_load_with_magick_stdout(const char* path, Image* im) {
     return im->data != NULL;
 }
 
-#else
+
+#else 
 
 
-bool doko_load_with_magick_stdout(const char* path, Image* im) {
+
+bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
     return 0;
 }
 

@@ -10,11 +10,11 @@
 #include "../external/sha256.h"
 #include "../external/strnatcmp.h"
 #include "../config.h"
-#include "doko.h"
+#include "core.h"
 
 
 
-int dokoQsortStrcmp(const void* a, const void* b) {
+int immyQsortStrcmp(const void* a, const void* b) {
 
     char const* pa = *(char const**)a;
     char const* pb = *(char const**)b;
@@ -22,7 +22,7 @@ int dokoQsortStrcmp(const void* a, const void* b) {
     return strcmp(pa, pb);
 }
 
-int dokoQsortNatstrcmp(const void* a, const void* b) {
+int immyQsortNatstrcmp(const void* a, const void* b) {
 
     char const* pa = *(char const**)a;
     char const* pb = *(char const**)b;
@@ -30,7 +30,7 @@ int dokoQsortNatstrcmp(const void* a, const void* b) {
     return strnatcmp(pa, pb);
 }
 
-char* dokoStrdupn(const char* str, size_t n, size_t* len_) {
+char* immyStrdupn(const char* str, size_t n, size_t* len_) {
 
     const size_t len = strlen(str);
 
@@ -48,40 +48,40 @@ char* dokoStrdupn(const char* str, size_t n, size_t* len_) {
     return newstr;
 }
 
-char* dokoStrdup(const char* str) {
+char* immyStrdup(const char* str) {
 
 #ifdef _POSIX_C_SOURCE
 
     return strdup(str);
 #else
 
-    return dokoStrdupn(str, 0, NULL);
+    return immyStrdupn(str, 0, NULL);
 
 #endif
 }
 
-char* dokoEstrdup(const char* str) {
+char* immyEstrdup(const char* str) {
 
-    char* newstr = dokoStrdup(str);
+    char* newstr = immyStrdup(str);
 
     DIE_IF_NULL(newstr, "%s: strdup was null: %s", __func__, strerror(errno));
 
     return newstr;
 }
 
-char* dokoStrJoin(const char* a, const char* b, const char* sep) {
+char* immyStrJoin(const char* a, const char* b, const char* sep) {
 
     size_t len = strlen(a) + strlen(b) + strlen(sep) + 1;
 
     char* newstr = malloc(len);
 
-    if (!dokoStrJoinInto(newstr, len, a, b, sep))
+    if (!immyStrJoinInto(newstr, len, a, b, sep))
         return NULL;
 
     return newstr;
 }
 
-bool dokoStrJoinInto(
+bool immyStrJoinInto(
     char* restrict buf, 
     size_t bufSize, 
     const char* a, 
@@ -97,7 +97,7 @@ bool dokoStrJoinInto(
     return true;
 }
 
-const char* dokoGetCacheDirectory() {
+const char* immyGetCacheDirectory() {
 
 #if OVERRIDE_THUMBNAIL_CACHE_PATH
 
@@ -116,15 +116,15 @@ const char* dokoGetCacheDirectory() {
 #endif
 }
 
-char* dokoGetCachedPath(const char* path) {
+char* immyGetCachedPath(const char* path) {
 
-    char buf[DOKO_PATH_MAX + 1];
+    char buf[IMMY_PATH_MAX + 1];
 
     char* ptr = realpath(path, buf);
 
     // hash the absolute path for a 'unique' 
     // short name for the cache
-    // we know DOKO_PATH_MAX can ALWAYS fit sha256 has bytes * 3
+    // we know IMMY_PATH_MAX can ALWAYS fit sha256 has bytes * 3
     SHA256_CTX sha256;
     sha256_init(&sha256);
     sha256_update(&sha256, (BYTE*)ptr, strlen(ptr));
@@ -140,17 +140,17 @@ char* dokoGetCachedPath(const char* path) {
 
     ptr[64] = 0;
 
-    const char* cacheDir = dokoGetCacheDirectory();
+    const char* cacheDir = immyGetCacheDirectory();
 
-    char* cachedPath = dokoStrJoin( cacheDir, ptr, THUMBNAIL_CACHE_PATH);
+    char* cachedPath = immyStrJoin( cacheDir, ptr, THUMBNAIL_CACHE_PATH);
 
     return cachedPath;
 }
 
 
-bool dokoCreateDirectory(const char* path_){
+bool immyCreateDirectory(const char* path_){
 
-    char* path = dokoEstrdup(path_);
+    char* path = immyEstrdup(path_);
     char* s    = path;
     bool  r    = true;
 

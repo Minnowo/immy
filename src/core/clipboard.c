@@ -11,13 +11,13 @@
 
 #include "../config.h"
 #include "../external/strnatcmp.h"
-#include "doko.h"
+#include "core.h"
 
 // TODO: fix this
 
 #ifdef __unix__
 
-int doko_paste_image_from_clipboard_x11(doko_control_t* ctrl) {
+int immy_paste_image_from_clipboard_x11(immy_control_t* ctrl) {
 
     L_I("%s: Pasting image", __func__);
 
@@ -33,10 +33,10 @@ int doko_paste_image_from_clipboard_x11(doko_control_t* ctrl) {
     L_I("%s: Clipboard data saved to " X11_PASTE_COMMAND_OUTPUT_FILE, __func__);
 
     // add the image to the control
-    return doko_add_image(ctrl, X11_PASTE_COMMAND_OUTPUT_FILE);
+    return immy_add_image(ctrl, X11_PASTE_COMMAND_OUTPUT_FILE);
 }
 
-bool doko_copy_image_to_clipboard_x11(doko_image_t* im) {
+bool immy_copy_image_to_clipboard_x11(immy_image_t* im) {
 
     L_I("%s: Copying image: %d x %d", __func__, im->rayim.width,
         im->rayim.height);
@@ -76,19 +76,19 @@ bool doko_copy_image_to_clipboard_x11(doko_image_t* im) {
     return true;
 }
 
-int doko_paste_image_from_clipboard(doko_control_t* ctrl) {
+int immy_paste_image_from_clipboard(immy_control_t* ctrl) {
 
-    return doko_paste_image_from_clipboard_x11(ctrl);
+    return immy_paste_image_from_clipboard_x11(ctrl);
 }
 
-bool doko_copy_image_to_clipboard(doko_image_t* im) {
+bool immy_copy_image_to_clipboard(immy_image_t* im) {
 
-    return doko_copy_image_to_clipboard_x11(im);
+    return immy_copy_image_to_clipboard_x11(im);
 }
 
 #else
 
-bool doko_copy_image_to_clipboard(doko_image_t* im) {
+bool immy_copy_image_to_clipboard(immy_image_t* im) {
 
     return false;
 }

@@ -7,7 +7,7 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 
-project(doko 
+project(immy
     VERSION 1.0 
     LANGUAGES C
 )
@@ -44,16 +44,16 @@ message(STATUS "Packaging Resources: ${PACKAGE_RESOURCES}")
 add_executable(${PROJECT_NAME} 
     src/config.h
     src/main.c
-    src/doko/doko.h
-    src/doko/doko.c
-    src/doko/doko_async.c
-    src/doko/image.c
-    src/doko/str.c
-    src/doko/tostring.c
-    src/doko/ffmpeg.c
-    src/doko/imagemagick.c
-    src/doko/imlib.c
-    src/doko/clipboard.c
+    src/core/core.h
+    src/core/core.c
+    src/core/image_async.c
+    src/core/image.c
+    src/core/str.c
+    src/core/tostring.c
+    src/core/ffmpeg.c
+    src/core/imagemagick.c
+    src/core/imlib.c
+    src/core/clipboard.c
     src/input.c
     src/input.h
     src/resources.c
@@ -96,7 +96,7 @@ if(PACKAGE_RESOURCES)
     )
 
     # define the macro which says to use the bundle header
-    target_compile_definitions(${PROJECT_NAME} PRIVATE DOKO_BUNDLE)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE USE_RESOURCE_BUNDLE)
 
 else()
 
@@ -175,7 +175,7 @@ if(IMLIB)
 
     # add imlib2
     target_link_libraries(${PROJECT_NAME} PUBLIC Imlib2)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE DOKO_USE_IMLIB2)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE IMLIB_AVAILABLE)
 
 else()
     message(STATUS "Imlib2 not found, proceeding without it")

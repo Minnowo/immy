@@ -1,4 +1,3 @@
-# Makefile for doko project
 
 .PHONY: all build build_debug
 
@@ -6,7 +5,7 @@ SOURCE_DIR       := $(abspath .)
 BUILD_DIR        := build
 CMAKE_BUILD_TYPE := Release
 
-NAME       := doko
+NAME       := immy
 NAME_ALT   := im
 TARGET     := ${BUILD_DIR}/$(NAME)
 
@@ -21,20 +20,19 @@ build:
 	make -C  $(BUILD_DIR)
 
 install: uninstall
-	mkdir -p           /opt/$(NAME)
-	cp    -f $(TARGET) /opt/$(NAME)/$(NAME)
-	chmod 755          /opt/$(NAME)/$(NAME)
+	mkdir -p             "/opt/$(NAME)"
+	cp    -f "$(TARGET)" "/opt/$(NAME)/$(NAME)"
+	chmod 755            "/opt/$(NAME)/$(NAME)"
+	rm -f "/usr/bin/$(NAME)"
+	ln    "/opt/$(NAME)/$(NAME)" "/usr/bin/$(NAME)"
+	ln    "/opt/$(NAME)/$(NAME)" "/usr/bin/$(NAME_ALT)"
 
-	rm -f                   /usr/bin/$(NAME)
-	ln    /opt/$(NAME)/$(NAME) /usr/bin/$(NAME)
-	ln    /opt/$(NAME)/$(NAME) /usr/bin/$(NAME_ALT)
-
-	desktop-file-install    --dir=/usr/share/applications/ ./resources/doko.desktop
+	desktop-file-install    --dir=/usr/share/applications/ ./resources/immy.desktop
 	update-desktop-database       /usr/share/applications/
 
 uninstall:
-	rm -f /usr/bin/$(NAME)
-	rm -f /usr/bin/$(NAME_ALT)
-	rm -f /opt/$(NAME)/$(NAME)
-	rm -f /usr/share/applications/doko.desktop
+	rm -f "/usr/bin/$(NAME)"
+	rm -f "/usr/bin/$(NAME_ALT)"
+	rm -f "/opt/$(NAME)/$(NAME)"
+	rm -f "/usr/share/applications/immy.desktop"
 

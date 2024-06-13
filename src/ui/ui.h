@@ -1,13 +1,13 @@
 
 
-#ifndef DOKO_UI_H
-#define DOKO_UI_H
+#ifndef IMMY_UI_H
+#define IMMY_UI_H
 
 #include <raylib.h>
 #include <stddef.h>
 
 #include "../config.h"
-#include "../doko/doko.h"
+#include "../core/core.h"
 
 extern bool       g_uiReady;        // is the ui ready for drawing
 extern Font       g_unifont;         // global font for ui text
@@ -79,14 +79,14 @@ static inline Color uiColorInvert(Color c) {
 }
 
 
-void uiInit(doko_config_t* ctrl); // init the ui
+void uiInit(immy_config_t* ctrl); // init the ui
 void uiDeinit();                  // deinit the ui
 
 // font functions
 void uiLoadUnifont();                                          // unload and load unifont
 void uiSetInitialCodePoints(const char* text);                 // load these codepoints
 void uiLoadCodepoints(const char* text, bool reloadFont);      // load codepoints from
-void uiLoadCodepointsFromFileList(const doko_control_t* ctrl); // load codepoints from
+void uiLoadCodepointsFromFileList(const immy_control_t* ctrl); // load codepoints from
 
 // background functions
 Texture2D uiLoadBackgroundTile(size_t w, size_t h, Color a, Color b); // get the background texture
@@ -94,18 +94,18 @@ void      uiRenderBackground();                                       // render 
 
 // image screen functions
 void uiImagePageClearState();                                                    // clear any state
-void uiRenderImage(doko_image_t* im);                                            // draw the image
-void uiRenderPixelGrid(const doko_image_t* image);                               // draw a pixel grid
+void uiRenderImage(immy_image_t* im);                                            // draw the image
+void uiRenderPixelGrid(const immy_image_t* image);                               // draw a pixel grid
 void uiRenderTextOnInfoBar(const char* text);                                    // draw text onto the bar
-void uiRenderInfoBar(const doko_image_t* image);                                 // draw image info on the bar
-void uiFitCenterImage(doko_image_t* image);                                      // fit the image & center the image
-void uiCenterImage(doko_image_t* image);                                         // center the image at current size
-void uiEnsureImageNotLost(doko_image_t* image);                                  // makes sure the image is partially on screen
-void uiMoveScrFracImage(doko_image_t* im, double xFrac, double yFrac);           // moves image by screen frac
-void uiZoomImageCenter(doko_image_t* im, double afterZoom);                      // zoom in on center
-void uiZoomImageOnPoint(doko_image_t* im, double afterZoom, int x, int y);       // zoom in on point
-void uiZoomImageCenterFromClosest(doko_image_t* im, bool zoomIn);                // zoom in on center but lock to ZOOM_LEVELS
-void uiZoomImageOnPointFromClosest(doko_image_t* im, bool zoomIn, int x, int y); // zoom in on point but lock to ZOOM_LEVELS
+void uiRenderInfoBar(const immy_image_t* image);                                 // draw image info on the bar
+void uiFitCenterImage(immy_image_t* image);                                      // fit the image & center the image
+void uiCenterImage(immy_image_t* image);                                         // center the image at current size
+void uiEnsureImageNotLost(immy_image_t* image);                                  // makes sure the image is partially on screen
+void uiMoveScrFracImage(immy_image_t* im, double xFrac, double yFrac);           // moves image by screen frac
+void uiZoomImageCenter(immy_image_t* im, double afterZoom);                      // zoom in on center
+void uiZoomImageOnPoint(immy_image_t* im, double afterZoom, int x, int y);       // zoom in on point
+void uiZoomImageCenterFromClosest(immy_image_t* im, bool zoomIn);                // zoom in on center but lock to ZOOM_LEVELS
+void uiZoomImageOnPointFromClosest(immy_image_t* im, bool zoomIn, int x, int y); // zoom in on point but lock to ZOOM_LEVELS
 Rectangle uiGetScreenPadding();                                                  // get the image viewport
 void uiSetScreenPadding(Rectangle viewPort);                                     // set the image viewport
 void uiSetScreenPaddingRight(float width);                                       // set right image padding
@@ -115,13 +115,13 @@ void uiSetScreenPaddingTop(float y);                                            
 
 // thumbnail screen functions
 void uiThumbPageClearState();                    // clear any state
-void uiRenderThumbs(const doko_control_t* ctrl); // render thumbnails
+void uiRenderThumbs(const immy_control_t* ctrl); // render thumbnails
 
 // file list screen functions
-void uiRenderFileList(const doko_control_t* ctrl);
+void uiRenderFileList(const immy_control_t* ctrl);
 
 // keybinds screen functions
-void uiRenderKeybinds(const doko_control_t* ctrl);
+void uiRenderKeybinds(const immy_control_t* ctrl);
 
 
 /*

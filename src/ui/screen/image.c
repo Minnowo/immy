@@ -9,7 +9,7 @@
 #define ImageViewHeight (GetScreenHeight() - screenPadding.height)
 
 // state for the image screen
-static doko_image_t* cImage    = 0;   // identify the current image
+static immy_image_t* cImage    = 0;   // identify the current image
 static Texture2D     imageBuf = {0}; // the buffer to show
 
 // x, y are added to image position
@@ -25,7 +25,7 @@ void uiImagePageClearState() {
     memset(&imageBuf, 0, sizeof(imageBuf));
 }
 
-void uiRenderPixelGrid(const doko_image_t* image) {
+void uiRenderPixelGrid(const immy_image_t* image) {
 
     float x = image->dstPos.y;
     float y = image->dstPos.x;
@@ -47,7 +47,7 @@ void uiRenderPixelGrid(const doko_image_t* image) {
     }
 }
 
-void uiRenderImage(doko_image_t* im) {
+void uiRenderImage(immy_image_t* im) {
 
     if (cImage != im) {
 
@@ -61,7 +61,7 @@ void uiRenderImage(doko_image_t* im) {
 
         case IMAGE_STATUS_NOT_LOADED:
 
-            if (!doko_async_load_image(im)) {
+            if (!immy_async_load_image(im)) {
 
                 L_W("Unable to start loading image async");
 
@@ -74,7 +74,7 @@ void uiRenderImage(doko_image_t* im) {
 
         case IMAGE_STATUS_LOADING:
 
-            if(!doko_async_get_image(im)) {
+            if(!immy_async_get_image(im)) {
 
                 uiDrawText("image is loading");
 
@@ -92,7 +92,7 @@ void uiRenderImage(doko_image_t* im) {
 #else
         case IMAGE_STATUS_NOT_LOADED:
 
-            if (!dokoLoadImage(im)) {
+            if (!immyLoadImage(im)) {
                 return;
             }
 
@@ -185,7 +185,7 @@ void uiRenderImage(doko_image_t* im) {
 }
 
 
-void uiRenderInfoBar(const doko_image_t* image) {
+void uiRenderInfoBar(const immy_image_t* image) {
 
     const char* prefix = TextFormat("%0.0f x %0.0f  %0.0f%%  ", 
                                     image->srcRect.width, 
@@ -244,7 +244,7 @@ void uiRenderTextOnInfoBar(const char* text) {
     );
 }
 
-void uiFitCenterImage(doko_image_t* image) {
+void uiFitCenterImage(immy_image_t* image) {
 
     int sw = ImageViewWidth - screenPadding.x;
     int sh = ImageViewHeight - screenPadding.y;
@@ -257,7 +257,7 @@ void uiFitCenterImage(doko_image_t* image) {
     image->dstPos.y = screenPadding.y + (sh / 2.0) - (ih * image->scale) / 2.0;
 }
 
-void uiCenterImage(doko_image_t* image) {
+void uiCenterImage(immy_image_t* image) {
 
     int sw = ImageViewWidth - screenPadding.x;
     int sh = ImageViewHeight - screenPadding.y;
@@ -268,7 +268,7 @@ void uiCenterImage(doko_image_t* image) {
     image->dstPos.y = screenPadding.y + (sh / 2.0) - (ih * image->scale) / 2.0;
 }
 
-void uiEnsureImageNotLost(doko_image_t* image) {
+void uiEnsureImageNotLost(immy_image_t* image) {
 
     int   sw = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;
     int   sh = ImageViewHeight - IMAGE_INVERSE_MARGIN_Y;
@@ -294,14 +294,14 @@ void uiEnsureImageNotLost(doko_image_t* image) {
     }
 }
 
-void uiMoveScrFracImage(doko_image_t* im, double xFrac, double yFrac) {
+void uiMoveScrFracImage(immy_image_t* im, double xFrac, double yFrac) {
 
     im->dstPos.x += (ImageViewWidth - screenPadding.x) * xFrac;
     im->dstPos.y += (ImageViewHeight - screenPadding.y) * yFrac;
     uiEnsureImageNotLost(im);
 }
 
-void uiZoomImageCenter(doko_image_t* im, double afterZoom) {
+void uiZoomImageCenter(immy_image_t* im, double afterZoom) {
 
     double beforeZoom = im->scale;
 
@@ -322,7 +322,7 @@ void uiZoomImageCenter(doko_image_t* im, double afterZoom) {
     uiEnsureImageNotLost(im);
 }
 
-void uiZoomImageOnPoint(doko_image_t* im, double afterZoom, int x, int y) {
+void uiZoomImageOnPoint(immy_image_t* im, double afterZoom, int x, int y) {
 
     double beforeZoom = im->scale;
 
@@ -343,7 +343,7 @@ void uiZoomImageOnPoint(doko_image_t* im, double afterZoom, int x, int y) {
     uiEnsureImageNotLost(im);
 }
 
-void uiZoomImageCenterFromClosest(doko_image_t* im, bool zoomIn) {
+void uiZoomImageCenterFromClosest(immy_image_t* im, bool zoomIn) {
 
     size_t index;
     BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
@@ -365,7 +365,7 @@ void uiZoomImageCenterFromClosest(doko_image_t* im, bool zoomIn) {
 }
 
 void uiZoomImageOnPointFromClosest(
-    doko_image_t* im, bool zoomIn, int x, int y
+    immy_image_t* im, bool zoomIn, int x, int y
 ) {
 
     size_t index;

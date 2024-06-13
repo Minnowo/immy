@@ -1,5 +1,5 @@
 
-#include "doko.h"
+#include "core.h"
 
 
 #define STRINGIFY(x) #x
@@ -15,28 +15,28 @@
         return "   " STRINGIFY(enum_name);
 
 
-const char* get_pretty_screen_text(doko_screen_t screen) {
+const char* get_pretty_screen_text(immy_screen_t screen) {
 
     switch (screen) {
 
-    case DOKO_SCREEN_THUMB_GRID:
+    case SCREEN_THUMB_GRID:
         return "SCREEN_THUMB";
 
-    case DOKO_SCREEN_IMAGE:
+    case SCREEN_IMAGE:
         return "SCREEN_IMAGE";
 
-    case DOKO_SCREEN_FILE_LIST:
+    case SCREEN_FILE_LIST:
         return "SCREEN_FILE_LIST";
 
-    case DOKO_SCREEN_KEYBINDS:
+    case SCREEN_KEYBINDS:
         return "SCREEN_KEYBINDS";
 
-    case DOKO_SCREEN__ALL:
+    case SCREEN_ALL:
         return "SCREEN_ANY";
     }
 }
 
-const char* doko_get_interpolation_pretty_text(TextureFilter tf){
+const char* immy_get_interpolation_pretty_text(TextureFilter tf){
     switch (tf) {
 
     case TEXTURE_FILTER_POINT:
