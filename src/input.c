@@ -476,12 +476,14 @@ void kb_Thumb_Page_Up(ImmyControl_t* ctrl) {
 
     int cols = GetScreenWidth() / THUMB_SIZE;
 
-    iSetImage(ctrl, ctrl->selected_index - cols);
+    if (ctrl->selected_index >= cols)
+        iSetImage(ctrl, ctrl->selected_index - cols);
 }
 
 void kb_Thumb_Page_Left(ImmyControl_t* ctrl) {
 
-    iSetImage(ctrl, ctrl->selected_index - 1);
+    if (ctrl->selected_index != 0)
+        iSetImage(ctrl, ctrl->selected_index - 1);
 }
 
 void kb_Thumb_Page_Right(ImmyControl_t* ctrl) {

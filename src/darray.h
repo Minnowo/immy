@@ -60,7 +60,7 @@ typedef struct DArray {
 void dArrayFree(DArray_t* darray);
 bool dArrayInit(DArray_t* darray, size_t item_size, size_t size_initial);
 bool dArrayGrowSize(DArray_t* darray, size_t item_size, size_t size_);
-bool dArrayAppend(DArray_t* darray, size_t item_size, void* item);
+bool dArrayAppend(DArray_t* restrict darray, size_t item_size, void* restrict item);
 
 #ifdef DARRAY_IMPLEMENTATION
 
@@ -106,7 +106,7 @@ bool dArrayGrowSize(DArray_t* darray, size_t item_size, size_t size_) {
     return true;
 }
 
-bool dArrayAppend(DArray_t* darray, size_t item_size, void* item) {
+bool dArrayAppend(DArray_t* restrict darray, size_t item_size, void* restrict item) {
 
     if (darray->size >= darray->length) {
 

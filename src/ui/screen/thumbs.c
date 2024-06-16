@@ -134,9 +134,9 @@ void uiRenderThumbs(const ImmyControl_t* ctrl) {
     size_t i = 0;
 
     // show thumbs around the user's current image
-    if(ctrl->selected_index > 2 * cols) {
+    if(ctrl->selected_index > (rows/2) * cols) {
 
-        i = cols * ((ctrl->selected_index / cols) - 2);
+        i = cols * ((ctrl->selected_index / cols) - (rows/2));
     }
 
     DARRAY_FOR_EACH_I(ctrl->image_files, i) {
