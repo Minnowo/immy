@@ -40,7 +40,7 @@ int iAddImage(ImmyControl_t* ctrl, const char* path_) {
 
     int newImageIndex = ctrl->image_files.size;
 
-    DARRAY_APPEND(ctrl->image_files, i);
+    dImmyImageArrAppend(&ctrl->image_files, i);
 
     return newImageIndex;
 }

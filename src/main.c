@@ -7,14 +7,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#define ZOOM_LEVELS_IMPLEMENTATION
-#define KEYBINDS_IMPLEMENTATION
-#include "config.h"
-#undef KEYBINDS_IMPLEMENTATION
-#undef ZOOM_LEVELS_IMPLEMENTATION
-
-#include "input.h"
 #include "darray.h"
+#include "config.h"
+#include "input.h"
 #include "ui/ui.h"
 #include "core/core.h"
 
@@ -476,7 +471,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    DARRAY_FREE(this.image_files);
+    dImmyImageArrFree(&this.image_files);
 
     uiDeinit();
 

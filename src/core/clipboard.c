@@ -2,6 +2,7 @@
 // needed for popen
 #define _POSIX_C_SOURCE 200809L
 
+#include <errno.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>

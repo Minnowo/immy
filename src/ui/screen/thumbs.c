@@ -8,7 +8,7 @@
 #include "../../core/core.h"
 #include "../ui.h"
 
-static Texture2D_dynamic_arr_t thumbBufs;
+static dTexture2DArr_t thumbBufs;
 
 #if ASYNC_IMAGE_LOADING
 
@@ -107,7 +107,7 @@ void uiThumbPageClearState() {
         UnloadTexture(thumbBufs.buffer[i]);
     }
 
-    DARRAY_FREE(thumbBufs);
+    dTexture2DArrFree(&thumbBufs);
 }
 
 
@@ -119,7 +119,7 @@ void uiRenderThumbs(const ImmyControl_t* ctrl) {
     // ensure we can always get a thumb buffer
     if (ctrl->image_files.length > thumbBufs.length) {
 
-        DARRAY_GROW_SIZE_TO(thumbBufs, ctrl->image_files.length);
+        dTexture2DArrGrowSize(&thumbBufs, ctrl->image_files.length);
     }
 
     bool syncLoadedThumb = false;

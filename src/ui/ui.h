@@ -9,10 +9,10 @@
 #include "../config.h"
 #include "../core/core.h"
 
-extern bool       g_uiReady;        // is the ui ready for drawing
-extern Font       g_unifont;         // global font for ui text
-extern int        g_unifontSize;     // font size
-extern dint_arr_t g_fontCodepoints; // codepoints for ui font
+extern bool      g_uiReady;        // is the ui ready for drawing
+extern Font      g_unifont;        // global font for ui text
+extern int       g_unifontSize;    // font size
+extern dIntArr_t g_fontCodepoints; // codepoints for ui font
 
 extern Color     g_pixelGridColor; // the pixel grid color
 extern Texture2D g_backgroundBuf;  // the background texture

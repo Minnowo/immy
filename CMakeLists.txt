@@ -49,6 +49,7 @@ message(STATUS "Packaging Resources: ${PACKAGE_RESOURCES}")
 add_executable(${PROJECT_NAME} 
     src/config.h
     src/main.c
+    src/implementations.c
     src/core/core.h
     src/core/core.c
     src/core/image_async.c

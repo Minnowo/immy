@@ -12,7 +12,7 @@
 bool       g_uiReady         = false; // is the ui ready for drawing
 Font       g_unifont         = {0};   // global font for ui text
 int        g_unifontSize     = 32;    // font size
-dint_arr_t g_fontCodepoints  = {0};   // codepoints for ui font
+dIntArr_t  g_fontCodepoints  = {0};   // codepoints for ui font
 
 Color     g_pixelGridColor = PIXEL_GRID_COLOR_RGBA; // the pixel grid color
 Texture2D g_backgroundBuf  = {0};                   // the background texture
@@ -59,7 +59,7 @@ void uiInit(ImmyConfig_t* config) {
         GetShaderLocation(grayscaleShader, "applyGrayscale");
 #endif
 
-    DARRAY_INIT(g_fontCodepoints, 128);
+    dIntArrInit(&g_fontCodepoints, 128);
 
     uiSetInitialCodePoints(CODEPOINT_INITIAL);
 
@@ -83,7 +83,7 @@ void uiDeinit() {
 
     UnloadFont(g_unifont);
 
-    DARRAY_FREE(g_fontCodepoints);
+    dIntArrFree(&g_fontCodepoints);
 
 #if ENABLE_SHADERS
     UnloadShader(grayscaleShader);
@@ -131,7 +131,7 @@ void uiSetInitialCodePoints(const char* text) {
     int* codep = LoadCodepoints(text, &codep_count);
 
     for (int c = 0; c < codep_count; c++) {
-        DARRAY_APPEND(g_fontCodepoints, codep[c]);
+        dIntArrAppend(&g_fontCodepoints, codep[c]);
     }
 
     UnloadCodepoints(codep);
@@ -152,7 +152,7 @@ void uiLoadCodepoints(const char* text, bool reload) {
 
             L_D("Adding new codepoint %d", codep[c]);
 
-            DARRAY_APPEND(g_fontCodepoints, codep[c]);
+            dIntArrAppend(&g_fontCodepoints, codep[c]);
         }
     }
 

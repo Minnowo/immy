@@ -1,5 +1,6 @@
 
 
+#include <errno.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,16 +90,18 @@ bool iLoadImageWithFFmpeg(const char* path, Image* im) {
 
     ssize_t bytesRead;
 
-    dbyte_arr_t data;
+    dByteArr_t data;
 
-    DARRAY_INIT(data, 1024 * 1024 * 4);
+    dByteArrInit(&data, 1024 * 1024 * 4);
 
     while ((bytesRead = read(pipefd[PIPE_READ], data.buffer + data.size, data.length - data.size)) > 0) {
 
         data.size += bytesRead;
 
         if (data.size == data.length) {
-            DARRAY_APPEND(data, 0);
+
+            // this will double the length
+            dByteArrGrowSize(&data, data.size + 1);
             data.size--;
         }
     }
@@ -112,7 +115,7 @@ bool iLoadImageWithFFmpeg(const char* path, Image* im) {
         *im = LoadImageFromMemory("." FFMPEG_CONVERT_MIDDLE_FMT, data.buffer, data.size);
     }
 
-    DARRAY_FREE(data);
+    dByteArrFree(&data);
 
     return im->data != NULL;
 }

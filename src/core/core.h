@@ -178,10 +178,10 @@ typedef struct ImmyImage {
 } ImmyImage_t;
 
 // Define dynamic array types.
-DARRAY_DEF(dimage_arr, ImmyImage_t*);
-DARRAY_DEF(dint_arr, int*);
-DARRAY_DEF(dbyte_arr, unsigned char*);
-DARRAY_DEF(Texture2D_dynamic_arr, Texture2D*);
+DARRAY_DEF(dImmyImageArr, ImmyImage_t);
+DARRAY_DEF(dIntArr, int);
+DARRAY_DEF(dByteArr, unsigned char);
+DARRAY_DEF(dTexture2DArr, Texture2D);
 
 // Used for showing a message on the status bar.
 typedef struct ImmyMessage {
@@ -224,9 +224,9 @@ typedef struct ImmyControl {
         ImmyImage_t* selected_image; // the selected image;
                                      // points to the image_files;
 
-        ImmyMessage_t message;     // message to show to the user
-        dimage_arr_t  image_files; // images files loaded or not
-        ImmyConfig_t  config;      // runtime settings
+        ImmyMessage_t   message;     // message to show to the user
+        dImmyImageArr_t image_files; // images files loaded or not
+        ImmyConfig_t    config;      // runtime settings
 
         // for keeping state on the keybinds page
         size_t keybindPageScroll;
