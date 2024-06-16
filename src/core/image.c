@@ -2,36 +2,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
-#include "raylib.h"
 #include "external/qoi.h" // from raylib
+#include "raylib.h"
 
 #include "../config.h"
 #include "core.h"
 
-bool immyLoadImage(immy_image_t* im) {
+bool iLoadImage(ImmyImage_t* im) {
 
     if (im->status == IMAGE_STATUS_LOADED)
         return true;
 
     if (
 #ifdef IMLIB2_ENABLED
-        !(immy_load_with_imlib2(im->path, &im->rayim)) &&
+      !(iLoadImageWithImlib2(im->path, &im->rayim)) &&
 #endif
 
 #ifdef IMMY_USE_MAGICK
-        !(immy_load_with_magick_stdout(im->path, &im->rayim)) &&
+      !(iLoadImageWithMagick(im->path, &im->rayim)) &&
 #endif
 
 #ifdef IMMY_USE_FFMPEG
-        !(immy_load_with_ffmpeg_stdout(im->path, &im->rayim)) &&
+      !(iLoadImageWithFFmpeg(im->path, &im->rayim)) &&
 #endif
-        true
-        ) {
+      true) {
 
         im->rayim = LoadImage(im->path);
     }
@@ -55,13 +54,13 @@ bool immyLoadImage(immy_image_t* im) {
     im->status = IMAGE_STATUS_LOADED;
 
 #if GENERATE_THUMB_WHEN_LOADING_IMAGE
-    immyGetOrCreateThumb(im);
+    iGetOrCreateThumb(im);
 #endif
 
     return true;
 }
 
-bool immyCreateThumbnail(const Image* im, Image* newim, int newW, int newH) {
+bool iCreateThumbnail(const Image* im, Image* newim, int newW, int newH) {
 
     double ratio;
     bool   result;
@@ -70,13 +69,13 @@ bool immyCreateThumbnail(const Image* im, Image* newim, int newW, int newH) {
 
         ratio = (double)im->height / im->width;
 
-        result = immy_copy_and_resize_image_nn(im, newim, newW, ratio * newH);
+        result = iCopyAndResizeImageNN(im, newim, newW, ratio * newH);
 
     } else {
 
         ratio = (double)im->width / im->height;
 
-        result = immy_copy_and_resize_image_nn(im, newim, ratio * newW, newH);
+        result = iCopyAndResizeImageNN(im, newim, ratio * newW, newH);
     }
 
     if (!result)
@@ -86,9 +85,7 @@ bool immyCreateThumbnail(const Image* im, Image* newim, int newW, int newH) {
 }
 
 // edited from the raylib ImageResizeNN function
-bool immy_copy_and_resize_image_nn(
-    const Image* im, Image* newim, int newW, int newH
-) {
+bool iCopyAndResizeImageNN(const Image* im, Image* newim, int newW, int newH) {
     // Security check to avoid program crash
     if ((im->data == NULL) || (im->width == 0) || (im->height == 0))
         return false;
@@ -133,19 +130,19 @@ bool immy_copy_and_resize_image_nn(
     return true;
 }
 
-bool immyGetOrCreateThumb(immy_image_t* im) {
+bool iGetOrCreateThumb(ImmyImage_t* im) {
 
-    return immyGetOrCreateThumbEx(im, false);
+    return iGetOrCreateThumbEx(im, false);
 }
 
-bool immyGetOrCreateThumbEx(immy_image_t* im, bool createOnly) {
+bool iGetOrCreateThumbEx(ImmyImage_t* im, bool createOnly) {
 
     if (im->thumb_status == IMAGE_STATUS_LOADED)
         return true;
 
 #if !SHOULD_CACHE_THUMBNAILS
 
-    if(immyCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
+    if (iCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
 
         im->thumb_status = IMAGE_STATUS_LOADED;
 
@@ -157,24 +154,24 @@ bool immyGetOrCreateThumbEx(immy_image_t* im, bool createOnly) {
 
     // if we've already loaded the image,
     // we can just create a thumbnail.
-    if(im->status == IMAGE_STATUS_LOADED) {
+    if (im->status == IMAGE_STATUS_LOADED) {
 
-        if (immyCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
+        if (iCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
 
             im->thumb_status = IMAGE_STATUS_LOADED;
 
-#if UPDATE_CACHE_IF_IMAGE_LOADED
-            immySaveThumbnail(im);
-#endif
+#    if UPDATE_CACHE_IF_IMAGE_LOADED
+            iSaveThumbnail(im);
+#    endif
             return true;
         }
-    } 
+    }
 
     if (createOnly) {
         return false;
     }
 
-    char* thumbPath = immyGetCachedPath(im->path);
+    char* thumbPath = iGetCachedPath(im->path);
 
     L_D("Trying to read thumb from: %s", thumbPath);
 
@@ -190,7 +187,7 @@ bool immyGetOrCreateThumbEx(immy_image_t* im, bool createOnly) {
 
         if (im->status != IMAGE_STATUS_LOADED) {
             FALLTHROUGH;
-        } else if (!immyCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
+        } else if (!iCreateThumbnail(&im->rayim, &im->thumb, THUMB_SIZE, THUMB_SIZE)) {
             FALLTHROUGH;
         } else {
 
@@ -198,7 +195,7 @@ bool immyGetOrCreateThumbEx(immy_image_t* im, bool createOnly) {
 
             im->thumb_status = IMAGE_STATUS_LOADED;
 
-            immySaveThumbnailAt(im, thumbPath);
+            iSaveThumbnailAt(im, thumbPath);
         }
 
         free(thumbPath);
@@ -227,7 +224,7 @@ bool immyGetOrCreateThumbEx(immy_image_t* im, bool createOnly) {
 #endif
 }
 
-bool immySaveQOI(Image image, const char* path) {
+bool iSaveQOI(Image image, const char* path) {
 
     unsigned char* pixels = image.data;
 
@@ -257,64 +254,63 @@ bool immySaveQOI(Image image, const char* path) {
         result = qoi_write(path, pixels, &desc);
     }
 
-    if(needFree) 
+    if (needFree)
         UnloadImageColors((Color*)pixels);
 
     return result;
 }
 
-bool immySaveThumbnailAt(const immy_image_t* im, const char* path) {
+bool iSaveThumbnailAt(const ImmyImage_t* im, const char* path) {
 
     if (im->thumb_status != IMAGE_STATUS_LOADED)
         return false;
 
     /*
-    struct stat b;
+       struct stat b;
 
-    if(stat(path, &b) == 0) {
+       if(stat(path, &b) == 0) {
 
-        double timeInterval = 60 * 60 * 24;
-        double timeDifference = difftime(time(NULL), b.st_mtime);
+       double timeInterval = 60 * 60 * 24;
+       double timeDifference = difftime(time(NULL), b.st_mtime);
 
-        if (timeDifference < timeInterval) {
+       if (timeDifference < timeInterval) {
 
-            L_I("Thumb cache was last modified today. Assuming still fine.");
+       L_I("Thumb cache was last modified today. Assuming still fine.");
 
-            return true;
-        }
-    }
-    */
+       return true;
+       }
+       }
+       */
 
     bool r = false;
 
-    if (immyCreateDirectory(path)) {
+    if (iCreateDirectory(path)) {
 
         L_I("%s: saving thumbnail to %s", __func__, path);
 
-        r = immySaveQOI(im->thumb, path);
+        r = iSaveQOI(im->thumb, path);
     }
 
     return r;
 }
 
-bool immySaveThumbnail(const immy_image_t* im) {
+bool iSaveThumbnail(const ImmyImage_t* im) {
 
-    if(im->thumb_status != IMAGE_STATUS_LOADED)
+    if (im->thumb_status != IMAGE_STATUS_LOADED)
         return false;
 
-    char* cachedPath = immyGetCachedPath(im->path);
+    char* cachedPath = iGetCachedPath(im->path);
 
     DIE_IF_NULL(cachedPath, "%s: Cannot get cache path: %s", __func__, strerror(errno));
 
-    bool r = immySaveThumbnailAt(im, cachedPath);
+    bool r = iSaveThumbnailAt(im, cachedPath);
 
     free(cachedPath);
 
     return r;
 }
 
-
-void immy_dither_image(immy_image_t* im) {
+void iDitherImage(ImmyImage_t* im) {
 
     if (im->status != IMAGE_STATUS_LOADED)
         return;
@@ -345,52 +341,51 @@ void immy_dither_image(immy_image_t* im) {
         oldPixel = pixels[i];
 
         float lum =
-            (oldPixel.r * GRAYSCALE_COEF_R + oldPixel.g * GRAYSCALE_COEF_G +
-             oldPixel.b * GRAYSCALE_COEF_B) /
-            255.0f;
+            (oldPixel.r * GRAYSCALE_COEF_R + oldPixel.g * GRAYSCALE_COEF_G + oldPixel.b * GRAYSCALE_COEF_B) / 255.0f;
 
         if (lum < 0.5)
             newPixel = BLACK;
         else
-            newPixel = WHITE;
+          newPixel = WHITE;
 
         Color error = (Color
         ){sub_char_clamp(oldPixel.r, newPixel.r),
           sub_char_clamp(oldPixel.g, newPixel.g),
-          sub_char_clamp(oldPixel.b, newPixel.b), oldPixel.a};
+          sub_char_clamp(oldPixel.b, newPixel.b),
+          oldPixel.a};
 
         pixels[i] = newPixel;
 
         // x + 1
         if (i + 1 < pixels_count) {
-            int k       = i + 1;
-            pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 7) >> 4);
-            pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 7) >> 4);
-            pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 7) >> 4);
+          int k = i + 1;
+          pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 7) >> 4);
+          pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 7) >> 4);
+          pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 7) >> 4);
         }
 
         // x - 1; y + 1
         if (i - 1 + w < pixels_count) {
-            int k       = i + w - 1;
-            pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 3) >> 4);
-            pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 3) >> 4);
-            pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 3) >> 4);
+          int k = i + w - 1;
+          pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 3) >> 4);
+          pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 3) >> 4);
+          pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 3) >> 4);
         }
 
         // y + 1
         if (i + w < pixels_count) {
-            int k       = i + w;
-            pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 5) >> 4);
-            pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 5) >> 4);
-            pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 5) >> 4);
+          int k = i + w;
+          pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 5) >> 4);
+          pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 5) >> 4);
+          pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 5) >> 4);
         }
 
         // x + 1; y + 1
         if (i + 1 + w < pixels_count) {
-            int k       = i + w + 1;
-            pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 1) >> 4);
-            pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 1) >> 4);
-            pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 1) >> 4);
+          int k = i + w + 1;
+          pixels[k].r = add_char_clamp(pixels[k].r, (error.r * 1) >> 4);
+          pixels[k].g = add_char_clamp(pixels[k].g, (error.g * 1) >> 4);
+          pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 1) >> 4);
         }
     }
 }

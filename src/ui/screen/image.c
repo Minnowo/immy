@@ -9,8 +9,8 @@
 #define ImageViewHeight (GetScreenHeight() - screenPadding.height)
 
 // state for the image screen
-static immy_image_t* cImage    = 0;   // identify the current image
-static Texture2D     imageBuf = {0}; // the buffer to show
+static ImmyImage_t* cImage   = 0;   // identify the current image
+static Texture2D    imageBuf = {0}; // the buffer to show
 
 // x, y are added to image position
 // width, height are subtraced from screen size
@@ -25,7 +25,7 @@ void uiImagePageClearState() {
     memset(&imageBuf, 0, sizeof(imageBuf));
 }
 
-void uiRenderPixelGrid(const immy_image_t* image) {
+void uiRenderPixelGrid(const ImmyImage_t* image) {
 
     float x = image->dstPos.y;
     float y = image->dstPos.x;
@@ -47,21 +47,21 @@ void uiRenderPixelGrid(const immy_image_t* image) {
     }
 }
 
-void uiRenderImage(immy_image_t* im) {
+void uiRenderImage(ImmyImage_t* im) {
 
     if (cImage != im) {
 
-        // ensure the image is not freed if 
+        // ensure the image is not freed if
         // it was being loaded for a thumbnail already
         im->isLoadingForThumbOnly = false;
 
-        switch(im->status){
+        switch (im->status) {
 
 #if ASYNC_IMAGE_LOADING
 
         case IMAGE_STATUS_NOT_LOADED:
 
-            if (!immy_async_load_image(im)) {
+            if (!iLoadImageAsync(im)) {
 
                 L_W("Unable to start loading image async");
 
@@ -74,7 +74,7 @@ void uiRenderImage(immy_image_t* im) {
 
         case IMAGE_STATUS_LOADING:
 
-            if(!immy_async_get_image(im)) {
+            if (!iGetImageAsync(im)) {
 
                 uiDrawText("image is loading");
 
@@ -92,7 +92,7 @@ void uiRenderImage(immy_image_t* im) {
 #else
         case IMAGE_STATUS_NOT_LOADED:
 
-            if (!immyLoadImage(im)) {
+            if (!iLoadImage(im)) {
                 return;
             }
 
@@ -126,7 +126,7 @@ void uiRenderImage(immy_image_t* im) {
             UnloadTexture(imageBuf);
         }
 
-        cImage    = im;
+        cImage   = im;
         imageBuf = nimageBuf;
 
         GenTextureMipmaps(&imageBuf);
@@ -146,18 +146,8 @@ void uiRenderImage(immy_image_t* im) {
         applyInvertShaderValue    = cImage->applyInvertShader;
         applyGrayscaleShaderValue = cImage->applyGrayscaleShader;
 
-        SetShaderValue(
-            grayscaleShader, 
-            invertShaderValueLocation, 
-            &applyInvertShaderValue,
-            SHADER_UNIFORM_INT
-        );
-        SetShaderValue(
-            grayscaleShader, 
-            grayscaleShaderValueLocation,
-            &applyGrayscaleShaderValue, 
-            SHADER_UNIFORM_INT
-        );
+        SetShaderValue(grayscaleShader, invertShaderValueLocation, &applyInvertShaderValue, SHADER_UNIFORM_INT);
+        SetShaderValue(grayscaleShader, grayscaleShaderValueLocation, &applyGrayscaleShaderValue, SHADER_UNIFORM_INT);
 
         BeginShaderMode(grayscaleShader);
     }
@@ -166,13 +156,7 @@ void uiRenderImage(immy_image_t* im) {
 
     SetTextureFilter(imageBuf, im->interpolation);
 
-    DrawTextureEx(
-        imageBuf, 
-        im->dstPos, 
-        im->rotation, 
-        im->scale, 
-        WHITE
-    );
+    DrawTextureEx(imageBuf, im->dstPos, im->rotation, im->scale, WHITE);
 
 #if ENABLE_SHADERS
 
@@ -184,13 +168,10 @@ void uiRenderImage(immy_image_t* im) {
 #endif
 }
 
+void uiRenderInfoBar(const ImmyImage_t* image) {
 
-void uiRenderInfoBar(const immy_image_t* image) {
-
-    const char* prefix = TextFormat("%0.0f x %0.0f  %0.0f%%  ", 
-                                    image->srcRect.width, 
-                                    image->srcRect.height,
-                                    image->scale * 100);
+    const char* prefix =
+        TextFormat("%0.0f x %0.0f  %0.0f%%  ", image->srcRect.width, image->srcRect.height, image->scale * 100);
 
     const char* postfix = image->name;
 
@@ -211,17 +192,18 @@ void uiRenderInfoBar(const immy_image_t* image) {
     DrawRectangle(0, sh, sw, INFO_BAR_HEIGHT, BAR_BACKGROUND_COLOR_RGBA);
 
     DrawTextEx(
-        g_unifont, prefix, (Vector2){INFO_BAR_LEFT_MARGIN, sh}, g_unifont.baseSize,
-        UNIFONT_SPACING, TEXT_COLOR_RGBA
+        g_unifont, prefix, (Vector2){INFO_BAR_LEFT_MARGIN, sh}, g_unifont.baseSize, UNIFONT_SPACING, TEXT_COLOR_RGBA
     );
 
     DrawTextEx(
-        g_unifont, postfix,
+        g_unifont,
+        postfix,
         (Vector2){pretextSize.x, sh + (INFO_BAR_HEIGHT - fontSize) / 2.0},
-        fontSize, UNIFONT_SPACING, TEXT_COLOR_RGBA
+        fontSize,
+        UNIFONT_SPACING,
+        TEXT_COLOR_RGBA
     );
 }
-
 
 void uiRenderTextOnInfoBar(const char* text) {
 
@@ -238,13 +220,10 @@ void uiRenderTextOnInfoBar(const char* text) {
 
     DrawRectangle(0, sh, sw, INFO_BAR_HEIGHT, BAR_BACKGROUND_COLOR_RGBA);
 
-    DrawTextEx(
-        g_unifont, text, (Vector2){INFO_BAR_LEFT_MARGIN, sh}, fontSize,
-        UNIFONT_SPACING, TEXT_COLOR_RGBA
-    );
+    DrawTextEx(g_unifont, text, (Vector2){INFO_BAR_LEFT_MARGIN, sh}, fontSize, UNIFONT_SPACING, TEXT_COLOR_RGBA);
 }
 
-void uiFitCenterImage(immy_image_t* image) {
+void uiFitCenterImage(ImmyImage_t* image) {
 
     int sw = ImageViewWidth - screenPadding.x;
     int sh = ImageViewHeight - screenPadding.y;
@@ -257,7 +236,7 @@ void uiFitCenterImage(immy_image_t* image) {
     image->dstPos.y = screenPadding.y + (sh / 2.0) - (ih * image->scale) / 2.0;
 }
 
-void uiCenterImage(immy_image_t* image) {
+void uiCenterImage(ImmyImage_t* image) {
 
     int sw = ImageViewWidth - screenPadding.x;
     int sh = ImageViewHeight - screenPadding.y;
@@ -268,12 +247,12 @@ void uiCenterImage(immy_image_t* image) {
     image->dstPos.y = screenPadding.y + (sh / 2.0) - (ih * image->scale) / 2.0;
 }
 
-void uiEnsureImageNotLost(immy_image_t* image) {
+void uiEnsureImageNotLost(ImmyImage_t* image) {
 
     int   sw = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;
     int   sh = ImageViewHeight - IMAGE_INVERSE_MARGIN_Y;
     float iw = (screenPadding.x + IMAGE_INVERSE_MARGIN_X) - (image->srcRect.width * image->scale);
-    float ih = (screenPadding.y + IMAGE_INVERSE_MARGIN_Y) -(image->srcRect.height * image->scale);
+    float ih = (screenPadding.y + IMAGE_INVERSE_MARGIN_Y) - (image->srcRect.height * image->scale);
 
     if (image->dstPos.x > sw) {
 
@@ -294,14 +273,14 @@ void uiEnsureImageNotLost(immy_image_t* image) {
     }
 }
 
-void uiMoveScrFracImage(immy_image_t* im, double xFrac, double yFrac) {
+void uiMoveScrFracImage(ImmyImage_t* im, double xFrac, double yFrac) {
 
     im->dstPos.x += (ImageViewWidth - screenPadding.x) * xFrac;
     im->dstPos.y += (ImageViewHeight - screenPadding.y) * yFrac;
     uiEnsureImageNotLost(im);
 }
 
-void uiZoomImageCenter(immy_image_t* im, double afterZoom) {
+void uiZoomImageCenter(ImmyImage_t* im, double afterZoom) {
 
     double beforeZoom = im->scale;
 
@@ -309,20 +288,15 @@ void uiZoomImageCenter(immy_image_t* im, double afterZoom) {
         afterZoom = SMALLEST_SCALE_VALUE;
     }
 
-    //clang-format off
-    im->dstPos.x -= (int)((im->srcRect.width * afterZoom) -
-                          (im->srcRect.width * beforeZoom)) >> 1;
-
-    im->dstPos.y -= (int)((im->srcRect.height * afterZoom) -
-                          (im->srcRect.height * beforeZoom)) >> 1;
-    //clang-format on
+    im->dstPos.x -= (int)((im->srcRect.width * afterZoom) - (im->srcRect.width * beforeZoom)) >> 1;
+    im->dstPos.y -= (int)((im->srcRect.height * afterZoom) - (im->srcRect.height * beforeZoom)) >> 1;
 
     im->scale = afterZoom;
 
     uiEnsureImageNotLost(im);
 }
 
-void uiZoomImageOnPoint(immy_image_t* im, double afterZoom, int x, int y) {
+void uiZoomImageOnPoint(ImmyImage_t* im, double afterZoom, int x, int y) {
 
     double beforeZoom = im->scale;
 
@@ -330,8 +304,7 @@ void uiZoomImageOnPoint(immy_image_t* im, double afterZoom, int x, int y) {
         afterZoom = SMALLEST_SCALE_VALUE;
     }
 
-    double scaleRatio =
-        (im->srcRect.width * beforeZoom) / (im->srcRect.width * afterZoom);
+    double scaleRatio = (im->srcRect.width * beforeZoom) / (im->srcRect.width * afterZoom);
 
     double mouseOffsetX = x - im->dstPos.x;
     double mouseOffsetY = y - im->dstPos.y;
@@ -343,7 +316,7 @@ void uiZoomImageOnPoint(immy_image_t* im, double afterZoom, int x, int y) {
     uiEnsureImageNotLost(im);
 }
 
-void uiZoomImageCenterFromClosest(immy_image_t* im, bool zoomIn) {
+void uiZoomImageCenterFromClosest(ImmyImage_t* im, bool zoomIn) {
 
     size_t index;
     BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
@@ -364,9 +337,7 @@ void uiZoomImageCenterFromClosest(immy_image_t* im, bool zoomIn) {
     uiZoomImageCenter(im, ZOOM_LEVELS[index]);
 }
 
-void uiZoomImageOnPointFromClosest(
-    immy_image_t* im, bool zoomIn, int x, int y
-) {
+void uiZoomImageOnPointFromClosest(ImmyImage_t* im, bool zoomIn, int x, int y) {
 
     size_t index;
     BINARY_SEARCH_INSERT_INDEX(ZOOM_LEVELS, ZOOM_LEVELS_SIZE, im->scale, index);
@@ -386,7 +357,6 @@ void uiZoomImageOnPointFromClosest(
 
     uiZoomImageOnPoint(im, ZOOM_LEVELS[index], x, y);
 }
-
 
 void uiSetScreenPadding(Rectangle vp) {
     screenPadding = vp;
@@ -411,4 +381,3 @@ void uiSetScreenPaddingLeft(float x) {
 void uiSetScreenPaddingTop(float y) {
     screenPadding.y = y;
 }
-

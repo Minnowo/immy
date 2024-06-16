@@ -4,7 +4,7 @@
 
 #include "core.h"
 
-bool immy_load_with_imlib2(const char* path, Image* im) {
+bool iLoadImageWithImlib2(const char* path, Image* im) {
 
 #if !defined(__unix__) || !defined(IMLIB2_ENABLED)
 
@@ -12,7 +12,7 @@ bool immy_load_with_imlib2(const char* path, Image* im) {
 
 #else
 
-#include <Imlib2.h>
+#    include <Imlib2.h>
 
     L_I("About to read image using Imlib2");
 

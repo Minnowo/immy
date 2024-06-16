@@ -21,8 +21,8 @@ void free_resource_data(void* data);
 #if ENABLE_SHADERS
 
 // this lets us format stuff defined in config.h into the shaders
-#define VALUE_TO_STRING(value) #value
-#define STRINGIFY_MACRO(macro) VALUE_TO_STRING(macro)
+#    define VALUE_TO_STRING(value) #value
+#    define STRINGIFY_MACRO(macro) VALUE_TO_STRING(macro)
 
 // clang-format off
 #if (GLSL_VERSION == 330)

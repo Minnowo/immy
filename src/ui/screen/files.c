@@ -14,7 +14,7 @@
 
 
 
-void uiRenderFileList(const immy_control_t* ctrl) {
+void uiRenderFileList(const ImmyControl_t* ctrl) {
 
     const int sw = GetScreenWidth();
     const int sh = GetScreenHeight() - g_unifontSize;
@@ -42,7 +42,7 @@ void uiRenderFileList(const immy_control_t* ctrl) {
 
     DARRAY_FOR_I(ctrl->image_files, i, startIndex + scrollOffset * 2) {
 
-        immy_image_t* im = ctrl->image_files.buffer + i;
+        ImmyImage_t* im = ctrl->image_files.buffer + i;
 
         int y = startY + g_unifontSize * (i - startIndex);
 

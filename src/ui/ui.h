@@ -79,14 +79,14 @@ static inline Color uiColorInvert(Color c) {
 }
 
 
-void uiInit(immy_config_t* ctrl); // init the ui
+void uiInit(ImmyConfig_t* ctrl); // init the ui
 void uiDeinit();                  // deinit the ui
 
 // font functions
 void uiLoadUnifont();                                          // unload and load unifont
 void uiSetInitialCodePoints(const char* text);                 // load these codepoints
 void uiLoadCodepoints(const char* text, bool reloadFont);      // load codepoints from
-void uiLoadCodepointsFromFileList(const immy_control_t* ctrl); // load codepoints from
+void uiLoadCodepointsFromFileList(const ImmyControl_t* ctrl); // load codepoints from
 
 // background functions
 Texture2D uiLoadBackgroundTile(size_t w, size_t h, Color a, Color b); // get the background texture
@@ -94,18 +94,18 @@ void      uiRenderBackground();                                       // render 
 
 // image screen functions
 void uiImagePageClearState();                                                    // clear any state
-void uiRenderImage(immy_image_t* im);                                            // draw the image
-void uiRenderPixelGrid(const immy_image_t* image);                               // draw a pixel grid
+void uiRenderImage(ImmyImage_t* im);                                            // draw the image
+void uiRenderPixelGrid(const ImmyImage_t* image);                               // draw a pixel grid
 void uiRenderTextOnInfoBar(const char* text);                                    // draw text onto the bar
-void uiRenderInfoBar(const immy_image_t* image);                                 // draw image info on the bar
-void uiFitCenterImage(immy_image_t* image);                                      // fit the image & center the image
-void uiCenterImage(immy_image_t* image);                                         // center the image at current size
-void uiEnsureImageNotLost(immy_image_t* image);                                  // makes sure the image is partially on screen
-void uiMoveScrFracImage(immy_image_t* im, double xFrac, double yFrac);           // moves image by screen frac
-void uiZoomImageCenter(immy_image_t* im, double afterZoom);                      // zoom in on center
-void uiZoomImageOnPoint(immy_image_t* im, double afterZoom, int x, int y);       // zoom in on point
-void uiZoomImageCenterFromClosest(immy_image_t* im, bool zoomIn);                // zoom in on center but lock to ZOOM_LEVELS
-void uiZoomImageOnPointFromClosest(immy_image_t* im, bool zoomIn, int x, int y); // zoom in on point but lock to ZOOM_LEVELS
+void uiRenderInfoBar(const ImmyImage_t* image);                                 // draw image info on the bar
+void uiFitCenterImage(ImmyImage_t* image);                                      // fit the image & center the image
+void uiCenterImage(ImmyImage_t* image);                                         // center the image at current size
+void uiEnsureImageNotLost(ImmyImage_t* image);                                  // makes sure the image is partially on screen
+void uiMoveScrFracImage(ImmyImage_t* im, double xFrac, double yFrac);           // moves image by screen frac
+void uiZoomImageCenter(ImmyImage_t* im, double afterZoom);                      // zoom in on center
+void uiZoomImageOnPoint(ImmyImage_t* im, double afterZoom, int x, int y);       // zoom in on point
+void uiZoomImageCenterFromClosest(ImmyImage_t* im, bool zoomIn);                // zoom in on center but lock to ZOOM_LEVELS
+void uiZoomImageOnPointFromClosest(ImmyImage_t* im, bool zoomIn, int x, int y); // zoom in on point but lock to ZOOM_LEVELS
 Rectangle uiGetScreenPadding();                                                  // get the image viewport
 void uiSetScreenPadding(Rectangle viewPort);                                     // set the image viewport
 void uiSetScreenPaddingRight(float width);                                       // set right image padding
@@ -115,13 +115,13 @@ void uiSetScreenPaddingTop(float y);                                            
 
 // thumbnail screen functions
 void uiThumbPageClearState();                    // clear any state
-void uiRenderThumbs(const immy_control_t* ctrl); // render thumbnails
+void uiRenderThumbs(const ImmyControl_t* ctrl); // render thumbnails
 
 // file list screen functions
-void uiRenderFileList(const immy_control_t* ctrl);
+void uiRenderFileList(const ImmyControl_t* ctrl);
 
 // keybinds screen functions
-void uiRenderKeybinds(const immy_control_t* ctrl);
+void uiRenderKeybinds(const ImmyControl_t* ctrl);
 
 
 /*

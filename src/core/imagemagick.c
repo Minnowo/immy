@@ -1,13 +1,12 @@
 
 
-#include <errno.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #ifdef __unix__
-#include <sys/wait.h>
+#    include <sys/wait.h>
 #endif
 
 #include "../config.h"
@@ -15,11 +14,9 @@
 #include "../external/strnatcmp.h"
 #include "core.h"
 
-
 #ifdef __unix__
 
-
-bool immy_load_with_magick_stdout(const char* path, Image* im) {
+bool iLoadImageWithMagick(const char* path, Image* im) {
 
     L_I("About to read image using ImageMagick Convert");
     L_D("%s: Convert decode format is " MAGICK_CONVERT_MIDDLE_FMT, __func__);
@@ -59,7 +56,7 @@ bool immy_load_with_magick_stdout(const char* path, Image* im) {
         close(pipefd[PIPE_READ]);
 
         size_t n;
-        char*  new_path = immyStrdupn(path, 3, &n);
+        char*  new_path = inStrDup(path, 3, &n);
 
         if (new_path == NULL) {
 
@@ -112,18 +109,14 @@ bool immy_load_with_magick_stdout(const char* path, Image* im) {
 
     DARRAY_INIT(data, 1024 * 1024 * 4);
 
-    while ((bytesRead = read(
-                pipefd[PIPE_READ], data.buffer + data.size,
-                data.length - data.size
-            )) > 0) {
+    while ((bytesRead = read(pipefd[PIPE_READ], data.buffer + data.size, data.length - data.size)) > 0) {
 
         data.size += bytesRead;
 
         if (data.size == data.length) {
-            DARRAY_APPEND(data, 0);
+            DARRAY_GROW_SIZE_TO(data, data.size + 1);
             data.size--;
         }
-
     }
 
     L_I("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
@@ -133,9 +126,7 @@ bool immy_load_with_magick_stdout(const char* path, Image* im) {
 
     if (data.size > 0) {
 
-        *im = LoadImageFromMemory(
-            "." MAGICK_CONVERT_MIDDLE_FMT, data.buffer, data.size
-        );
+        *im = LoadImageFromMemory("." MAGICK_CONVERT_MIDDLE_FMT, data.buffer, data.size);
     }
 
     DARRAY_FREE(data);
@@ -145,8 +136,7 @@ bool immy_load_with_magick_stdout(const char* path, Image* im) {
 
 #else
 
-
-bool immy_load_with_magick_stdout(const char* path, Image* im) {
+bool iLoadWithMagick(const char* path, Image* im) {
     return 0;
 }
 

@@ -2,13 +2,37 @@ AlignTrailingComments: true
 AllowShortFunctionsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
-BreakBeforeBinaryOperators: false
+BinPackParameters: false
+BinPackArguments: false
+BreakConstructorInitializers: BeforeComma
+BreakBeforeBinaryOperators: None
 IndentAccessModifiers: true
-SortIncludes: true
 DerivePointerAlignment: false
+ConstructorInitializerIndentWidth: 4
 IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
 NamespaceIndentation: All
 PointerAlignment: Left
 AlignAfterOpenBracket: BlockIndent
 AlignConsecutiveAssignments: Consecutive
 AlignConsecutiveDeclarations: Consecutive
+IndentPPDirectives: AfterHash
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false

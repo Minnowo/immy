@@ -13,9 +13,9 @@ static Texture2D_dynamic_arr_t thumbBufs;
 #if ASYNC_IMAGE_LOADING
 
 static int           thumbsLoading = 0;                             // number of thumbs loading
-static immy_image_t* loadingThumbs[THUMB_ASYNC_LOAD_AMOUNT] = {0 }; // loading thumbs
+static ImmyImage_t* loadingThumbs[THUMB_ASYNC_LOAD_AMOUNT] = {0 }; // loading thumbs
 
-static inline int getThumbLoadingIndex(immy_image_t* im) {
+static inline int getThumbLoadingIndex(ImmyImage_t* im) {
 
     for (int i = 0; i < THUMB_ASYNC_LOAD_AMOUNT; i++)
 
@@ -26,7 +26,7 @@ static inline int getThumbLoadingIndex(immy_image_t* im) {
     return -1;
 }
 
-static inline void handleThumbLoad(immy_image_t* im) {
+static inline void handleThumbLoad(ImmyImage_t* im) {
 
     switch (im->status) {
 
@@ -58,7 +58,7 @@ static inline void handleThumbLoad(immy_image_t* im) {
             return;
 
         // create a thumbnail
-        immyGetOrCreateThumbEx(im, true);
+        iGetOrCreateThumbEx(im, true);
 
         // if this is false, the user tried to access
         // the image while it was loading for a thumb.
@@ -85,7 +85,7 @@ static inline void handleThumbLoad(immy_image_t* im) {
         if(loadingThumbs[i] != NULL)
             continue;
 
-        if (immy_async_load_image(im)) {
+        if (iLoadImageAsync(im)) {
 
             im->status = IMAGE_STATUS_LOADING;
             im->isLoadingForThumbOnly = true;
@@ -111,7 +111,7 @@ void uiThumbPageClearState() {
 }
 
 
-void uiRenderThumbs(const immy_control_t* ctrl) {
+void uiRenderThumbs(const ImmyControl_t* ctrl) {
 
     const int sw = GetScreenWidth();
     const int sh = GetScreenHeight();
@@ -144,12 +144,12 @@ void uiRenderThumbs(const immy_control_t* ctrl) {
         if(row >= rows)
             continue;
 
-        immy_image_t* dim = ctrl->image_files.buffer + i;
+        ImmyImage_t* dim = ctrl->image_files.buffer + i;
 
 #if ASYNC_IMAGE_LOADING
         if (dim->status == IMAGE_STATUS_LOADING) {
 
-            if (!immy_async_get_image(dim))
+            if (!iGetImageAsync(dim))
                 continue;
 
             if (dim->status == IMAGE_STATUS_LOADED)
@@ -182,7 +182,7 @@ void uiRenderThumbs(const immy_control_t* ctrl) {
 
         if (dim->thumb_status != IMAGE_STATUS_LOADED) {
 
-            if (!immyGetOrCreateThumb(dim)) {
+            if (!iGetOrCreateThumb(dim)) {
 
                 dim->thumb_status = IMAGE_STATUS_FAILED;
 

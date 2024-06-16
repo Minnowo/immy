@@ -9,12 +9,11 @@
 #include "../darray.h"
 #include "core.h"
 
-log_level_t log_level      = LOG_LEVEL;
-char*       thumbCachePath = NULL;
+LogLevel_t log_level      = LOG_LEVEL;
 
-int immy_add_image(immy_control_t* ctrl, const char* path_) {
+int iAddImage(ImmyControl_t* ctrl, const char* path_) {
 
-    char* path = immyStrdup(path_);
+    char* path = iStrDup(path_);
 
     if (!path) {
 
@@ -27,7 +26,7 @@ int immy_add_image(immy_control_t* ctrl, const char* path_) {
 
     const char* name = GetFileName(path);
 
-    immy_image_t i = {
+    ImmyImage_t i = {
         .path        = path,
         .name        = name,
         .rayim       = {0},
@@ -46,7 +45,7 @@ int immy_add_image(immy_control_t* ctrl, const char* path_) {
     return newImageIndex;
 }
 
-void immy_set_image(immy_control_t* ctrl, size_t index) {
+void iSetImage(ImmyControl_t* ctrl, size_t index) {
 
     if (index >= ctrl->image_files.size) {
 
@@ -60,12 +59,12 @@ void immy_set_image(immy_control_t* ctrl, size_t index) {
     ctrl->renderFrames   = RENDER_FRAMES;
 }
 
-void immy_raylib_log(int msgType, const char* fmt, va_list ap) {
+void iLogRaylib(int msgType, const char* fmt, va_list ap) {
 
     if (log_level == __LOG_LEVEL_NOTHING)
         return;
 
-    log_level_t level = __LOG_LEVEL_DEBUG;
+    LogLevel_t level = __LOG_LEVEL_DEBUG;
 
     switch (msgType) {
     case LOG_INFO:
@@ -138,7 +137,7 @@ void immy_raylib_log(int msgType, const char* fmt, va_list ap) {
     }
 }
 
-void immy_log(log_level_t level, FILE* stream, const char* fmt, ...) {
+void iLog(LogLevel_t level, FILE* stream, const char* fmt, ...) {
 
     if (log_level == __LOG_LEVEL_NOTHING)
         return;

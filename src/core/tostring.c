@@ -15,7 +15,7 @@
         return "   " STRINGIFY(enum_name);
 
 
-const char* get_pretty_screen_text(immy_screen_t screen) {
+const char* iScreenToStr(UIScreen_t screen) {
 
     switch (screen) {
 
@@ -36,7 +36,8 @@ const char* get_pretty_screen_text(immy_screen_t screen) {
     }
 }
 
-const char* immy_get_interpolation_pretty_text(TextureFilter tf){
+
+const char* iInterpolationToStr(TextureFilter tf){
     switch (tf) {
 
     case TEXTURE_FILTER_POINT:
@@ -60,7 +61,8 @@ const char* immy_get_interpolation_pretty_text(TextureFilter tf){
 }
 
 
-const char* get_key_to_pretty_text(int key) {
+
+const char* iKeyToStr(int key) {
 
     switch (key) {
 
@@ -178,7 +180,7 @@ const char* get_key_to_pretty_text(int key) {
     return "UNKNOWN";
 }
 
-const char* get_mouse_to_pretty_text(int key) {
+const char* iMouseToStr(int key) {
 
     switch (key) {
 

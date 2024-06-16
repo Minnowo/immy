@@ -8,7 +8,7 @@
 #include "../../core/core.h"
 #include "../ui.h"
 
-void uiRenderKeybinds(const immy_control_t* ctrl) {
+void uiRenderKeybinds(const ImmyControl_t* ctrl) {
 
     const size_t SCROLL_COUNT = KEYBIND_COUNT + MOUSEBIND_COUNT;
     const int    sw           = GetScreenWidth();
@@ -20,8 +20,7 @@ void uiRenderKeybinds(const immy_control_t* ctrl) {
     size_t startIndex   = 0;
     size_t scrollOffset = (sh / g_unifontSize) / 2;
 
-    if (scrollOffset < ctrl->keybindPageScroll &&
-        SCROLL_COUNT > scrollOffset * 2) {
+    if (scrollOffset < ctrl->keybindPageScroll && SCROLL_COUNT > scrollOffset * 2) {
 
         startIndex = ctrl->keybindPageScroll - scrollOffset;
 
@@ -31,15 +30,15 @@ void uiRenderKeybinds(const immy_control_t* ctrl) {
         }
     }
 
-    startY =
-        GetScreenHeight() - MIN(SCROLL_COUNT * g_unifontSize, (scrollOffset * 2) * g_unifontSize);
+    startY = GetScreenHeight() - MIN(SCROLL_COUNT * g_unifontSize, (scrollOffset * 2) * g_unifontSize);
 
     for (i = startIndex; i < KEYBIND_COUNT; i++) {
 
-        InputMapping* im          = keybinds + i;
-        int           y           = startY + g_unifontSize * (i - startIndex);
-        const char*   SCREEN_TEXT = get_pretty_screen_text(im->screen);
-        const char*   KEY_TEXT    = get_key_to_pretty_text(im->key);
+        InputMapping* im = keybinds + i;
+        int           y  = startY + g_unifontSize * (i - startIndex);
+
+        const char*   SCREEN_TEXT = iScreenToStr(im->screen);
+        const char*   KEY_TEXT    = iKeyToStr(im->key);
         const int     SCR_PAD_LEN = 1 + STRLEN_SCREEN_STR - strlen(SCREEN_TEXT);
         const int     KEY_PAD_LEN = 1 + STRLEN_KEY_STR - strlen(KEY_TEXT);
 
@@ -52,19 +51,20 @@ void uiRenderKeybinds(const immy_control_t* ctrl) {
         DrawTextEx(
             g_unifont,
             TextFormat(
-                "%s%*.*s %s%*.*s %s", SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN,
-                PADDING, KEY_TEXT, KEY_PAD_LEN, KEY_PAD_LEN, PADDING, im->NAME
+                "%s%*.*s %s%*.*s %s", SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN, PADDING, KEY_TEXT, KEY_PAD_LEN,
+                KEY_PAD_LEN, PADDING, im->NAME
             ),
-            (Vector2){FILE_LIST_LEFT_MARGIN, y}, g_unifontSize, UNIFONT_SPACING, TEXT_COLOR_RGBA 
+            (Vector2){FILE_LIST_LEFT_MARGIN, y}, g_unifontSize, UNIFONT_SPACING, TEXT_COLOR_RGBA
         );
     }
 
     for (; i - KEYBIND_COUNT < MOUSEBIND_COUNT; i++) {
 
-        InputMapping* im          = mousebinds + i - KEYBIND_COUNT;
-        int           y           = startY + g_unifontSize * (i - startIndex);
-        const char*   SCREEN_TEXT = get_pretty_screen_text(im->screen);
-        const char*   KEY_TEXT    = get_mouse_to_pretty_text(im->key);
+        InputMapping* im = mousebinds + i - KEYBIND_COUNT;
+        int           y  = startY + g_unifontSize * (i - startIndex);
+
+        const char*   SCREEN_TEXT = iScreenToStr(im->screen);
+        const char*   KEY_TEXT    = iKeyToStr(im->key);
         const int     SCR_PAD_LEN = 1 + STRLEN_SCREEN_STR - strlen(SCREEN_TEXT);
         const int     KEY_PAD_LEN = 1 + STRLEN_KEY_STR - strlen(KEY_TEXT);
 
@@ -77,10 +77,10 @@ void uiRenderKeybinds(const immy_control_t* ctrl) {
         DrawTextEx(
             g_unifont,
             TextFormat(
-                "%s%*.*s %s%*.*s %s", SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN,
-                PADDING, KEY_TEXT, KEY_PAD_LEN, KEY_PAD_LEN, PADDING, im->NAME
+                "%s%*.*s %s%*.*s %s", SCREEN_TEXT, SCR_PAD_LEN, SCR_PAD_LEN, PADDING, KEY_TEXT, KEY_PAD_LEN,
+                KEY_PAD_LEN, PADDING, im->NAME
             ),
-            (Vector2){FILE_LIST_LEFT_MARGIN, y}, g_unifontSize, UNIFONT_SPACING, TEXT_COLOR_RGBA 
+            (Vector2){FILE_LIST_LEFT_MARGIN, y}, g_unifontSize, UNIFONT_SPACING, TEXT_COLOR_RGBA
         );
     }
 }

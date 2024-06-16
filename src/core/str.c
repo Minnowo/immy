@@ -14,7 +14,7 @@
 
 
 
-int immyQsortStrcmp(const void* a, const void* b) {
+int iqStrCmp(const void* a, const void* b) {
 
     char const* pa = *(char const**)a;
     char const* pb = *(char const**)b;
@@ -22,7 +22,7 @@ int immyQsortStrcmp(const void* a, const void* b) {
     return strcmp(pa, pb);
 }
 
-int immyQsortNatstrcmp(const void* a, const void* b) {
+int iqNatStrCmp(const void* a, const void* b) {
 
     char const* pa = *(char const**)a;
     char const* pb = *(char const**)b;
@@ -30,7 +30,7 @@ int immyQsortNatstrcmp(const void* a, const void* b) {
     return strnatcmp(pa, pb);
 }
 
-char* immyStrdupn(const char* str, size_t n, size_t* len_) {
+char* inStrDup(const char* str, size_t n, size_t* len_) {
 
     const size_t len = strlen(str);
 
@@ -48,7 +48,7 @@ char* immyStrdupn(const char* str, size_t n, size_t* len_) {
     return newstr;
 }
 
-char* immyStrdup(const char* str) {
+char* iStrDup(const char* str) {
 
 #ifdef _POSIX_C_SOURCE
 
@@ -60,28 +60,28 @@ char* immyStrdup(const char* str) {
 #endif
 }
 
-char* immyEstrdup(const char* str) {
+char* ieStrDup(const char* str) {
 
-    char* newstr = immyStrdup(str);
+    char* newstr = iStrDup(str);
 
     DIE_IF_NULL(newstr, "%s: strdup was null: %s", __func__, strerror(errno));
 
     return newstr;
 }
 
-char* immyStrJoin(const char* a, const char* b, const char* sep) {
+char* iStrJoin(const char* a, const char* b, const char* sep) {
 
     size_t len = strlen(a) + strlen(b) + strlen(sep) + 1;
 
     char* newstr = malloc(len);
 
-    if (!immyStrJoinInto(newstr, len, a, b, sep))
+    if (!iStrJoinInto(newstr, len, a, b, sep))
         return NULL;
 
     return newstr;
 }
 
-bool immyStrJoinInto(
+bool iStrJoinInto(
     char* restrict buf, 
     size_t bufSize, 
     const char* a, 
@@ -97,7 +97,7 @@ bool immyStrJoinInto(
     return true;
 }
 
-const char* immyGetCacheDirectory() {
+const char* iGetCacheDirectory() {
 
 #if OVERRIDE_THUMBNAIL_CACHE_PATH
 
@@ -116,7 +116,7 @@ const char* immyGetCacheDirectory() {
 #endif
 }
 
-char* immyGetCachedPath(const char* path) {
+char* iGetCachedPath(const char* path) {
 
     char buf[IMMY_PATH_MAX + 1];
 
@@ -124,7 +124,7 @@ char* immyGetCachedPath(const char* path) {
 
     // hash the absolute path for a 'unique' 
     // short name for the cache
-    // we know IMMY_PATH_MAX can ALWAYS fit sha256 has bytes * 3
+    // we know IMMY_PATH_MAX can ALWAYS fit SHA256_BLOCK_SIZE * 3
     SHA256_CTX sha256;
     sha256_init(&sha256);
     sha256_update(&sha256, (BYTE*)ptr, strlen(ptr));
@@ -132,27 +132,31 @@ char* immyGetCachedPath(const char* path) {
 
     // 0 - 31  contains the sha256 hash bytes
     // 32 - 96 contains the sha256 hex string
-    ptr += 32;
+    ptr += SHA256_BLOCK_SIZE;
 
-    for (size_t i = 0; i < 32; ++i) {
+    for (size_t i = 0; i < SHA256_BLOCK_SIZE; ++i) {
         sprintf(ptr + i * 2, "%02x", (unsigned char)buf[i]);
     }
 
-    ptr[64] = 0;
+    // end the hex string
+    ptr[SHA256_BLOCK_SIZE] = 0;
 
-    const char* cacheDir = immyGetCacheDirectory();
+    const char* cacheDir = iGetCacheDirectory();
 
-    char* cachedPath = immyStrJoin( cacheDir, ptr, THUMBNAIL_CACHE_PATH);
+    char* cachedPath = iStrJoin( cacheDir, ptr, THUMBNAIL_CACHE_PATH);
 
     return cachedPath;
 }
 
 
-bool immyCreateDirectory(const char* path_){
+bool iCreateDirectory(const char* path_){
 
-    char* path = immyEstrdup(path_);
+    char* path = iStrDup(path_);
     char* s    = path;
     bool  r    = true;
+
+    if (!path)
+        return false;
 
     while(*s != 0) {
 

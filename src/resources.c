@@ -5,11 +5,11 @@
 
 #ifdef USE_RESOURCE_BUNDLE
 
-#include "bundle.h"
+#    include "bundle.h"
 
-#ifndef BUNDLE_H_
-#error "USE_RESOURCE_BUNDLE is defined, but the bundle.h file does not define a bundle"
-#endif
+#    ifndef BUNDLE_H_
+#        error "USE_RESOURCE_BUNDLE is defined, but the bundle.h file does not define a bundle"
+#    endif
 
 unsigned char* get_resource_data(const char* resource_path, size_t* data_size) {
 
@@ -33,7 +33,7 @@ void free_resource_data(void* data) {
 
 #else
 
-#include "raylib.h"
+#    include "raylib.h"
 
 unsigned char* get_resource_data(const char* resource_path, size_t* data_size) {
 

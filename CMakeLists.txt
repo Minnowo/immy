@@ -26,6 +26,11 @@ set(RAYGUI_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/raylib/raygui-4.0/)
 # the bundler will generate this file
 set(BUNDLER_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bundle.h)
 
+# The additional / is important to remove the last character from the path.
+# Note that it does not matter if the OS uses / or \, because we are only
+# saving the path size.
+string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
+add_definitions("-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}")
 
 # if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 #     set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -54,6 +59,7 @@ add_executable(${PROJECT_NAME}
     src/core/imagemagick.c
     src/core/imlib.c
     src/core/clipboard.c
+    src/core/x11.c
     src/input.c
     src/input.h
     src/resources.c
@@ -168,9 +174,9 @@ add_subdirectory(${RAYLIB_ROOT})
 # Checking for Imlib2   #
 #########################
 
-find_library(IMLIB Imlib2)
+find_library(IMLIB_FOUND Imlib2)
 
-if(IMLIB)
+if(IMLIB_FOUND)
     message(STATUS "Imlib2 found")
 
     # add imlib2
@@ -181,4 +187,20 @@ else()
     message(STATUS "Imlib2 not found, proceeding without it")
 endif()
 
- 
+
+#########################
+# Checking for X11      #
+#########################
+find_library(X11_FOUND X11)
+
+if(X11_FOUND)
+
+    message(STATUS "X11 found")
+
+    target_link_libraries(${PROJECT_NAME} PUBLIC X11)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE X11_AVAILABLE)
+
+else()
+    message(WARNING "X11 not found.")
+endif()
+

@@ -1,13 +1,12 @@
 
 
-#include <errno.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #ifdef __unix__
-#include <sys/wait.h>
+#    include <sys/wait.h>
 #endif
 
 #include "../config.h"
@@ -15,11 +14,9 @@
 #include "../external/strnatcmp.h"
 #include "core.h"
 
-
 #ifdef __unix__
 
-
-bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
+bool iLoadImageWithFFmpeg(const char* path, Image* im) {
 
     L_I("About to read image using FFMPEG");
     L_D("%s: decode format is " FFMPEG_CONVERT_MIDDLE_FMT, __func__);
@@ -96,10 +93,7 @@ bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
 
     DARRAY_INIT(data, 1024 * 1024 * 4);
 
-    while ((bytesRead = read(
-                pipefd[PIPE_READ], data.buffer + data.size,
-                data.length - data.size
-            )) > 0) {
+    while ((bytesRead = read(pipefd[PIPE_READ], data.buffer + data.size, data.length - data.size)) > 0) {
 
         data.size += bytesRead;
 
@@ -107,7 +101,6 @@ bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
             DARRAY_APPEND(data, 0);
             data.size--;
         }
-
     }
     L_I("%s: Read %fmb from stdout", __func__, BYTES_TO_MB(data.size));
 
@@ -116,9 +109,7 @@ bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
 
     if (data.size > 0) {
 
-        *im = LoadImageFromMemory(
-            "." FFMPEG_CONVERT_MIDDLE_FMT, data.buffer, data.size
-        );
+        *im = LoadImageFromMemory("." FFMPEG_CONVERT_MIDDLE_FMT, data.buffer, data.size);
     }
 
     DARRAY_FREE(data);
@@ -126,10 +117,7 @@ bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
     return im->data != NULL;
 }
 
-
-#else 
-
-
+#else
 
 bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
     return 0;

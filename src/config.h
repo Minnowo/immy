@@ -444,8 +444,6 @@ InputMapping keybinds[] = {
     // ###########################
     // ##### thumbs    page ######
     // ###########################
-    // BIND(KEY_K, kb_Scroll_Thumb_Page_Up  , SCREEN_THUMB_GRID, DELAY_FAST),
-    // BIND(KEY_J, kb_Scroll_Thumb_Page_Down, SCREEN_THUMB_GRID, DELAY_FAST),
     BIND(KEY_K,         kb_Thumb_Page_Up       , SCREEN_THUMB_GRID, DELAY_FAST),
     BIND(KEY_J,         kb_Thumb_Page_Down     , SCREEN_THUMB_GRID, DELAY_FAST),
     BIND(KEY_H,         kb_Thumb_Page_Left     , SCREEN_THUMB_GRID, DELAY_FAST),
@@ -477,9 +475,6 @@ InputMapping mousebinds[] = {
 
     BIND(MOUSE_WHEEL_FWD             , kb_Scroll_Keybind_List_Up  , SCREEN_KEYBINDS, DELAY_INSTANT),
     BIND(MOUSE_WHEEL_BWD             , kb_Scroll_Keybind_List_Down, SCREEN_KEYBINDS, DELAY_INSTANT),
-
-    BIND(MOUSE_WHEEL_FWD, kb_Scroll_Thumb_Page_Up  , SCREEN_THUMB_GRID, DELAY_INSTANT),
-    BIND(MOUSE_WHEEL_BWD, kb_Scroll_Thumb_Page_Down, SCREEN_THUMB_GRID, DELAY_INSTANT),
 };
 
 //////////////////////

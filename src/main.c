@@ -1,11 +1,4 @@
 
-#include "input.h"
-
-// // we are not using this yet
-// #define RAYGUI_IMPLEMENTATION
-// #include "raygui.h"
-// #undef RAYGUI_IMPLEMENTATION
-
 #include "raylib.h"
 
 #include <stddef.h>
@@ -20,22 +13,23 @@
 #undef KEYBINDS_IMPLEMENTATION
 #undef ZOOM_LEVELS_IMPLEMENTATION
 
+#include "input.h"
 #include "darray.h"
-#include "core/core.h"
 #include "ui/ui.h"
+#include "core/core.h"
 
-struct immy_control this;
+struct ImmyControl this;
 
 static inline void sort_file_list(FilePathList fpl) {
 
     switch (this.filename_cmp) {
 
     case SORT_ORDER__DEFAULT:
-        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), immyQsortStrcmp);
+        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), iqStrCmp);
         break;
 
     case SORT_ORDER__NATURAL:
-        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), immyQsortNatstrcmp);
+        qsort(fpl.paths, fpl.count, sizeof(fpl.paths[0]), iqNatStrCmp);
         break;
     }
 }
@@ -43,10 +37,10 @@ static inline void sort_file_list(FilePathList fpl) {
 
 void add_file(const char* path_) {
 
-    int imIndex = immy_add_image(&this, path_);
+    int imIndex = iAddImage(&this, path_);
 
     if (imIndex == 0) {
-        immy_set_image(&this, 0);
+        iSetImage(&this, 0);
     }
 }
 
@@ -143,7 +137,7 @@ void do_keyboard_input() {
 
 // returns the number of arguments to skip
 int handle_flags(
-    immy_config_t* config, const char* flag_str, const char* flag_value
+    ImmyConfig_t* config, const char* flag_str, const char* flag_value
 ) {
 
     size_t flen = strlen(flag_str);
@@ -246,7 +240,7 @@ int handle_flags(
     return 0;
 }
 
-void handle_start_args(immy_config_t* config, int argc, char* argv[]) {
+void handle_start_args(ImmyConfig_t* config, int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
 
@@ -311,7 +305,7 @@ void detach_from_terminal() {
 int main(int argc, char* argv[]) {
 
     // repalce raylib logging with our own
-	SetTraceLogCallback(immy_raylib_log);
+	SetTraceLogCallback(iLogRaylib);
 
     memset(&this, 0, sizeof(this));
 
@@ -346,7 +340,7 @@ int main(int argc, char* argv[]) {
     // we want to load the image before we lose the terminal
     // so that scripts know we have the image and can remove it
     if (this.selected_image != NULL)
-        immyLoadImage(this.selected_image);
+        iLoadImage(this.selected_image);
 
     if (!this.config.terminal)
         detach_from_terminal();
@@ -471,7 +465,7 @@ int main(int argc, char* argv[]) {
 
     DARRAY_FOR_EACH(this.image_files, i) {
 
-        immy_image_t im = this.image_files.buffer[i];
+        ImmyImage_t im = this.image_files.buffer[i];
 
         if (im.status == IMAGE_STATUS_LOADED) {
             UnloadImage(im.rayim);

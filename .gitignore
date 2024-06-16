@@ -1,11 +1,18 @@
 
+### Other Stuff ###
+
+# we are not using this (yet, or ever)
 /raylib/raygui-4.0
-cmakebuild/
-test_images/
+
+# for cmake
 build/
 
-/src/bundle.h
+# contains compiled assets
+src/bundle.h
 
+# for clangd
+.cache/
+compile_commands.json
 
 # Created by https://www.toptal.com/developers/gitignore/api/c,c++,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=c,c++,linux
