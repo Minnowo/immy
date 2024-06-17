@@ -170,6 +170,7 @@ typedef struct ImmyImage {
         TextureFilter interpolation;
 
         bool rebuildBuff; // updates the Texture2D
+        bool updateShaders;
         bool applyGrayscaleShader;
         bool applyInvertShader;
         bool isLoadingForThumbOnly;

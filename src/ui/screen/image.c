@@ -138,16 +138,19 @@ void uiRenderImage(ImmyImage_t* im) {
         GenTextureMipmaps(&imageBuf);
     }
 
+
 #if ENABLE_SHADERS
 
+    if (im->updateShaders) {
+
+        im->updateShaders = false;
+
+        Vector2 effects = {im->applyInvertShader, im->applyGrayscaleShader};
+
+        SetShaderValue(grayscaleShader, grayInvertEffectLocation, &effects, SHADER_UNIFORM_VEC2);
+    }
+
     if (im->applyGrayscaleShader || im->applyInvertShader) {
-
-        // these have to be global?? or static for the set value to work
-        applyInvertShaderValue    = cImage->applyInvertShader;
-        applyGrayscaleShaderValue = cImage->applyGrayscaleShader;
-
-        SetShaderValue(grayscaleShader, invertShaderValueLocation, &applyInvertShaderValue, SHADER_UNIFORM_INT);
-        SetShaderValue(grayscaleShader, grayscaleShaderValueLocation, &applyGrayscaleShaderValue, SHADER_UNIFORM_INT);
 
         BeginShaderMode(grayscaleShader);
     }

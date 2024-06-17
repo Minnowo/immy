@@ -23,8 +23,7 @@ extern Texture2D g_backgroundBuf;  // the background texture
 extern Shader grayscaleShader;
 extern bool   applyInvertShaderValue;
 extern bool   applyGrayscaleShaderValue;
-extern int    invertShaderValueLocation;
-extern int    grayscaleShaderValueLocation;
+extern int    grayInvertEffectLocation;
 
 #endif
 

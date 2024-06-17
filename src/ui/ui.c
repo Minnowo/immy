@@ -22,8 +22,7 @@ Texture2D g_backgroundBuf  = {0};                   // the background texture
 Shader grayscaleShader              = {0};
 bool   applyInvertShaderValue       = false;
 bool   applyGrayscaleShaderValue    = false;
-int    invertShaderValueLocation    = 0;
-int    grayscaleShaderValueLocation = 0;
+int    grayInvertEffectLocation     = 0;
 
 #endif
 
@@ -54,9 +53,7 @@ void uiInit(ImmyConfig_t* config) {
 
 #if ENABLE_SHADERS
     grayscaleShader = LoadShaderFromMemory(NULL, INVERT_AND_GRAYSCALE_SHADER_CODE);
-    invertShaderValueLocation = GetShaderLocation(grayscaleShader, "applyInvert");
-    grayscaleShaderValueLocation =
-        GetShaderLocation(grayscaleShader, "applyGrayscale");
+    grayInvertEffectLocation = GetShaderLocation(grayscaleShader, "effects");
 #endif
 
     dIntArrInit(&g_fontCodepoints, 128);

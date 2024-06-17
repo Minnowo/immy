@@ -297,6 +297,7 @@ void kb_Color_Invert_Shader(ImmyControl_t* ctrl) {
     _NO_IMAGE_WARN(ctrl);
 
     ctrl->selected_image->applyInvertShader = !ctrl->selected_image->applyInvertShader;
+    ctrl->selected_image->updateShaders = true;
 }
 
 void kb_Color_Grayscale_Shader(ImmyControl_t* ctrl) {
@@ -304,6 +305,7 @@ void kb_Color_Grayscale_Shader(ImmyControl_t* ctrl) {
     _NO_IMAGE_WARN(ctrl);
 
     ctrl->selected_image->applyGrayscaleShader = !ctrl->selected_image->applyGrayscaleShader;
+    ctrl->selected_image->updateShaders = true;
 }
 
 void kb_Increase_FPS(ImmyControl_t* ctrl) {

@@ -33,19 +33,18 @@ void free_resource_data(void* data);
         "in vec4 fragColor;"                                                       \
         "uniform sampler2D texture0;"                                              \
         "uniform vec4 colDiffuse;"                                                 \
-        "uniform bool applyInvert;"                                                \
-        "uniform bool applyGrayscale;"                                             \
+        "uniform vec2 effects;"                                                    \
         "out vec4 finalColor;"                                                     \
         "void main()"                                                              \
         "{"                                                                        \
         "vec4 tColor = texture(texture0, fragTexCoord) * colDiffuse * fragColor;"  \
         "vec3 color = tColor.rgb;"                                                 \
-        "color = mix(color, 1.0 - color, float(applyInvert));"                     \
+        "color = mix(color, 1.0 - color, effects.x);"                              \
         "float gray = dot(color, vec3("                                            \
-                     STRINGIFY_MACRO(GRAYSCALE_COEF_R) ","                         \
-                     STRINGIFY_MACRO(GRAYSCALE_COEF_G) ","                         \
-                     STRINGIFY_MACRO(GRAYSCALE_COEF_B) " ));"                      \
-        "color = mix(color, vec3(gray), float(applyGrayscale));"                   \
+                         STRINGIFY_MACRO(GRAYSCALE_COEF_R) ","                     \
+                         STRINGIFY_MACRO(GRAYSCALE_COEF_G) ","                     \
+                         STRINGIFY_MACRO(GRAYSCALE_COEF_B) "));"                   \
+        "color = mix(color, vec3(gray), effects.y);"                               \
         "finalColor = vec4(color, tColor.a);"                                      \
         "}"
 
@@ -57,18 +56,17 @@ void free_resource_data(void* data);
         "varying vec4 fragColor;"                                                  \
         "uniform sampler2D texture0;"                                              \
         "uniform vec4 colDiffuse;"                                                 \
-        "uniform bool applyInvert;"                                                \
-        "uniform bool applyGrayscale;"                                             \
+        "uniform vec2 effects;"                                                    \
         "void main()"                                                              \
         "{"                                                                        \
         "vec4 tColor = texture2D(texture0, fragTexCoord)*colDiffuse*fragColor;"    \
         "vec3 color = tColor.rgb;"                                                 \
-        "color = mix(color, 1.0 - color, float(applyInvert));"                     \
+        "color = mix(color, 1.0 - color, float(effects.x));"                       \
         "float gray = dot(color, vec3("                                            \
                      STRINGIFY_MACRO(GRAYSCALE_COEF_R) ","                         \
                      STRINGIFY_MACRO(GRAYSCALE_COEF_G) ","                         \
                      STRINGIFY_MACRO(GRAYSCALE_COEF_B) " ));"                      \
-        "color = mix(color, vec3(gray), float(applyGrayscale));"                   \
+        "color = mix(color, vec3(gray), float(effects.y));"                        \
         "gl_FragColor = vec4(color, tColor.a);"                                    \
         "}"
 
@@ -81,18 +79,17 @@ void free_resource_data(void* data);
         "varying vec4 fragColor;"                                                  \
         "uniform sampler2D texture0;"                                              \
         "uniform vec4 colDiffuse;"                                                 \
-        "uniform bool applyInvert;"                                                \
-        "uniform bool applyGrayscale;"                                             \
+        "uniform vec2 effects;"                                                    \
         "void main()"                                                              \
         "{"                                                                        \
         "vec4 tColor = texture2D(texture0, fragTexCoord)*colDiffuse*fragColor;"    \
         "vec3 color = tColor.rgb;"                                                 \
-        "color = mix(color, 1.0 - color, float(applyInvert));"                     \
+        "color = mix(color, 1.0 - color, float(effects.x));"                       \
         "float gray = dot(color, vec3("                                            \
                      STRINGIFY_MACRO(GRAYSCALE_COEF_R) ","                         \
                      STRINGIFY_MACRO(GRAYSCALE_COEF_G) ","                         \
                      STRINGIFY_MACRO(GRAYSCALE_COEF_B) " ));"                      \
-        "color = mix(color, vec3(gray), float(applyGrayscale));"                   \
+        "color = mix(color, vec3(gray), float(effects.y));"                        \
         "gl_FragColor = vec4(color, tColor.a);"                                    \
         "}" 
 
