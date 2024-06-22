@@ -12,7 +12,26 @@ project(immy
     LANGUAGES C
 )
 
-set(CMAKE_C_STANDARD 23)
+get_property(c_features GLOBAL PROPERTY CMAKE_C_KNOWN_FEATURES)
+
+message(STATUS "C Features: ${c_features}")
+
+# c_std_90;c_std_99;c_std_11;c_std_17;c_std_23
+if("c_std_23" IN_LIST c_features)
+    set(CMAKE_C_STANDARD 23)
+elseif("c_std_17" IN_LIST c_features)
+    set(CMAKE_C_STANDARD 17)
+elseif("c_std_11" IN_LIST c_features)
+    set(CMAKE_C_STANDARD 11)
+elseif("c_std_99" IN_LIST c_features)
+    set(CMAKE_C_STANDARD 99)
+elseif("c_std_90" IN_LIST c_features)
+    set(CMAKE_C_STANDARD 90)
+endif()
+
+message(STATUS "C_STANDARD is: ${CMAKE_C_STANDARD}")
+
+set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -61,6 +80,8 @@ add_executable(${PROJECT_NAME}
     src/core/imagemagick.c
     src/core/imlib.c
     src/core/clipboard.c
+    src/core/win32.c
+    src/core/unix.c
     src/core/x11.c
     src/input.c
     src/input.h

@@ -201,3 +201,24 @@ void iLog(LogLevel_t level, FILE* stream, const char* fmt, ...) {
         break;
     }
 }
+
+void iDetachFromTerminal() {
+
+#if !ALLOW_DETACH_FROM_TERMINAL
+    return;
+#endif
+
+#ifdef __unix__
+
+    if (!uDetachFromTerminal())
+        L_W("unix: Could not detatch from terminal");
+
+#endif
+
+#ifdef _WIN32
+
+    if (!wDetachFromTerminal())
+        L_W("win32: Could not detatch from terminal");
+
+#endif
+}

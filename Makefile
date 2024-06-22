@@ -39,3 +39,8 @@ uninstall:
 	update-desktop-database /usr/share/applications/
 	rmdir "/opt/$(NAME)" || true
 
+setup_cross_compile:
+	git clone "https://github.com/dockcross/dockcross.git"
+	cd dockcross && docker run --rm dockcross/windows-static-x64-posix > ./dockcross-windows-static-x64-posix
+	chmod +x dockcross/dockcross-windows-static-x64-posix
+

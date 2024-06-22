@@ -15,9 +15,11 @@
 #include "../external/strnatcmp.h"
 #include "core.h"
 
-#ifdef __unix__
-
 bool iLoadImageWithFFmpeg(const char* path, Image* im) {
+
+#ifndef __unix__
+    return 0;
+#else
 
     L_I("About to read image using FFMPEG");
     L_D("%s: decode format is " FFMPEG_CONVERT_MIDDLE_FMT, __func__);
@@ -47,7 +49,8 @@ bool iLoadImageWithFFmpeg(const char* path, Image* im) {
 
             L_C("%s (child): Could not open write end of pipe "
                 "as stdout: %s",
-                __func__, strerror(errno));
+                __func__,
+                strerror(errno));
 
             exit(EXIT_FAILURE);
 
@@ -118,12 +121,5 @@ bool iLoadImageWithFFmpeg(const char* path, Image* im) {
     dByteArrFree(&data);
 
     return im->data != NULL;
-}
-
-#else
-
-bool immy_load_with_ffmpeg_stdout(const char* path, Image* im) {
-    return 0;
-}
-
 #endif
+}

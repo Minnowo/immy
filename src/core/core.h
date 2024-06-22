@@ -335,6 +335,7 @@ void iDitherImage(ImmyImage_t* im);
 ///
 
 bool iCreateDirectory(const char* path);
+void iDetachFromTerminal();
 
 ///
 /// Logging Functions
@@ -394,6 +395,14 @@ bool iGetImageAsync(ImmyImage_t* im);
 ///
 /// Platform Specific Stuff
 ///
+
+#ifdef __unix__
+bool uDetachFromTerminal();
+#endif
+
+#ifdef _WIN32
+bool wDetachFromTerminal();
+#endif
 
 #ifdef X11_AVAILABLE
 

@@ -5,8 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+
+#ifdef _WIN32
+#    include <direct.h>
+#    define realpath(N, R) _fullpath((R), (N), IMMY_PATH_MAX)
+#    define mkdir _mkdir
+#else
+#    include <sys/stat.h>
+#    include <sys/types.h>
+#endif
 
 #include "../external/sha256.h"
 #include "../external/strnatcmp.h"
@@ -176,7 +183,11 @@ bool iCreateDirectory(const char* path_){
 
         L_D("Creating %s", path);
 
+#ifdef _WIN32
+        if (mkdir(path) == -1) {
+#else
         if (mkdir(path, 0755) == -1) {
+#endif
 
             if (errno != EEXIST) {
 

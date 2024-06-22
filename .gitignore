@@ -1,6 +1,9 @@
 
 ### Other Stuff ###
 
+# for cross compilation
+dockcross/
+
 # we are not using this (yet, or ever)
 /raylib/raygui-4.0
 

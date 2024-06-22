@@ -14,9 +14,12 @@
 #include "../external/strnatcmp.h"
 #include "core.h"
 
-#ifdef __unix__
 
 bool iLoadImageWithMagick(const char* path, Image* im) {
+
+#ifndef __unix__
+    return 0;
+#else
 
     L_I("About to read image using ImageMagick Convert");
     L_D("%s: Convert decode format is " MAGICK_CONVERT_MIDDLE_FMT, __func__);
@@ -134,12 +137,6 @@ bool iLoadImageWithMagick(const char* path, Image* im) {
     dByteArrFree(&data);
 
     return im->data != NULL;
-}
-
-#else
-
-bool iLoadWithMagick(const char* path, Image* im) {
-    return 0;
-}
-
 #endif
+}
+

@@ -272,30 +272,6 @@ void handle_start_args(ImmyConfig_t* config, int argc, char* argv[]) {
     }
 }
 
-void detach_from_terminal() {
-
-#if ALLOW_DETACH_FROM_TERMINAL && defined(__unix__)
-
-    int pid = fork();
-
-    if (pid > 0) {
-        exit(EXIT_SUCCESS);
-        return;
-    }
-
-    if (pid < 0) {
-        L_E("Could not fork process");
-        return;
-    }
-
-    freopen("/dev/null", "r", stdin);
-    freopen("/dev/null", "w", stdout);
-    freopen("/dev/null", "w", stderr);
-
-#endif
-}
-
-
 
 int main(int argc, char* argv[]) {
 
@@ -338,7 +314,7 @@ int main(int argc, char* argv[]) {
         iLoadImage(this.selected_image);
 
     if (!this.config.terminal)
-        detach_from_terminal();
+        iDetachFromTerminal();
 
     uiInit(&this.config);
 
