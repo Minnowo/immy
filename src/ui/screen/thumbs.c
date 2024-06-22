@@ -167,10 +167,10 @@ void uiRenderThumbs(const ImmyControl_t* ctrl) {
 #else
             if (!syncLoadedThumb &&
                 ctrl->frame % (int)SYNC_IMAGE_LOADING_THUMB_INTERVAL == 0 &&
-                dim->status == IMAGE_STATUS_NOT_LOADED && immyLoadImage(dim)) {
+                dim->status == IMAGE_STATUS_NOT_LOADED && iLoadImage(dim)) {
 
                 syncLoadedThumb = true;
-                immyGetOrCreateThumbEx(dim, true);
+                iGetOrCreateThumbEx(dim, true);
 
                 dim->status = IMAGE_STATUS_NOT_LOADED;
                 UnloadImage(dim->rayim);
