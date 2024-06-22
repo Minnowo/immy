@@ -56,6 +56,9 @@
 #define __LOG_LEVEL_CRITICAL 5
 #define __LOG_LEVEL_NOTHING 6
 
+// If false, logging is disabled completely
+#define LOG_ENABLED true
+
 // Logging helpers.
 #if LOG_ENABLED
 #    define L_D(f, ...) iLog(__LOG_LEVEL_DEBUG, stdout, "%s:%s:%d: " f, __FILENAME__, __func__, __LINE__, ##__VA_ARGS__)

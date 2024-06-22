@@ -18,7 +18,7 @@ build:
 	mkdir -p $(BUILD_DIR)
 	cd       $(BUILD_DIR) && cmake -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) $(SOURCE_DIR)
 	make -C  $(BUILD_DIR)
-	cp       $(BUILD_DIR)/compile_commands.json $(SOURCE_DIR)
+	cp       $(BUILD_DIR)/compile_commands.json $(SOURCE_DIR) || true
 
 install: uninstall
 	mkdir -p             "/opt/$(NAME)"

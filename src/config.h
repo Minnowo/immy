@@ -4,8 +4,6 @@
 #define IMMY_CONFIG_H
 
 #include <raylib.h>
-
-#include "core/core.h"
 #include "input.h"
 
 //////////////////////
@@ -21,11 +19,10 @@ extern const size_t ZOOM_LEVELS_SIZE;
 //////////////////////
 
 
-// the default log level
+// The default log level.
+// If you want to disable logging completely at compile time.
+// See ./core/core.h and search and set LOG_ENABLED to false.
 #define LOG_LEVEL __LOG_LEVEL_INFO
-
-// If false, logging is disabled completely
-#define LOG_ENABLED true
 
 // default GLSL version
 #ifndef GLSL_VERSION
