@@ -99,6 +99,19 @@ static inline void handleThumbLoad(ImmyImage_t* im) {
     }
 }
 
+static inline void checkLoadingThumbs() {
+
+    if (thumbsLoading <= 0)
+        return;
+
+    for (int i = 0; i < THUMB_ASYNC_LOAD_AMOUNT; i++) {
+
+        if(loadingThumbs[i] != NULL)
+
+            handleThumbLoad(loadingThumbs[i]);
+    }
+}
+
 #endif
 
 void uiThumbPageClearState() {
@@ -139,7 +152,20 @@ void uiRenderThumbs(const ImmyControl_t* ctrl) {
         i = cols * ((ctrl->selected_index / cols) - (rows/2));
     }
 
+#if ASYNC_IMAGE_LOADING
+    checkLoadingThumbs();
+#endif
+
+    col--;
+
     DARRAY_FOR_EACH_I(ctrl->image_files, i) {
+
+        col++;
+
+        if (col >= cols) {
+            col = 0;
+            row ++;
+        }
 
         if(row >= rows)
             continue;
@@ -211,21 +237,14 @@ void uiRenderThumbs(const ImmyControl_t* ctrl) {
         x -= (x % THUMB_SIZE);
         x += offset;
 
-        col++;
-
-        if (col >= cols) {
-            col = 0;
-            row ++;
-        }
-
         x += (THUMB_SIZE - dim->thumb.width) / 2.0f;
         y += (THUMB_SIZE - dim->thumb.height) / 2.0f; 
 
-        int pad = 8;
-        int m = 2;
+        int pad = 12;
+        int m = 4;
 
         if(i == ctrl->selected_index) {
-            DrawRectangle( x, y, dim->thumb.width, dim->thumb.height, uiColorInvert(BAR_BACKGROUND_COLOR_RGBA));
+            DrawRectangle( x, y, dim->thumb.width, dim->thumb.height, THUMB_BACKGROUND_COLOR);
             DrawRectangleLinesEx(
                 (Rectangle){
                     x + pad - m, 
@@ -233,11 +252,11 @@ void uiRenderThumbs(const ImmyControl_t* ctrl) {
                     dim->thumb.width  - pad*2 + m*2,
                     dim->thumb.height - pad*2 + m*2
                 },
-                m, BAR_BACKGROUND_COLOR_RGBA
+                m, THUMB_SELECTED_COLOR
             );
         }
         else {
-            DrawRectangle(x, y, dim->thumb.width, dim->thumb.height, BAR_BACKGROUND_COLOR_RGBA);
+            DrawRectangle(x, y, dim->thumb.width, dim->thumb.height, THUMB_BACKGROUND_COLOR);
             DrawRectangleLinesEx(
                 (Rectangle){
                     x + pad - m, 
@@ -245,7 +264,7 @@ void uiRenderThumbs(const ImmyControl_t* ctrl) {
                     dim->thumb.width  - pad*2 + m*2,
                     dim->thumb.height - pad*2 + m*2
                 },
-                m, uiColorInvert(BAR_BACKGROUND_COLOR_RGBA)
+                m, uiColorInvert(THUMB_BACKGROUND_COLOR)
             );
         }
 

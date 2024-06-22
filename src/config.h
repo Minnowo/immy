@@ -115,7 +115,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 
 // Cache thumbnails to disk
 // They are saved as QOI generally in $HOME/.cache/immy
-#define SHOULD_CACHE_THUMBNAILS true
+#define SHOULD_CACHE_THUMBNAILS 0
 
 // Use THUMBNAIL_BASE_CACHE_PATH as the thumb cache base directory
 #define OVERRIDE_THUMBNAIL_CACHE_PATH false
@@ -316,6 +316,14 @@ const size_t ZOOM_LEVELS_SIZE = (sizeof((ZOOM_LEVELS)) / sizeof((ZOOM_LEVELS[0])
 #define SELECTED_COLOR_RGBA                                                    \
     (Color) {                                                                  \
         96, 64, 64, 255                                                        \
+    }
+
+// Thumbnail background color
+#define THUMB_BACKGROUND_COLOR BAR_BACKGROUND_COLOR_RGBA
+
+#define THUMB_SELECTED_COLOR                                                                                           \
+    (Color) {                                                                                                          \
+        255, 0, 255, 255                                                                                               \
     }
 
 // Magick numbers for calculating grayscale
