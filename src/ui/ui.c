@@ -137,9 +137,14 @@ void uiSetInitialCodePoints(const char* text) {
 
 void uiLoadCodepoints(const char* text, bool reload) {
 
+    L_D("Loading codepoints for text: %s", text);
+
     int  codep_count;
     int  BAD_C = GetGlyphIndex(g_unifont, '?');
     int* codep = LoadCodepoints(text, &codep_count);
+
+    if (codep == NULL || codep_count == 0)
+        return;
 
     for (int c = 0; c < codep_count; c++) {
 

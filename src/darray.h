@@ -2,6 +2,7 @@
 #ifndef IMMY_DARRAY_H
 #define IMMY_DARRAY_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +99,7 @@ bool dArrayGrowSize(DArray_t* darray, size_t item_size, size_t size_) {
             return false;
 
         /* you have to zero out when using realloc */
-        memset((char*)darray->buffer + darray->size, 0, item_size * (darray->length - darray->size));
+        memset((char*)darray->buffer + (item_size * darray->size), 0, item_size * (darray->length - darray->size));
 
         darray->size = size_;
     }
@@ -122,10 +123,10 @@ bool dArrayAppend(DArray_t* restrict darray, size_t item_size, void* restrict it
         } 
 
         /* you have to zero out when using realloc */
-        memset((char*)darray->buffer + darray->size, 0, item_size * (darray->length - darray->size));
+        memset((char*)darray->buffer + (item_size * darray->size), 0, item_size * (darray->length - darray->size));
     }
     
-    memcpy((char*)darray->buffer + item_size * darray->size, item, item_size);
+    memcpy((char*)darray->buffer + (item_size * darray->size), item, item_size);
 
     darray->size++;
 

@@ -40,6 +40,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(PACKAGE_RESOURCES ON)
 else()
     set(PACKAGE_RESOURCES OFF)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 endif()
 
 message(STATUS "CMake Build Type: ${CMAKE_BUILD_TYPE}")

@@ -56,7 +56,7 @@ char* iStrDup(const char* str) {
     return strdup(str);
 #else
 
-    return immyStrdupn(str, 0, NULL);
+    return inStrDup(str, 0, NULL);
 
 #endif
 }

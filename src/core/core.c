@@ -22,7 +22,7 @@ int iAddImage(ImmyControl_t* ctrl, const char* path_) {
         return -1;
     }
 
-    L_D("Adding file %s", path);
+    L_D("Adding file [%zu]: %s", ctrl->image_files.size, path, path);
 
     const char* name = GetFileName(path);
 

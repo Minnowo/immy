@@ -34,7 +34,7 @@
 #endif
 
 // To get the filename for debugging.
-#define __FILENAME__ (__FILE__ + SOURCE_PATH_SIZE)
+#define __FILENAME__ (((char*)__FILE__) + SOURCE_PATH_SIZE)
 
 // Used to indicate fallthrough.
 #define FALLTHROUGH /* fall through */
