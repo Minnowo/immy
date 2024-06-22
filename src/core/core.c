@@ -61,6 +61,8 @@ void iSetImage(ImmyControl_t* ctrl, size_t index) {
 
 void iLogRaylib(int msgType, const char* fmt, va_list ap) {
 
+#if LOG_ENABLED
+
     if (log_level == __LOG_LEVEL_NOTHING)
         return;
 
@@ -135,9 +137,13 @@ void iLogRaylib(int msgType, const char* fmt, va_list ap) {
         }
         break;
     }
+
+#endif
 }
 
 void iLog(LogLevel_t level, FILE* stream, const char* fmt, ...) {
+
+#if LOG_ENABLED
 
     if (log_level == __LOG_LEVEL_NOTHING)
         return;
@@ -200,6 +206,7 @@ void iLog(LogLevel_t level, FILE* stream, const char* fmt, ...) {
         }
         break;
     }
+#endif
 }
 
 void iDetachFromTerminal() {

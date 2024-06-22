@@ -57,11 +57,19 @@
 #define __LOG_LEVEL_NOTHING 6
 
 // Logging helpers.
-#define L_D(f, ...) iLog(__LOG_LEVEL_DEBUG, stdout, "%s:%s:%d: " f, __FILENAME__, __func__, __LINE__, ##__VA_ARGS__)
-#define L_I(f, ...) iLog(__LOG_LEVEL_INFO, stdout, (f), ##__VA_ARGS__)
-#define L_W(f, ...) iLog(__LOG_LEVEL_WARN, stdout, (f), ##__VA_ARGS__)
-#define L_E(f, ...) iLog(__LOG_LEVEL_ERROR, stderr, (f), ##__VA_ARGS__)
-#define L_C(f, ...) iLog(__LOG_LEVEL_CRITICAL, stderr, (f), ##__VA_ARGS__)
+#if LOG_ENABLED
+#    define L_D(f, ...) iLog(__LOG_LEVEL_DEBUG, stdout, "%s:%s:%d: " f, __FILENAME__, __func__, __LINE__, ##__VA_ARGS__)
+#    define L_I(f, ...) iLog(__LOG_LEVEL_INFO, stdout, (f), ##__VA_ARGS__)
+#    define L_W(f, ...) iLog(__LOG_LEVEL_WARN, stdout, (f), ##__VA_ARGS__)
+#    define L_E(f, ...) iLog(__LOG_LEVEL_ERROR, stderr, (f), ##__VA_ARGS__)
+#    define L_C(f, ...) iLog(__LOG_LEVEL_CRITICAL, stderr, (f), ##__VA_ARGS__)
+#else
+#    define L_D(f, ...)
+#    define L_I(f, ...)
+#    define L_W(f, ...)
+#    define L_E(f, ...)
+#    define L_C(f, ...)
+#endif
 
 #define DIE(fmt, ...)                                                                                                  \
     do {                                                                                                               \
