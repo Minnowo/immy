@@ -115,7 +115,7 @@ extern const size_t ZOOM_LEVELS_SIZE;
 
 // Cache thumbnails to disk
 // They are saved as QOI generally in $HOME/.cache/immy
-#define SHOULD_CACHE_THUMBNAILS 0
+#define SHOULD_CACHE_THUMBNAILS true
 
 // Use THUMBNAIL_BASE_CACHE_PATH as the thumb cache base directory
 #define OVERRIDE_THUMBNAIL_CACHE_PATH false
