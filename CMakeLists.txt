@@ -21,7 +21,6 @@ endif()
 
 # this folder cotains the a CMakeLists.txt for raylib
 set(RAYLIB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/raylib/raylib-5.0/)
-set(RAYGUI_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/raylib/raygui-4.0/)
 
 # the bundler will generate this file
 set(BUNDLER_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bundle.h)
@@ -41,6 +40,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 else()
     set(PACKAGE_RESOURCES OFF)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
 message(STATUS "CMake Build Type: ${CMAKE_BUILD_TYPE}")
@@ -121,7 +121,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC raylib)
 target_include_directories(${PROJECT_NAME} PUBLIC "${RAYLIB_ROOT}/src")
-target_include_directories(${PROJECT_NAME} PUBLIC "${RAYGUI_ROOT}/src")
 
 #########################
 # Config & Build Raylib #

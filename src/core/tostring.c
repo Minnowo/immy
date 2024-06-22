@@ -177,7 +177,7 @@ const char* iKeyToStr(int key) {
         SWITCH_CASE_ENUM_TO_STRING(KEY_VOLUME_UP)
         SWITCH_CASE_ENUM_TO_STRING(KEY_VOLUME_DOWN)
     }
-    return "UNKNOWN";
+    return "   UNKNOWN";
 }
 
 const char* iMouseToStr(int key) {
@@ -195,7 +195,7 @@ const char* iMouseToStr(int key) {
         SWITCH_CASE_ENUM_TO_STRING(MOUSE_BUTTON_FORWARD)
         SWITCH_CASE_ENUM_TO_STRING(MOUSE_BUTTON_BACK)
     }
-    return "UNKNOWN";
+    return "   UNKNOWN";
 }
 
 

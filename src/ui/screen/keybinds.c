@@ -1,6 +1,5 @@
 
 
-#include <raygui.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <string.h>
@@ -64,7 +63,7 @@ void uiRenderKeybinds(const ImmyControl_t* ctrl) {
         int           y  = startY + g_unifontSize * (i - startIndex);
 
         const char*   SCREEN_TEXT = iScreenToStr(im->screen);
-        const char*   KEY_TEXT    = iKeyToStr(im->key);
+        const char*   KEY_TEXT    = iMouseToStr(im->key);
         const int     SCR_PAD_LEN = 1 + STRLEN_SCREEN_STR - strlen(SCREEN_TEXT);
         const int     KEY_PAD_LEN = 1 + STRLEN_KEY_STR - strlen(KEY_TEXT);
 
