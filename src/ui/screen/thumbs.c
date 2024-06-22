@@ -98,10 +98,12 @@ static inline void handleThumbLoad(ImmyImage_t* im) {
     }
 }
 
-static inline void checkLoadingThumbs() {
+static inline void checkLoadingThumbs(ImmyControl_t* ctrl) {
 
     if (thumbsLoading <= 0)
         return;
+
+    ctrl->renderFrames = RENDER_FRAMES;
 
     for (int i = 0; i < THUMB_ASYNC_LOAD_AMOUNT; i++) {
 
@@ -123,7 +125,7 @@ void uiThumbPageClearState() {
 }
 
 
-void uiRenderThumbs(const ImmyControl_t* ctrl) {
+void uiRenderThumbs(ImmyControl_t* ctrl) {
 
     const int sw = GetScreenWidth();
     const int sh = GetScreenHeight();
@@ -152,7 +154,7 @@ void uiRenderThumbs(const ImmyControl_t* ctrl) {
     }
 
 #if ASYNC_IMAGE_LOADING
-    checkLoadingThumbs();
+    checkLoadingThumbs(ctrl);
 #endif
 
     col--;

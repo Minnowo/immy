@@ -92,10 +92,10 @@ Texture2D uiLoadBackgroundTile(size_t w, size_t h, Color a, Color b); // get the
 void      uiRenderBackground();                                       // render the background
 
 // image screen functions
-void uiImagePageClearState();                                                    // clear any state
-void uiRenderImage(ImmyImage_t* im);                                            // draw the image
+void uiImagePageClearState();                                                   // clear any state
+void uiRenderImage(ImmyControl_t* ctrl, ImmyImage_t* im);                       // draw the image
 void uiRenderPixelGrid(const ImmyImage_t* image);                               // draw a pixel grid
-void uiRenderTextOnInfoBar(const char* text);                                    // draw text onto the bar
+void uiRenderTextOnInfoBar(const char* text);                                   // draw text onto the bar
 void uiRenderInfoBar(const ImmyImage_t* image);                                 // draw image info on the bar
 void uiFitCenterImage(ImmyImage_t* image);                                      // fit the image & center the image
 void uiCenterImage(ImmyImage_t* image);                                         // center the image at current size
@@ -105,16 +105,16 @@ void uiZoomImageCenter(ImmyImage_t* im, double afterZoom);                      
 void uiZoomImageOnPoint(ImmyImage_t* im, double afterZoom, int x, int y);       // zoom in on point
 void uiZoomImageCenterFromClosest(ImmyImage_t* im, bool zoomIn);                // zoom in on center but lock to ZOOM_LEVELS
 void uiZoomImageOnPointFromClosest(ImmyImage_t* im, bool zoomIn, int x, int y); // zoom in on point but lock to ZOOM_LEVELS
-Rectangle uiGetScreenPadding();                                                  // get the image viewport
-void uiSetScreenPadding(Rectangle viewPort);                                     // set the image viewport
-void uiSetScreenPaddingRight(float width);                                       // set right image padding
-void uiSetScreenPaddingBottom(float height);                                     // set bottom image padding
-void uiSetScreenPaddingLeft(float x);                                            // set left image padding
-void uiSetScreenPaddingTop(float y);                                             // set left image padding
+Rectangle uiGetScreenPadding();                                                 // get the image viewport
+void uiSetScreenPadding(Rectangle viewPort);                                    // set the image viewport
+void uiSetScreenPaddingRight(float width);                                      // set right image padding
+void uiSetScreenPaddingBottom(float height);                                    // set bottom image padding
+void uiSetScreenPaddingLeft(float x);                                           // set left image padding
+void uiSetScreenPaddingTop(float y);                                            // set left image padding
 
 // thumbnail screen functions
 void uiThumbPageClearState();                    // clear any state
-void uiRenderThumbs(const ImmyControl_t* ctrl); // render thumbnails
+void uiRenderThumbs(ImmyControl_t* ctrl); // render thumbnails
 
 // file list screen functions
 void uiRenderFileList(const ImmyControl_t* ctrl);

@@ -47,7 +47,7 @@ void uiRenderPixelGrid(const ImmyImage_t* image) {
     }
 }
 
-void uiRenderImage(ImmyImage_t* im) {
+void uiRenderImage(ImmyControl_t* ctrl, ImmyImage_t* im) {
 
     if (cImage != im) {
 
@@ -61,6 +61,9 @@ void uiRenderImage(ImmyImage_t* im) {
 
         case IMAGE_STATUS_NOT_LOADED:
 
+            // force rendering so the image loads
+            ctrl->renderFrames = RENDER_FRAMES;
+
             if (!iLoadImageAsync(im)) {
 
                 L_W("Unable to start loading image async");
@@ -73,6 +76,9 @@ void uiRenderImage(ImmyImage_t* im) {
             return;
 
         case IMAGE_STATUS_LOADING:
+
+            // force rendering so the image loads
+            ctrl->renderFrames = RENDER_FRAMES;
 
             if (!iGetImageAsync(im)) {
 
@@ -115,6 +121,8 @@ void uiRenderImage(ImmyImage_t* im) {
             uiDrawText("The image could not be loaded!");
             return;
         }
+
+        ctrl->renderFrames = RENDER_FRAMES;
 
         Texture2D nimageBuf = LoadTextureFromImage(im->rayim);
 

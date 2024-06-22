@@ -326,7 +326,7 @@ int main(int argc, char* argv[]) {
 
         for (int i = 0; i < 2; i++) {
             BeginDrawing();
-            uiRenderImage(this.selected_image);
+            uiRenderImage(&this, this.selected_image);
             kb_Fit_Center_Image(&this);
             EndDrawing();
         }
@@ -396,7 +396,7 @@ int main(int argc, char* argv[]) {
                     break;
                 }
 
-                uiRenderImage(this.selected_image);
+                uiRenderImage(&this, this.selected_image);
 
                 if (this.selected_image->scale >= SHOW_PIXEL_GRID_SCALE_THRESHOLD) {
                     uiRenderPixelGrid(this.selected_image);
