@@ -356,7 +356,7 @@ int main(int argc, char* argv[]) {
 
         BeginDrawing();
 
-#ifndef ALWAYS_DO_RENDER
+#if !ALWAYS_DO_RENDER
 
         if (IsWindowResized() || this.frame % REDRAW_ON_FRAME == 0) {
             this.renderFrames = RENDER_FRAMES;
@@ -426,7 +426,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
 
-#ifndef ALWAYS_DO_RENDER
+#if !ALWAYS_DO_RENDER
         }
 #endif
 
