@@ -1,7 +1,9 @@
 
 ## A Simple Image Viewer
 
-Immy is a simple, keyboard focused image viewer for Linux. Built using [Raylib](https://github.com/raysan5/raylib), it has a minimal and fast interface, and supports most common image formats. Immy can optionally call ImageMagick and FFmpeg to support many more image formats.
+Immy is a simple, keyboard focused image viewer for Linux. 
+Built using [Raylib](https://github.com/raysan5/raylib), it has a minimal and fast interface, and supports most common image formats. 
+Immy can optionally call ImageMagick and FFmpeg to support many more image formats.
 
 
 ### Configuration
@@ -31,7 +33,30 @@ This will bundle the resources and build everything. Your built executable will 
 
 #### Windows
 
-It is possible to compile for Widnows, but I haven't tried since switching to cmake.
+Immy can be cross compiled for Windows. 
+I recommend using [Dockcross](https://github.com/dockcross/dockcross), 
+which provides a Docker environment for cross compiling.
+
+To compile a static binary for Windows:
+```sh
+# clone the Dockcross repo
+git clone https://github.com/dockcross/dockcross.git
+
+# enter the repo
+cd dockcross 
+
+# create the helper binary
+docker run --rm dockcross/windows-static-x64-posix > ./dockcross-windows-static-x64-posix
+
+# make it executable
+chmod +x dockcross/dockcross-windows-static-x64-posix
+
+# build the binary
+./dockcross/dockcross-windows-static-x64-posix make build
+```
+
+This will bundle the resources and build everything. Your built executable will be `./build/immy.exe`.
+
 
 ### Install
 
