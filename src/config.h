@@ -547,7 +547,7 @@ const size_t MOUSEBIND_COUNT = (sizeof(mousebinds) / sizeof(mousebinds[0]));
 #define EXT_HEIF ""
 
 // Raylib should be able to load these formats
-#define RAYLIB_FILE_FORMATS ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.qoi;"
+#define RAYLIB_FILE_FORMATS ".png;.jpg;.jpeg;.bmp;.gif;.tga;.hdr;.ppm;.pgm;.psd;.qoi;.kra;"
 
 #ifdef IMLIB2_ENABLED
     // with imlib2, we assume it can load these exta formats

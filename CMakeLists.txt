@@ -100,6 +100,8 @@ add_executable(${PROJECT_NAME}
     src/external/hashmap.h
     src/external/strnatcmp.c
     src/external/strnatcmp.h
+    src/external/miniz.h
+    src/external/miniz.c
     ${BUNDLER_OUTPUT}
 )
 

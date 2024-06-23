@@ -8,11 +8,14 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "../external/miniz.h"
 #include "external/qoi.h" // from raylib
 #include "raylib.h"
 
 #include "../config.h"
 #include "core.h"
+
+
 
 bool iLoadImage(ImmyImage_t* im) {
 
@@ -21,22 +24,27 @@ bool iLoadImage(ImmyImage_t* im) {
 
     if (
 #ifdef IMLIB2_ENABLED
-      !(iLoadImageWithImlib2(im->path, &im->rayim)) &&
+            !(iLoadImageWithImlib2(im->path, &im->rayim)) &&
 #endif
 
 #ifdef IMMY_USE_MAGICK
-      !(iLoadImageWithMagick(im->path, &im->rayim)) &&
+        !(iLoadImageWithMagick(im->path, &im->rayim)) &&
 #endif
 
 #ifdef IMMY_USE_FFMPEG
-      !(iLoadImageWithFFmpeg(im->path, &im->rayim)) &&
+        !(iLoadImageWithFFmpeg(im->path, &im->rayim)) &&
 #endif
-      true) {
+        true) {
 
-        im->rayim = LoadImage(im->path);
+        // raylibs load image checks file extension
+        // so if it ends with .kra don't bother having raylib load it
+        if (!iEndsWith(im->path, ".kra", 1))
+            im->rayim = LoadImage(im->path);
     }
 
-    if (!IsImageReady(im->rayim)) {
+    if (!IsImageReady(im->rayim) &&
+        // krita is low priority here
+        !iLoadKritaImage(im->path, &im->rayim)) {
 
         im->status = IMAGE_STATUS_FAILED;
 
@@ -389,4 +397,48 @@ void iDitherImage(ImmyImage_t* im) {
           pixels[k].b = add_char_clamp(pixels[k].b, (error.b * 1) >> 4);
         }
     }
+}
+
+
+bool iLoadKritaImage(const char* path, Image* im) {
+
+    mz_zip_archive zip = {0};
+
+    if (!mz_zip_reader_init_file(&zip, path, 0)) {
+
+        L_E("Could not read Krita file: %s", mz_zip_get_error_string( zip.m_last_error));
+
+        return false;
+    }
+
+    const char* KRITA_IM_PATH[2] = {
+        "mergedimage.png", // the full res image
+        "preview.png"      // a thumbnail image
+    };
+
+    for (int i = 0; i < 2; i++) {
+
+        const char* PATH = KRITA_IM_PATH[i];
+
+        size_t uncomp_size;
+
+        void* p = mz_zip_reader_extract_file_to_heap(&zip, PATH, &uncomp_size, 0);
+
+        if (!p)
+            continue;
+
+        L_D("Successfully extracted file \"%s\", size %zu\n", PATH, uncomp_size);
+
+
+        *im = LoadImageFromMemory(".png", p, uncomp_size);
+
+        mz_free(p);
+
+        if(IsImageReady(*im))
+            break;
+    }
+
+    mz_zip_reader_end(&zip);
+
+    return IsImageReady(*im);
 }

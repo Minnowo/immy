@@ -287,6 +287,9 @@ int iqStrCmp(const void* a, const void* b);
 // natstrcmp for use with qsort
 int iqNatStrCmp(const void* a, const void* b);
 
+// check if string ends with
+bool iEndsWith(const char *str, const char *suffix, bool ignorecase);
+
 // Gets the cache directory
 const char* iGetCacheDirectory();
 
@@ -314,6 +317,11 @@ bool iLoadImageWithFFmpeg(const char* path, Image* im);
 // This method will load an image using Imlib2.
 // Requires imlib2 to be linked.
 bool iLoadImageWithImlib2(const char* path, Image* im);
+
+// This reads a krita file. They are actually zip files.
+// Luckily they contain mergedimage.png and preview.png,
+// which we can extract and display.
+bool iLoadKritaImage(const char* path, Image* im);
 
 // Load a thumbnail from the cache or create on from the image.
 bool iGetOrCreateThumb(ImmyImage_t* im);
