@@ -6,15 +6,9 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
-
-project(immy
-    VERSION 1.0 
-    LANGUAGES C
-)
-
+# We are going to determine the c std
+# and we are going to use the latest
 get_property(c_features GLOBAL PROPERTY CMAKE_C_KNOWN_FEATURES)
-
-message(STATUS "C Features: ${c_features}")
 
 # c_std_90;c_std_99;c_std_11;c_std_17;c_std_23
 if("c_std_23" IN_LIST c_features)
@@ -38,22 +32,6 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-# this folder cotains the a CMakeLists.txt for raylib
-set(RAYLIB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/raylib/raylib-5.0/)
-
-# the bundler will generate this file
-set(BUNDLER_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bundle.h)
-
-# The additional / is important to remove the last character from the path.
-# Note that it does not matter if the OS uses / or \, because we are only
-# saving the path size.
-string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
-add_definitions("-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}")
-
-# if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#     set(CMAKE_VERBOSE_MAKEFILE ON)
-# endif()
-
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(PACKAGE_RESOURCES ON)
 else()
@@ -65,43 +43,63 @@ endif()
 message(STATUS "CMake Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Packaging Resources: ${PACKAGE_RESOURCES}")
 
+# The SOURCE_PATH_SIZE is used in the c code
+# to remove the absolute path of the __FILE__ macro
+string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
+add_definitions("-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}")
+
+# source folders
+set(SRC_ROOT     ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(RAYLIB_ROOT  ${SRC_ROOT}/raylib/raylib-5.0)
+set(IMYLIB2_ROOT ${SRC_ROOT}/imylib2)
+set(IMMY_ROOT    ${SRC_ROOT}/immy)
+
+# the bundler will generate this file
+set(BUNDLER_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bundle.h)
+
+
+project(immy
+    VERSION 1.0 
+    LANGUAGES C
+)
+
 
 add_executable(${PROJECT_NAME} 
-    src/config.h
-    src/main.c
-    src/implementations.c
-    src/core/core.h
-    src/core/core.c
-    src/core/image_async.c
-    src/core/image.c
-    src/core/str.c
-    src/core/tostring.c
-    src/core/ffmpeg.c
-    src/core/imagemagick.c
-    src/core/imlib.c
-    src/core/clipboard.c
-    src/core/win32.c
-    src/core/unix.c
-    src/core/x11.c
-    src/input.c
-    src/input.h
-    src/resources.c
-    src/resources.h
-    src/ui/ui.c
-    src/ui/ui.h
-    src/ui/screen/files.c
-    src/ui/screen/image.c
-    src/ui/screen/keybinds.c
-    src/ui/screen/thumbs.c
-    # src/ui/panel/test.c
-    src/external/sha256.c
-    src/external/sha256.h
-    src/external/hashmap.c
-    src/external/hashmap.h
-    src/external/strnatcmp.c
-    src/external/strnatcmp.h
-    src/external/miniz.h
-    src/external/miniz.c
+    ${IMMY_ROOT}/config.h
+    ${IMMY_ROOT}/main.c
+    ${IMMY_ROOT}/implementations.c
+    ${IMMY_ROOT}/core/core.h
+    ${IMMY_ROOT}/core/core.c
+    ${IMMY_ROOT}/core/image_async.c
+    ${IMMY_ROOT}/core/image.c
+    ${IMMY_ROOT}/core/str.c
+    ${IMMY_ROOT}/core/tostring.c
+    ${IMMY_ROOT}/core/ffmpeg.c
+    ${IMMY_ROOT}/core/imagemagick.c
+    ${IMMY_ROOT}/core/imlib.c
+    ${IMMY_ROOT}/core/clipboard.c
+    ${IMMY_ROOT}/core/win32.c
+    ${IMMY_ROOT}/core/unix.c
+    ${IMMY_ROOT}/core/x11.c
+    ${IMMY_ROOT}/input.c
+    ${IMMY_ROOT}/input.h
+    ${IMMY_ROOT}/resources.c
+    ${IMMY_ROOT}/resources.h
+    ${IMMY_ROOT}/ui/ui.c
+    ${IMMY_ROOT}/ui/ui.h
+    ${IMMY_ROOT}/ui/screen/files.c
+    ${IMMY_ROOT}/ui/screen/image.c
+    ${IMMY_ROOT}/ui/screen/keybinds.c
+    ${IMMY_ROOT}/ui/screen/thumbs.c
+    ${IMMY_ROOT}/external/sha256.c
+    ${IMMY_ROOT}/external/sha256.h
+    ${IMMY_ROOT}/external/hashmap.c
+    ${IMMY_ROOT}/external/hashmap.h
+    ${IMMY_ROOT}/external/strnatcmp.c
+    ${IMMY_ROOT}/external/strnatcmp.h
+    ${IMMY_ROOT}/external/miniz.h
+    ${IMMY_ROOT}/external/miniz.c
+
     ${BUNDLER_OUTPUT}
 )
 
@@ -110,7 +108,7 @@ if(PACKAGE_RESOURCES)
     message(STATUS "Will compile resources")
 
     # define the bundler
-    add_executable(bundler src/bundler.c)
+    add_executable(bundler ${SRC_ROOT}/bundler.c)
     
     # command to run the bundler
     add_custom_command(
@@ -142,12 +140,20 @@ endif()
 add_dependencies(${PROJECT_NAME} run_bundle)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC raylib)
-target_include_directories(${PROJECT_NAME} PUBLIC "${RAYLIB_ROOT}/src")
+##########################
+# Config & Build Imylib2 #
+##########################
+target_link_libraries(${PROJECT_NAME} PUBLIC imylib2)
+target_include_directories(${PROJECT_NAME} PUBLIC "${IMYLIB2_ROOT}")
+add_subdirectory(${IMYLIB2_ROOT})
+
 
 #########################
 # Config & Build Raylib #
 #########################
+
+target_link_libraries(${PROJECT_NAME} PUBLIC raylib)
+target_include_directories(${PROJECT_NAME} PUBLIC "${RAYLIB_ROOT}/src")
 
 # ensure raylib uses our options
 set(CUSTOMIZE_BUILD ON CACHE BOOL "" FORCE)
