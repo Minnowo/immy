@@ -8,6 +8,11 @@
 #include "../external/hashmap.h"
 #include "core.h"
 
+// must come after config.h
+#if defined(IMYLIB2_AVAILABLE) && USE_IMYLIB2
+#include <imylib2.h>
+#endif
+
 typedef struct {
         pthread_t       thread;
         pthread_mutex_t mutex;
@@ -50,6 +55,24 @@ void* async_image_load_thread_main(void* raw_arg) {
     ImgLoadThreadData_t* thread = raw_arg;
 
     L_D("%s: Thread is about to load %s", __func__, thread->path);
+
+#ifdef IMYLIB2_H
+
+    L_D("Using imylib2 to load image.");
+
+    struct ImlibImage il2Image;
+
+    if (il2LoadImageAsRGBA(thread->path, &il2Image)) {
+
+        thread->im.rayim.data = il2Image.data;
+        thread->im.rayim.width = il2Image.w;
+        thread->im.rayim.height = il2Image.h;
+        thread->im.rayim.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+        thread->im.rayim.mipmaps = 1;
+    }
+    else
+
+#endif
 
     // imlib2 is not thread-safe, we cannot use it here
     //
