@@ -98,6 +98,9 @@ set(INCLUDE_SEARCH
     /usr/include)
 
 
+# prefer static over shared
+# set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so")
+
 find_library(JPEG_FOUND jpeg)
 find_path(JPEG_INCLUDE jpeglib.h PATHS ${INCLUDE_SEARCH})
 
@@ -211,20 +214,23 @@ endif()
 
 find_library(WEBP_FOUND webp)
 find_library(WEBPDEMUX_FOUND webpdemux)
+find_library(SHARPYUV sharpyuv)
 find_path(WEBP_INCLUDE 
     webp/decode.h
     webp/encode.h
     webp/dmux.h
     PATHS ${INCLUDE_SEARCH})
 
-if(WEBP_FOUND AND WEBPDEMUX_FOUND AND WEBP_INCLUDE)
+if(WEBP_FOUND AND WEBPDEMUX_FOUND AND SHARPYUV_FOUND AND WEBP_INCLUDE)
 
     message(STATUS "Found library: ${WEBP_FOUND}") 
     message(STATUS "Found library: ${WEBPDEMUX_FOUND}") 
+    message(STATUS "Found library: ${SHARPYUV_FOUND}") 
     message(STATUS "Including: ${WEBP_INCLUDE}")
 
     list(APPEND LINK_LIBS ${WEBP_FOUND})
     list(APPEND LINK_LIBS ${WEBPDEMUX_FOUND})
+    list(APPEND LINK_LIBS ${SHARPYUV_FOUND})
     list(APPEND IMYLIB2_SOURCES ./loaders/loader_webp.c)
     list(APPEND DEFINITIONS BUILD_WEBP_LOADER)
 
