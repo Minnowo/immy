@@ -101,7 +101,6 @@ set(INCLUDE_SEARCH
 # prefer static over shared
 # set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so")
 
-
 find_library(JPEG_FOUND jpeg)
 find_path(JPEG_INCLUDE jpeglib.h PATHS ${INCLUDE_SEARCH})
 
@@ -215,7 +214,7 @@ endif()
 
 find_library(WEBP_FOUND webp)
 find_library(WEBPDEMUX_FOUND webpdemux)
-find_library(SHARPYUV sharpyuv)
+find_library(SHARPYUV_FOUND sharpyuv)
 find_path(WEBP_INCLUDE 
     webp/decode.h
     webp/encode.h
