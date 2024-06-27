@@ -101,6 +101,7 @@ set(INCLUDE_SEARCH
 # prefer static over shared
 # set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so")
 
+
 find_library(JPEG_FOUND jpeg)
 find_path(JPEG_INCLUDE jpeglib.h PATHS ${INCLUDE_SEARCH})
 
