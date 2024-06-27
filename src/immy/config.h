@@ -129,6 +129,12 @@ extern const size_t ZOOM_LEVELS_SIZE;
 //   THUMBNAIL_BASE_CACHE_PATH / THUMBNAIL_CACHE_PATH / SHA256 Of Image Path
 #define THUMBNAIL_CACHE_PATH "/.cache/immy/"
 
+// Feature flag for using Imylib2.
+// Imylib2 is a wrapper around Imlib2 loaders.
+// It is basically imlib2, but threadsafe, and built for immy.
+// imylib2 is unix only.
+#define USE_IMYLIB2 true
+
 // Feature flag for using Imlib2.
 // If defined and imlib2 is found at compiletime
 // enable using Imlib2 to load images.

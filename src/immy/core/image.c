@@ -15,12 +15,35 @@
 #include "../config.h"
 #include "core.h"
 
+// must come after config.h
+#if defined(IMYLIB2_AVAILABLE) && USE_IMYLIB2
+#include <imylib2.h>
+#endif
+
 
 
 bool iLoadImage(ImmyImage_t* im) {
 
     if (im->status == IMAGE_STATUS_LOADED)
         return true;
+
+#ifdef IMYLIB2_H
+
+    L_D("Using imylib2 to load image.");
+
+    struct ImlibImage il2Image;
+
+    if (il2LoadImageAsRGBA(im->path, &il2Image)) {
+
+        im->rayim.data = il2Image.data;
+        im->rayim.width = il2Image.w;
+        im->rayim.height = il2Image.h;
+        im->rayim.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+        im->rayim.mipmaps = 1;
+    }
+    else
+
+#endif
 
     if (
 #ifdef IMLIB2_ENABLED

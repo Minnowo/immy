@@ -38,6 +38,7 @@ else()
     set(PACKAGE_RESOURCES OFF)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    # set(CMAKE_VERBOSE_MAKEFILE ON)
 endif()
 
 message(STATUS "CMake Build Type: ${CMAKE_BUILD_TYPE}")
@@ -143,9 +144,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 ##########################
 # Config & Build Imylib2 #
 ##########################
-target_link_libraries(${PROJECT_NAME} PUBLIC imylib2)
-target_include_directories(${PROJECT_NAME} PUBLIC "${IMYLIB2_ROOT}")
-add_subdirectory(${IMYLIB2_ROOT})
+if(UNIX)
+    message(STATUS "We are UNIX. imylib2 can be used.")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC IMYLIB2_AVAILABLE)
+    target_link_libraries(${PROJECT_NAME} PUBLIC imylib2)
+    target_include_directories(${PROJECT_NAME} PUBLIC "${IMYLIB2_ROOT}")
+    add_subdirectory(${IMYLIB2_ROOT})
+endif()
 
 
 #########################
