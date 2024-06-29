@@ -105,15 +105,18 @@ bool il2LoadImageAsRGBA(const char* path, struct ImlibImage* image);
 
 ImlibLoadStatus_t il2LoadQOI(struct ImlibImage *im, int load_data);
 ImlibLoadStatus_t il2LoadBMP(struct ImlibImage *im, int load_data);
-ImlibLoadStatus_t il2LoadANI(struct ImlibImage *im, int load_data);
 ImlibLoadStatus_t il2LoadARGB(struct ImlibImage *im, int load_data);
-ImlibLoadStatus_t il2LoadFF(struct ImlibImage *im, int load_data);
 ImlibLoadStatus_t il2LoadICO(struct ImlibImage *im, int load_data);
 ImlibLoadStatus_t il2LoadLBM(struct ImlibImage *im, int load_data);
 ImlibLoadStatus_t il2LoadPNM(struct ImlibImage *im, int load_data);
 ImlibLoadStatus_t il2LoadTGA(struct ImlibImage *im, int load_data);
-ImlibLoadStatus_t il2LoadXBM(struct ImlibImage *im, int load_data);
 // ImlibLoadStatus_t il2LoadXPM(struct ImlibImage *im, int load_data);
+
+#ifdef __unix__
+ImlibLoadStatus_t il2LoadANI(struct ImlibImage *im, int load_data);
+ImlibLoadStatus_t il2LoadFF(struct ImlibImage *im, int load_data);
+ImlibLoadStatus_t il2LoadXBM(struct ImlibImage *im, int load_data);
+#endif
 
 // #ifdef BUILD_BZ2_LOADER 
 // ImlibLoadStatus_t il2LoadBZ2(struct ImlibImage *im, int load_data);
@@ -147,7 +150,7 @@ ImlibLoadStatus_t il2LoadJXL(struct ImlibImage *im, int load_data);
 // ImlibLoadStatus_t il2LoadLZMA(struct ImlibImage *im, int load_data);
 // #endif
 
-#ifdef BUILD_PNG_LOADER
+#if defined(BUILD_PNG_LOADER) && defined(__unix__)
 ImlibLoadStatus_t il2LoadPNG(struct ImlibImage *im, int load_data);
 #endif
 

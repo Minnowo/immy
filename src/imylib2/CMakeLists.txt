@@ -47,6 +47,11 @@ message(STATUS "Packaging Resources: ${PACKAGE_RESOURCES}")
 set(IMLIB2_EXTERN ${CMAKE_CURRENT_SOURCE_DIR}/imlib2/)
 message(STATUS "Imlib2 should be in ${IMLIB2_EXTERN}")
 
+if(WIN32)
+    set(CROSS_COMPILING "--host=x86_64-pc-linux-gnu")
+else()
+    set(CROSS_COMPILING "")
+endif()
 
 #
 # Downloads Imlib2 v1.12.2 and takes the loader files we want
@@ -56,7 +61,7 @@ ExternalProject_Add(
     imlib2_loaders
     URL https://sourceforge.net/projects/enlightenment/files/imlib2-src/1.12.2/imlib2-1.12.2.tar.gz/download
     URL_MD5 15e080e450b8bf3709292cc3efc986e3
-    CONFIGURE_COMMAND <SOURCE_DIR>/configure --disable-text --without-x
+    CONFIGURE_COMMAND <SOURCE_DIR>/configure --disable-text --without-x ${CROSS_COMPILING}
     BUILD_COMMAND ${CMAKE_COMMAND} -E make_directory ${IMLIB2_EXTERN} &&
                     ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/src/modules/loaders ${IMLIB2_EXTERN}/loaders &&
                     ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/lib/Imlib2_Loader.h ${IMLIB2_EXTERN} &&

@@ -144,13 +144,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 ##########################
 # Config & Build Imylib2 #
 ##########################
-if(UNIX)
-    message(STATUS "We are UNIX. imylib2 can be used.")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC IMYLIB2_AVAILABLE)
-    target_link_libraries(${PROJECT_NAME} PUBLIC imylib2)
-    target_include_directories(${PROJECT_NAME} PUBLIC "${IMYLIB2_ROOT}")
-    add_subdirectory(${IMYLIB2_ROOT})
-endif()
+target_compile_definitions(${PROJECT_NAME} PUBLIC IMYLIB2_AVAILABLE)
+target_link_libraries(${PROJECT_NAME} PUBLIC imylib2)
+target_include_directories(${PROJECT_NAME} PUBLIC "${IMYLIB2_ROOT}")
+add_subdirectory(${IMYLIB2_ROOT})
 
 
 #########################

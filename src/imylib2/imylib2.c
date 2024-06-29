@@ -2,12 +2,16 @@
 #include "imylib2.h"
 
 #include <errno.h>
-#include <sys/mman.h>
+
 #include <sys/stat.h>
+
+#ifdef __unix__
+#include <sys/mman.h>
+#endif
 
 il2Loader loaders[] = {
 
-#ifdef BUILD_PNG_LOADER
+#if defined(BUILD_PNG_LOADER) && defined(__unix__)
     il2LoadPNG,
 #endif
 
@@ -43,9 +47,13 @@ il2Loader loaders[] = {
     il2LoadSVG,
 #endif
 
-    il2LoadANI,  il2LoadARGB, il2LoadFF, il2LoadICO, il2LoadLBM, il2LoadPNM, il2LoadTGA, il2LoadXBM, 
+    il2LoadARGB, il2LoadICO, il2LoadLBM, il2LoadPNM, il2LoadTGA,
 
-    // il2LoadXPM,
+#ifdef __unix__
+    il2LoadANI,  il2LoadFF,  il2LoadXBM,
+#endif
+
+// il2LoadXPM,
 
 #ifdef BUILD_BZ2_LOADER
     il2LoadBZ2,
@@ -236,10 +244,26 @@ bool il2FileContextOpenEx(ImlibImageFileInfo* fi, FILE* fp, const void* fdata, o
 
     if (!fdata) {
 
+#ifdef __unix__
         fdata = mmap(NULL, fi->fsize, PROT_READ, MAP_SHARED, fileno(fi->fp), 0);
 
         if (fdata == MAP_FAILED)
             return false;
+#else
+
+    fdata = malloc(fi->fsize * sizeof(char));
+
+    if(!fdata)
+        return false;
+
+    if (fread((void*)fdata, 1, fi->fsize, fi->fp) != fi->fsize) {
+
+        free((void*)fdata);
+
+        return false;
+    }
+#endif
+
     }
 
     fi->fdata = fdata;
@@ -252,7 +276,11 @@ void il2FileContextClose(ImlibImageFileInfo* fi) {
 
     if (fi->fdata) {
 
+#ifdef __unix__
         munmap((void*)fi->fdata, fi->fsize);
+#else
+        free((void*)fi->fdata);
+#endif
 
         fi->fdata = NULL;
     }
