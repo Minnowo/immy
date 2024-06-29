@@ -1,6 +1,8 @@
 
 ### Other Stuff ###
 
+test/
+
 # for cross compilation
 dockcross/
 

@@ -1,3 +1,14 @@
 
-# don't include the imlib2 source
+# Don't include the imlib2 source
 imlib2
+
+# CMake build dir
+build
+
+# Dockerfiles for testing
+static-build.Dockerfile
+static-build.Compose
+test
+
+main.c
+
