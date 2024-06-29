@@ -11,7 +11,7 @@
 
 il2Loader loaders[] = {
 
-#if defined(BUILD_PNG_LOADER) && defined(__unix__)
+#ifdef BUILD_PNG_LOADER
     il2LoadPNG,
 #endif
 
@@ -47,10 +47,10 @@ il2Loader loaders[] = {
     il2LoadSVG,
 #endif
 
-    il2LoadARGB, il2LoadICO, il2LoadLBM, il2LoadPNM, il2LoadTGA,
+    il2LoadARGB, il2LoadICO, il2LoadLBM, il2LoadPNM, il2LoadTGA, il2LoadFF,
 
 #ifdef __unix__
-    il2LoadANI,  il2LoadFF,  il2LoadXBM,
+      il2LoadXBM,
 #endif
 
 // il2LoadXPM,
@@ -379,5 +379,98 @@ bool il2LoadImageAsBGRA(const char* path, struct ImlibImage* image) {
 }
 
 
+// Since many imlib2 loaders using <arpa/inet.h> for the htonl function.
+// We implement it here if unix doesn't exist.
+#ifndef __unix__
 
+// compile time endian check:
+#    if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__)
+#        if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#            define HOST_BIG_ENDIAN 1
+#        else
+#            define HOST_LITTLE_ENDIAN 1
+#        endif
+#    else
+#        define HOST_BYTE_ORDER_UNKNOWN 1
+#    endif
 
+// If we can't determine at compile time, do it at runtime.
+#    if HOST_BYTE_ORDER_UNKNOWN
+static inline bool isLittleEndian() {
+    volatile uint32_t i = 0x01234567;
+    // return 0 for big endian, 1 for little endian.
+    return (*((uint8_t*)(&i))) == 0x67;
+}
+#    endif
+
+uint32_t htonl(uint32_t hostlong) {
+
+#    if HOST_BYTE_ORDER_UNKNOWN
+    if (isLittleEndian()) {
+#    endif
+
+#    if HOST_LITTLE_ENDIAN || HOST_BYTE_ORDER_UNKNOWN
+        return ((hostlong & 0xFF000000U) >> 24) | ((hostlong & 0x00FF0000U) >> 8) | ((hostlong & 0x0000FF00U) << 8) |
+               ((hostlong & 0x000000FFU) << 24);
+#    endif
+
+#    if HOST_BYTE_ORDER_UNKNOWN
+    }
+#    endif
+
+    return hostlong;
+}
+
+uint16_t htons(uint16_t hostshort) {
+
+#    if HOST_BYTE_ORDER_UNKNOWN
+    if (isLittleEndian()) {
+#    endif
+
+#    if HOST_LITTLE_ENDIAN || HOST_BYTE_ORDER_UNKNOWN
+        return ((hostshort & 0xFF00U) >> 8) | ((hostshort & 0x00FFU) << 8);
+#    endif
+
+#    if HOST_BYTE_ORDER_UNKNOWN
+    }
+#    endif
+
+    return hostshort;
+}
+
+uint32_t ntohl(uint32_t netlong) {
+
+#    if HOST_BYTE_ORDER_UNKNOWN
+    if (isLittleEndian()) {
+#    endif
+
+#    if HOST_LITTLE_ENDIAN || HOST_BYTE_ORDER_UNKNOWN
+        return ((netlong & 0xFF000000U) >> 24) | ((netlong & 0x00FF0000U) >> 8) | ((netlong & 0x0000FF00U) << 8) |
+               ((netlong & 0x000000FFU) << 24);
+#    endif
+
+#    if HOST_BYTE_ORDER_UNKNOWN
+    }
+#    endif
+
+    return netlong;
+}
+
+uint16_t ntohs(uint16_t netshort) {
+
+#    if HOST_BYTE_ORDER_UNKNOWN
+    if (isLittleEndian()) {
+#    endif
+
+#    if HOST_LITTLE_ENDIAN || HOST_BYTE_ORDER_UNKNOWN
+        return ((netshort & 0xFF00U) >> 8) | ((netshort & 0x00FFU) << 8);
+#    endif
+
+#    if HOST_BYTE_ORDER_UNKNOWN
+    }
+#    endif
+
+    return netshort;
+}
+
+#endif

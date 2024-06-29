@@ -86,6 +86,8 @@ void* async_image_load_thread_main(void* raw_arg) {
 #endif
         true) {
 
+        L_D("Using Raylib to load the image.");
+
         // raylibs load image checks file extension
         // so if it ends with .kra don't bother having raylib load it
         if (!iEndsWith(thread->path, ".kra", 1))

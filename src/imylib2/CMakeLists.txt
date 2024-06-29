@@ -95,12 +95,12 @@ set(LINK_LIBS )
 set(IMYLIB2_SOURCES
     ./imylib2.c
     ./imylib2.h
+    ./arpa/inet.h
     ./imlib2/Imlib2_Loader.h
     ./imlib2/loaders/exif.c
 
     ./loaders/loader_qoi.c
     ./loaders/loader_bmp.c
-    ./loaders/loader_ani.c
     ./loaders/loader_argb.c
     ./loaders/loader_ff.c
     ./loaders/loader_ico.c

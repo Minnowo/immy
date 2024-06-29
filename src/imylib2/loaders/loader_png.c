@@ -1,6 +1,6 @@
 #include "../imylib2.h"
 
-#if defined(BUILD_PNG_LOADER) && defined(__unix__) 
+#ifdef BUILD_PNG_LOADER
 #include "../imlib2/loaders/loader_png.c"
 
 ImlibLoadStatus_t il2LoadPNG(struct ImlibImage *im, int load_data) {
