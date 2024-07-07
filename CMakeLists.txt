@@ -37,9 +37,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 else()
     set(PACKAGE_RESOURCES OFF)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     # set(CMAKE_VERBOSE_MAKEFILE ON)
 endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 message(STATUS "CMake Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Packaging Resources: ${PACKAGE_RESOURCES}")

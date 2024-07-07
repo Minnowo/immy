@@ -15,10 +15,9 @@ build_debug: CMAKE_BUILD_TYPE := Debug
 build_debug: build
 
 build:
-	mkdir -p $(BUILD_DIR)
-	cd       $(BUILD_DIR) && cmake -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) $(SOURCE_DIR)
-	make -C  $(BUILD_DIR)
-	cp       $(BUILD_DIR)/compile_commands.json $(SOURCE_DIR) || true
+	CC="$(CC)" CXX="$(CXX)" cmake -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
+	CC="$(CC)" CXX="$(CXX)" make -C  $(BUILD_DIR) -j$(shell nproc)
+	cp $(BUILD_DIR)/compile_commands.json $(SOURCE_DIR) || true
 
 install: uninstall
 	mkdir -p             "/opt/$(NAME)"
