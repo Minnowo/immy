@@ -1,9 +1,10 @@
 
-## A Simple Image Viewer
+## Immy
 
 Immy is a simple, keyboard focused image viewer for Linux. 
-Built using [Raylib](https://github.com/raysan5/raylib), it has a minimal and fast interface, and supports most common image formats. 
-Immy can optionally call ImageMagick and FFmpeg to support many more image formats.
+
+Built using [Raylib](https://github.com/raysan5/raylib), it has a minimal interface which takes inspiration from [sxiv](https://github.com/xyb3rt/sxiv).
+Immy primarily makes use of Imlib2 through a [custom library](./src/imylib2/), but can also use ImageMagick, FFmpeg or Raylib to load images.
 
 
 ### Configuration
