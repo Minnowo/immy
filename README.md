@@ -31,7 +31,8 @@ This will bundle the resources and build everything. Your built executable will 
 ---
 
 **Note:** When Imylib2 is built, CMake will download Imlib2 sources from SourceForge. 
-It does not install anything, just be aware it will be making a network call for this.
+If you do not want this, you can add Imlib2 sources yourself.
+See the note in [Imylib2](./src/imylib2/README.md) about this.
 
 ---
 
