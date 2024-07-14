@@ -28,6 +28,12 @@ make
 
 This will bundle the resources and build everything. Your built executable will be `./build/immy`.
 
+---
+
+**Note:** When Imylib2 is built, CMake will download Imlib2 sources from SourceForge. 
+It does not install anything, just be aware it will be making a network call for this.
+
+---
 
 #### Windows
 
