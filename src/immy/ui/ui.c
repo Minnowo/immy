@@ -28,9 +28,14 @@ int    grayInvertEffectLocation     = 0;
 
 void uiInit(ImmyConfig_t* config) {
 
+    // prevents glfw from hanging when in fullscreen on X11
+    SetConfigFlags(FLAG_WINDOW_HIDDEN);
+
     InitWindow(config->window_width, 
                config->window_height, 
                config->window_title);
+
+    ClearWindowState(FLAG_WINDOW_HIDDEN);
 
     SetWindowMinSize(config->window_min_width, 
                      config->window_min_height);

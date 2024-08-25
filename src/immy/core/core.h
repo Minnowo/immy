@@ -220,6 +220,10 @@ typedef struct ImmyConfig {
         bool set_win_position;
         bool show_bar;
 
+        bool x_grab_keyboard;
+        bool x_override_redirect;
+        bool x_set_fullscreen;
+
 } ImmyConfig_t;
 
 // The main control data.
@@ -436,6 +440,8 @@ int xUngrabKeyboard(GLFWwindow* handle);
 
 // Ungrabs the keyboard.
 int xGrabKeyboard(GLFWwindow* handle);
+
+void xToggleFullscreen(GLFWwindow* handle);
 
 #endif
 

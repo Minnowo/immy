@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 
 #include "darray.h"
@@ -143,6 +144,22 @@ int handle_flags(
     for (size_t i = 1; i < flen; ++i)
 
         switch (flag_str[i]) {
+
+            case '-':
+
+                if (strcasecmp(flag_str + i, "-x-fullscreen") == 0) {
+                    config->x_set_fullscreen = true;
+                }
+
+                if (strcasecmp(flag_str + i, "-x-override-redirect") == 0) {
+                    config->x_override_redirect = true;
+                }
+
+                if (strcasecmp(flag_str + i, "-x-grab-keyboard") == 0) {
+                    config->x_grab_keyboard = true;
+                }
+
+                return 0;
 
         case 'f':
             config->window_flags |=
@@ -292,6 +309,9 @@ int main(int argc, char* argv[]) {
     this.config.center_image_on_start = CENTER_IMAGE_ON_FIRST_START;
     this.config.terminal              = !DETACH_FROM_TERMINAL;
     this.config.show_bar              = true;
+    this.config.x_grab_keyboard       = false;
+    this.config.x_override_redirect   = false;
+    this.config.x_set_fullscreen      = false;
 
     this.filename_cmp = DEFAULT_SORT_ORDER;
 
@@ -330,6 +350,20 @@ int main(int argc, char* argv[]) {
             kb_Fit_Center_Image(&this);
             EndDrawing();
         }
+
+#ifdef X11_AVAILABLE
+    if (this.config.x_set_fullscreen) {
+        xToggleFullscreen(GetWindowHandle());
+    }
+
+    if (this.config.x_override_redirect) {
+        xSetOverrideRedirect(GetWindowHandle());
+    }
+
+    if (this.config.x_grab_keyboard) {
+        xGrabKeyboard(GetWindowHandle());
+    }
+#endif
 
     while (!WindowShouldClose()) {
 
