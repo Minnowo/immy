@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "../config.h"
 #include "../external/hashmap.h"
@@ -64,19 +65,18 @@ void* async_image_load_thread_main(void* raw_arg) {
 
     if (il2LoadImageAsRGBA(thread->path, &il2Image)) {
 
-        thread->im.rayim.data = il2Image.data;
-        thread->im.rayim.width = il2Image.w;
-        thread->im.rayim.height = il2Image.h;
-        thread->im.rayim.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+        thread->im.rayim.data    = il2Image.data;
+        thread->im.rayim.width   = il2Image.w;
+        thread->im.rayim.height  = il2Image.h;
+        thread->im.rayim.format  = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
         thread->im.rayim.mipmaps = 1;
-    }
-    else
+    } else
 
 #endif
 
-    // imlib2 is not thread-safe, we cannot use it here
-    //
-    if (
+        // imlib2 is not thread-safe, we cannot use it here
+        //
+        if (
 #ifdef IMMY_USE_MAGICK
         !(iLoadImageWithMagick(thread->path, &thread->im.rayim)) &&
 #endif
@@ -86,16 +86,16 @@ void* async_image_load_thread_main(void* raw_arg) {
 #endif
         true) {
 
-        L_D("Using Raylib to load the image.");
+            L_D("Using Raylib to load the image.");
 
-        // raylibs load image checks file extension
-        // so if it ends with .kra don't bother having raylib load it
-        if (!iEndsWith(thread->path, ".kra", 1))
-            thread->im.rayim = LoadImage(thread->path);
+            // raylibs load image checks file extension
+            // so if it ends with .kra don't bother having raylib load it
+            if (!iEndsWith(thread->path, ".kra", 1))
+                thread->im.rayim = LoadImage(thread->path);
 
-        if (!IsImageReady(thread->im.rayim))
-            iLoadKritaImage(thread->path, &thread->im.rayim);
-    }
+            if (!IsImageReady(thread->im.rayim))
+                iLoadKritaImage(thread->path, &thread->im.rayim);
+        }
 
 #if GENERATE_THUMB_WHEN_LOADING_IMAGE
 
@@ -263,6 +263,17 @@ bool iLoadImageAsync(const ImmyImage_t* im) {
     pthread_mutex_init(&thread->mutex, NULL);
 
     if (pthread_create(&thread->thread, NULL, async_image_load_thread_main, (void*)thread) != 0) {
+
+        L_E("Could not create thread! %s", strerror(errno));
+
+        free(thread->path);
+        free(thread);
+        return false;
+    }
+
+    if (pthread_detach(thread->thread) == ESRCH) {
+
+        L_E("Could not detatch thread! It has an invalid ID: %s", strerror(errno));
 
         free(thread->path);
         free(thread);
