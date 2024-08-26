@@ -35,10 +35,14 @@ void uiInit(ImmyConfig_t* config) {
                config->window_height, 
                config->window_title);
 
-    glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+    if (config->x_override_redirect) {
 
-    // This breaks override redirect?????
-    // ClearWindowState(FLAG_WINDOW_HIDDEN);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+
+    } else {
+        // This breaks override redirect?????
+        ClearWindowState(FLAG_WINDOW_HIDDEN);
+    }
 
     SetWindowMinSize(config->window_min_width, 
                      config->window_min_height);

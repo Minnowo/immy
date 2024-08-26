@@ -17,7 +17,7 @@ PICTURE=/tmp/immy_screen.bmp
 scrot -z -o -q 100 -Z 1 "$PICTURE"
 
 # run immy so that it covers all monitors and starts at 0 0
-immy -x 0 -y 0 -w "$width" -h "$height" -d -C -B -t "$PICTURE" "$PICTURE" 
+immy -x 0 -y 0 -w "$width" -h "$height" --x-override-redirect --x-grab-keyboard -d -C -B -t "$PICTURE" "$PICTURE"
 
 # delete the image
 rm "$PICTURE"
