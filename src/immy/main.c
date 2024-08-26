@@ -352,17 +352,25 @@ int main(int argc, char* argv[]) {
         }
 
 #ifdef X11_AVAILABLE
+
     if (this.config.x_set_fullscreen) {
         xToggleFullscreen(GetWindowHandle());
     }
 
     if (this.config.x_override_redirect) {
+
         xSetOverrideRedirect(GetWindowHandle());
+
+        SetWindowState(FLAG_WINDOW_HIDDEN);
+        ClearWindowState(FLAG_WINDOW_HIDDEN);
+
+        xFlush(GetWindowHandle());
     }
 
     if (this.config.x_grab_keyboard) {
         xGrabKeyboard(GetWindowHandle());
     }
+
 #endif
 
     while (!WindowShouldClose()) {

@@ -443,6 +443,9 @@ int xGrabKeyboard(GLFWwindow* handle);
 
 void xToggleFullscreen(GLFWwindow* handle);
 
+// Calls XFlush
+void xFlush(GLFWwindow* handle);
+
 #endif
 
 ///

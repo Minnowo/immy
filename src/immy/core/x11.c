@@ -41,6 +41,7 @@ int xUngrabKeyboard() {
     return XUngrabKeyboard(display, CurrentTime);
 }
 
+
 void xSetOverrideRedirect(GLFWwindow* handle) {
 
     Window   window  = glfwGetX11Window(handle);
@@ -53,12 +54,11 @@ void xSetOverrideRedirect(GLFWwindow* handle) {
         display, window, CWOverrideRedirect, &attributes
     );
 
-    // makes window gone forever???
-    // XUnmapWindow(display, window);
-    // XMapWindow(display, window);
-   
-    glfwHideWindow(handle);
-    glfwShowWindow(handle);
+    // // This has to happen for it to take effect, not doing it here though
+    // glfwHideWindow(handle);
+    // glfwShowWindow(handle);
+    // XFlush(display);
+
 }
 
 void xToggleFullscreen(GLFWwindow* handle) {
@@ -88,5 +88,11 @@ void xToggleFullscreen(GLFWwindow* handle) {
     );
 }
 
+void xFlush(GLFWwindow* handle) {
+
+    Display* display = glfwGetX11Display();
+
+    XFlush(display);
+}
 
 #endif
