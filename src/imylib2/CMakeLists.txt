@@ -54,7 +54,7 @@ else()
 endif()
 
 # Set to ON to manually add imlib2 yourself
-set(MANUAL_IMLIB2 ON)
+set(MANUAL_IMLIB2 OFF)
 
 if(NOT MANUAL_IMLIB2)
     #
