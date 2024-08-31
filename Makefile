@@ -14,8 +14,16 @@ all: build
 build_debug: CMAKE_BUILD_TYPE := Debug
 build_debug: build
 
+wayland: DESKTOP_TARGET := Wayland
+wayland: build
+
+x11: DESKTOP_TARGET := X11
+x11: build
+
 build:
-	CC="$(CC)" CXX="$(CXX)" cmake -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
+	CC="$(CC)" CXX="$(CXX)" cmake -B $(BUILD_DIR) \
+	   -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
+	   -DDESKTOP_TARGET=$(DESKTOP_TARGET)
 	CC="$(CC)" CXX="$(CXX)" make -C  $(BUILD_DIR) -j$(shell nproc)
 	cp $(BUILD_DIR)/compile_commands.json $(SOURCE_DIR) || true
 

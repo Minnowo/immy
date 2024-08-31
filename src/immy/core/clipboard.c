@@ -10,37 +10,68 @@
 #include <unistd.h>
 
 #include "../config.h"
-#include "../external/strnatcmp.h"
 #include "core.h"
 
 // TODO: fix this
 
-#ifdef __unix__
+#if defined(__unix__) && defined(PLATFORM_LINUX)
 
-int immy_paste_image_from_clipboard_x11(ImmyControl_t* ctrl) {
+int immy_paste_image_from_clipboard_linux(ImmyControl_t* ctrl) {
 
-    L_I("%s: Pasting image", __func__);
+    L_D("%s: Pasting image", __func__);
+
+    const char* CMD;
+
+#if defined(DESKTOP_WAYLAND)
+
+    CMD = WAYLAND_PASTE_IMAGE_COMMAND;
+
+#elif defined(DESKTOP_X11)
+
+    CMD = X11_PASTE_IMAGE_COMMAND;
+
+#else
+
+#error "We are PLATFORM_LINUX but not DESKTOP_WAYLAND or DESKTOP_X11!!!"
+
+#endif
 
     // block until the command can get the clipboard data
-    if (system(X11_PASTE_IMAGE_COMMAND) == -1) {
+    if (system(CMD) == -1) {
 
         L_E("%s: error saving clipboard to temp file: %s", __func__, strerror(errno));
 
         return false;
     }
 
-    L_I("%s: Clipboard data saved to " X11_PASTE_COMMAND_OUTPUT_FILE, __func__);
+    L_I("Clipboard data saved to " PASTE_COMMAND_OUTPUT_FILE, __func__);
 
     // add the image to the control
-    return iAddImage(ctrl, X11_PASTE_COMMAND_OUTPUT_FILE);
+    return iAddImage(ctrl, PASTE_COMMAND_OUTPUT_FILE);
 }
 
-bool immy_copy_image_to_clipboard_x11(ImmyImage_t* im) {
+bool immy_copy_image_to_clipboard_linux(ImmyImage_t* im) {
 
-    L_I("%s: Copying image: %d x %d", __func__, im->rayim.width, im->rayim.height);
+    L_I("Copying image: %d x %d", im->rayim.width, im->rayim.height);
+
+    const char* CMD;
+
+#if defined(DESKTOP_WAYLAND)
+
+    CMD = WAYLAND_COPY_IMAGE_COMMAND;
+
+#elif defined(DESKTOP_X11)
+
+    CMD = X11_COPY_IMAGE_COMMAND;
+
+#else
+
+#error "We are PLATFORM_LINUX but not DESKTOP_WAYLAND or DESKTOP_X11!!!"
+
+#endif
 
     // we will write the image to stdin
-    FILE* fp = popen(X11_COPY_IMAGE_COMMAND, "w");
+    FILE* fp = popen(CMD , "w");
 
     if (!fp) {
 
@@ -61,7 +92,7 @@ bool immy_copy_image_to_clipboard_x11(ImmyImage_t* im) {
         return false;
     }
 
-    L_I("%s: Wrote png is %0.2fmb", __func__, BYTES_TO_MB(filesize));
+    L_D("Wrote png is %0.2fmb", BYTES_TO_MB(filesize));
 
     fwrite(png_bytes, 1, filesize, fp);
 
@@ -73,24 +104,22 @@ bool immy_copy_image_to_clipboard_x11(ImmyImage_t* im) {
     return true;
 }
 
-int iPasteImageFromClipboard(ImmyControl_t* ctrl) {
-
-    return immy_paste_image_from_clipboard_x11(ctrl);
-}
-
-bool iCopyImageToClipboard(ImmyImage_t* im) {
-
-    return immy_copy_image_to_clipboard_x11(im);
-}
-
-#else
-
-int iPasteImageFromClipboard(ImmyControl_t* ctrl) {
-    return false;
-}
-bool iCopyImageToClipboard(ImmyImage_t* im) {
-
-    return false;
-}
-
 #endif
+
+int iPasteImageFromClipboard(ImmyControl_t* ctrl) {
+
+#if defined(__unix__) && defined(PLATFORM_LINUX)
+    return immy_paste_image_from_clipboard_linux(ctrl);
+#endif
+
+    return false;
+}
+
+bool iCopyImageToClipboard(ImmyImage_t* im) {
+
+#if defined(__unix__) && defined(PLATFORM_LINUX)
+    return immy_copy_image_to_clipboard_linux(im);
+#endif
+
+    return false;
+}

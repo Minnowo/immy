@@ -42,10 +42,10 @@ extern const size_t ZOOM_LEVELS_SIZE;
 #define WINDOW_TITLE "Immy"
 
 // Default window width
-#define START_WIDTH 512
+#define START_WIDTH 0
 
 // Default window height 
-#define START_HEIGHT 512
+#define START_HEIGHT 0
 
 // Minimum window width
 #define MIN_WINDOW_WIDTH 64
@@ -186,18 +186,20 @@ extern const size_t ZOOM_LEVELS_SIZE;
 // ##### Clipboard ###########
 // ###########################
 
-// The command which is run to copy images to clipobard for X11.
+// Pasting an image saves to this file before reading the image normally.
+#define PASTE_COMMAND_OUTPUT_FILE "/tmp/clipboard.png"
+
+// The command which is run to copy images to clipobard for X11 and Wayland.
 // Immy will write png bytes to stdin for this command.
 // This blocks the GUI thread.
 #define X11_COPY_IMAGE_COMMAND "xclip -selection clipboard -target image/png"
+#define WAYLAND_COPY_IMAGE_COMMAND "wl-copy -t image/png"
 
-// Pasting an image saves to this file before reading the image normally.
-#define X11_PASTE_COMMAND_OUTPUT_FILE "/tmp/clipboard.png"
-
-// The command which is run to paste images from the clipboard for X11.
-// Must write the image file to X11_PASTE_COMMAND_OUTPUT_FILE.
+// The command which is run to paste images from the clipboard for X11 Wayland.
+// Must write the image file to PASTE_COMMAND_OUTPUT_FILE.
 // This blocks the GUI thread.
-#define X11_PASTE_IMAGE_COMMAND "xclip -selection clipboard -target image/png -o > " X11_PASTE_COMMAND_OUTPUT_FILE
+#define X11_PASTE_IMAGE_COMMAND "xclip -selection clipboard -target image/png -o > " PASTE_COMMAND_OUTPUT_FILE
+#define WAYLAND_PASTE_IMAGE_COMMAND "wl-paste -t image/png > " PASTE_COMMAND_OUTPUT_FILE
 
 
 // ###########################

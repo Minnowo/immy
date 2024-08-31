@@ -65,7 +65,6 @@ project(immy
     LANGUAGES C
 )
 
-
 add_executable(${PROJECT_NAME} 
     ${IMMY_ROOT}/config.h
     ${IMMY_ROOT}/main.c
@@ -137,6 +136,15 @@ else()
     # fake command that does nothing
     add_custom_target(run_bundle ALL COMMAND "")
 endif()
+
+if(DESKTOP_TARGET STREQUAL "Wayland")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_LINUX)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DESKTOP_WAYLAND)
+elseif(DESKTOP_TARGET STREQUAL "X11")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_LINUX)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DESKTOP_X11)
+endif()
+
 
 # optionally run the bundler
 add_dependencies(${PROJECT_NAME} run_bundle)

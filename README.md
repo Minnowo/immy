@@ -15,15 +15,14 @@ You require [CMake](https://cmake.org/) 3.7 or higher and [GNU Make](https://www
 
 Using the Makefile (which will call cmake):
 ```sh
-make build
-```
+# If you are on Linux X11
+make x11
 
-Using CMake directly:
-```sh
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make
+# If you are on Linux Wayland
+make wayland
+
+# Otherwise
+make build
 ```
 
 This will bundle the resources and build everything. Your built executable will be `./build/immy`.
