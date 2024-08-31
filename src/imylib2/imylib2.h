@@ -9,6 +9,7 @@
 
 #undef IMLIB_LOADER
 #define IMLIB_LOADER(x,y,z)
+#define __imlib_perror(...)
 
 typedef int (*ImlibProgressFunction)(
     ImlibImage* im, char percent, int update_x, int update_y, int update_w, int update_h
