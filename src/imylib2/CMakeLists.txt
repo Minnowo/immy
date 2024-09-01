@@ -55,6 +55,7 @@ endif()
 
 # Set to ON to manually add imlib2 yourself
 set(MANUAL_IMLIB2 OFF)
+set(MANUAL_IMLIB2 ON)
 
 if(NOT MANUAL_IMLIB2)
     #
@@ -114,6 +115,15 @@ set(IMYLIB2_SOURCES
     ./loaders/loader_tga.c
     ./loaders/loader_xbm.c
     # ./loaders/loader_xpm.c
+
+    # requires specific libs
+    ./loaders/loader_jpeg.c
+    ./loaders/loader_webp.c
+    ./loaders/loader_j2k.c
+    ./loaders/loader_jxl.c
+    ./loaders/loader_heif.c
+    ./loaders/loader_png.c
+    ./loaders/loader_tiff.c
 )
 
 
@@ -129,10 +139,10 @@ if(NOT BUILD_EVERYTHING_STATIC)
         ${CUSTOM_LIBS_PATH}/lib64
     )
 
+    file(GLOB OPENJPEG_INCLUDE_DIRS "${CUSTOM_INCLUDE_PATH}/include/openjpeg-*")
     set(INCLUDE_SEARCH
         ${CUSTOM_INCLUDE_PATH}/include
-        ${CUSTOM_INCLUDE_PATH}/include/openjpeg-2.5
-        ${CUSTOM_INCLUDE_PATH}/include/openjpeg-2.4
+        ${OPENJPEG_INCLUDE_DIRS}
     )
 else()
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -148,10 +158,10 @@ else()
         NO_DEFAULT_PATH
     )
 
+    file(GLOB OPENJPEG_INCLUDE_DIRS "${CUSTOM_INCLUDE_PATH}/include/openjpeg-*")
     set(INCLUDE_SEARCH
         ${CUSTOM_INCLUDE_PATH}/include
-        ${CUSTOM_INCLUDE_PATH}/include/openjpeg-2.5
-        ${CUSTOM_INCLUDE_PATH}/include/openjpeg-2.4
+        ${OPENJPEG_INCLUDE_DIRS}
         NO_DEFAULT_PATH
     )
 endif()
@@ -168,7 +178,6 @@ if(JPEG_FOUND AND JPEG_INCLUDE)
     message(STATUS "Including: ${JPEG_INCLUDE}")
 
     list(APPEND LINK_LIBS ${JPEG_FOUND})
-    list(APPEND IMYLIB2_SOURCES ./loaders/loader_jpeg.c)
     list(APPEND DEFINITIONS BUILD_JPEG_LOADER)
 
     include_directories(${JPEG_INCLUDE})
@@ -184,7 +193,6 @@ if(OPENJPEG_FOUND AND OPENJPEG_INCLUDE)
     message(STATUS "Including: ${OPENJPEG_INCLUDE}")
 
     list(APPEND LINK_LIBS ${OPENJPEG_FOUND})
-    list(APPEND IMYLIB2_SOURCES ./loaders/loader_j2k.c)
     list(APPEND DEFINITIONS BUILD_JP2_LOADER)
 
     include_directories(${OPENJPEG_INCLUDE})
@@ -207,7 +215,6 @@ if(JXL_FOUND AND JXLTHREADS_FOUND AND JXL_INCLUDE)
 
     list(APPEND LINK_LIBS ${JXL_FOUND})
     list(APPEND LINK_LIBS ${JXLTHREADS_FOUND})
-    list(APPEND IMYLIB2_SOURCES ./loaders/loader_jxl.c)
     list(APPEND DEFINITIONS BUILD_JXL_LOADER)
 
     include_directories(${JXL_INCLUDE})
@@ -225,7 +232,6 @@ if(HEIF_FOUND AND HEIF_INCLUDE)
     message(STATUS "Including: ${HEIF_INCLUDE}")
 
     list(APPEND LINK_LIBS ${HEIF_FOUND})
-    list(APPEND IMYLIB2_SOURCES ./loaders/loader_heif.c)
     list(APPEND DEFINITIONS BUILD_HEIF_LOADER)
 
     include_directories(${HEIF_INCLUDE})
@@ -243,7 +249,6 @@ if(PNG_FOUND AND PNG_INCLUDE)
     message(STATUS "Including: ${PNG_INCLUDE}")
 
     list(APPEND LINK_LIBS ${PNG_FOUND})
-    list(APPEND IMYLIB2_SOURCES ./loaders/loader_png.c)
     list(APPEND DEFINITIONS BUILD_PNG_LOADER)
 
     include_directories(${PNG_INCLUDE})
@@ -262,7 +267,6 @@ if(TIFF_FOUND AND TIFF_INCLUDE)
     message(STATUS "Including: ${TIFF_INCLUDE}")
 
     list(APPEND LINK_LIBS ${TIFF_FOUND})
-    list(APPEND IMYLIB2_SOURCES ./loaders/loader_tiff.c)
     list(APPEND DEFINITIONS BUILD_TIFF_LOADER)
 
     include_directories(${TIFF_INCLUDE})
@@ -289,7 +293,6 @@ if(WEBP_FOUND AND WEBPDEMUX_FOUND AND SHARPYUV_FOUND AND WEBP_INCLUDE)
     list(APPEND LINK_LIBS ${WEBP_FOUND})
     list(APPEND LINK_LIBS ${WEBPDEMUX_FOUND})
     list(APPEND LINK_LIBS ${SHARPYUV_FOUND})
-    list(APPEND IMYLIB2_SOURCES ./loaders/loader_webp.c)
     list(APPEND DEFINITIONS BUILD_WEBP_LOADER)
 
     include_directories(${WEBP_INCLUDE})
@@ -307,6 +310,7 @@ if(NOT MANUAL_IMLIB2)
 endif()
 
 target_include_directories(${IMYLIB2} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${IMYLIB2} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imlib2)
 target_link_libraries(${IMYLIB2} ${LINK_LIBS})
 target_compile_definitions(${IMYLIB2} PUBLIC ${DEFINITIONS})
 

@@ -25,9 +25,9 @@ il2Loader loaders[] = {
     il2LoadWEBP,
 #endif
 
-#ifdef BUILD_GIF_LOADER
-    il2LoadGIF,
-#endif
+// #ifdef BUILD_GIF_LOADER
+//     il2LoadGIF,
+// #endif
 
 #ifdef BUILD_JXL_LOADER
     il2LoadJXL,
@@ -43,8 +43,8 @@ il2Loader loaders[] = {
     il2LoadHEIF,
 #endif
 
-#ifdef BUILD_SVG_LOADER
-    il2LoadSVG,
+#ifdef BUILD_J2K_LOADER
+    il2LoadJ2K,
 #endif
 
     il2LoadARGB, il2LoadICO, il2LoadLBM, il2LoadPNM, il2LoadTGA, il2LoadFF,
@@ -53,30 +53,9 @@ il2Loader loaders[] = {
       il2LoadXBM,
 #endif
 
-// il2LoadXPM,
 
 #ifdef BUILD_BZ2_LOADER
     il2LoadBZ2,
-#endif
-
-#ifdef BUILD_ID3_LOADER
-    il2LoadID3,
-#endif
-
-#ifdef BUILD_J2K_LOADER
-    il2LoadJ2K,
-#endif
-
-#ifdef BUILD_LZMA_LOADER
-    il2LoadLZMA,
-#endif
-
-#ifdef BUILD_PS_LOADER
-    il2LoadPS,
-#endif
-
-#ifdef BUILD_RAW_LOADER
-    il2LoadRAW,
 #endif
 
 };
@@ -382,17 +361,6 @@ bool il2LoadImageAsBGRA(const char* path, struct ImlibImage* image) {
 // Since many imlib2 loaders using <arpa/inet.h> for the htonl function.
 // We implement it here if unix doesn't exist.
 #ifndef __unix__
-
-// compile time endian check:
-#    if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__)
-#        if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#            define HOST_BIG_ENDIAN 1
-#        else
-#            define HOST_LITTLE_ENDIAN 1
-#        endif
-#    else
-#        define HOST_BYTE_ORDER_UNKNOWN 1
-#    endif
 
 // If we can't determine at compile time, do it at runtime.
 #    if HOST_BYTE_ORDER_UNKNOWN

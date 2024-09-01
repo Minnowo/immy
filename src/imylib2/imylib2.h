@@ -7,9 +7,23 @@
 
 #include <stdbool.h>
 
+// compile time endian check:
+#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__)
+#    if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#        define HOST_BIG_ENDIAN 1
+#        define WORDS_BIGENDIAN 1
+#    else
+#        define HOST_LITTLE_ENDIAN 1
+#    endif
+#else
+#    define HOST_BYTE_ORDER_UNKNOWN 1
+#endif
+
 #undef IMLIB_LOADER
 #define IMLIB_LOADER(x,y,z)
+
 #define __imlib_perror(...)
+#define __PACKED__ /**/
 
 typedef int (*ImlibProgressFunction)(
     ImlibImage* im, char percent, int update_x, int update_y, int update_w, int update_h
@@ -174,8 +188,6 @@ ImlibLoadStatus_t il2LoadTIFF(struct ImlibImage *im, int load_data);
 #ifdef BUILD_WEBP_LOADER
 ImlibLoadStatus_t il2LoadWEBP(struct ImlibImage *im, int load_data);
 #endif
-
-
 
 
 #endif

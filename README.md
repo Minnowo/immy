@@ -3,7 +3,7 @@
 
 A simple, keyboard focused image viewer for Linux. 
 
-Built using [Raylib](https://github.com/raysan5/raylib) with a minimal interface inspired by [sxiv](https://github.com/xyb3rt/sxiv).
+Built using [raylib](https://github.com/raysan5/raylib) with a minimal interface inspired by [sxiv](https://github.com/xyb3rt/sxiv).
 Immy primarily makes use of Imlib2 through a [custom library](./src/imylib2/), but can also use ImageMagick, FFmpeg or Raylib to load images.
 
 Configuration is handled using a single header file: `src/config.h`.
@@ -27,13 +27,6 @@ make build
 
 This will bundle the resources and build everything. Your built executable will be `./build/immy`.
 
----
-
-**Note:** When Imylib2 is built, CMake will download Imlib2 sources from SourceForge. 
-If you do not want this, you can add Imlib2 sources yourself.
-See the note in [Imylib2](./src/imylib2/README.md) about this.
-
----
 
 #### Windows
 
