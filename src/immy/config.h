@@ -477,6 +477,7 @@ InputMapping keybinds[] = {
 
 // define mouse input mappings
 InputMapping mousebinds[] = {
+    BIND(MOUSE_BUTTON_MIDDLE         , kb_Quit, SCREEN_ALL, DELAY_INSTANT),
     BIND(MOUSE_WHEEL_FWD             , kb_Zoom_In_Mouse_Position   , SCREEN_IMAGE, DELAY_INSTANT),
     BIND(MOUSE_WHEEL_BWD             , kb_Zoom_Out_Mouse_Position  , SCREEN_IMAGE, DELAY_INSTANT),
     BIND(MOUSE_WHEEL_FWD | SHIFT_MASK, kb_Next_Image               , SCREEN_IMAGE, DELAY_VFAST),

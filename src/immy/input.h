@@ -98,4 +98,6 @@ void kb_Thumb_Page_Up(ImmyControl_t* ctrl);
 void kb_Thumb_Page_Left(ImmyControl_t* ctrl);
 void kb_Thumb_Page_Right(ImmyControl_t* ctrl);
 
+void kb_Quit(ImmyControl_t* ctrl);
+
 #endif

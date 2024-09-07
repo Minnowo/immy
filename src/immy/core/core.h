@@ -248,6 +248,8 @@ typedef struct ImmyControl {
         size_t keybindPageScroll;
         size_t thumbPageScroll;
 
+        bool shouldClose;
+
         // which screen the user is on
         UIScreen_t screen;
 

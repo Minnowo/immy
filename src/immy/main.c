@@ -373,7 +373,7 @@ int main(int argc, char* argv[]) {
 
 #endif
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose() && !this.shouldClose) {
 
         ++this.frame;
 

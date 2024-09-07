@@ -492,3 +492,9 @@ void kb_Thumb_Page_Right(ImmyControl_t* ctrl) {
 
     iSetImage(ctrl, ctrl->selected_index + 1);
 }
+
+void kb_Quit(ImmyControl_t* ctrl) {
+
+    ctrl->shouldClose = true;
+}
+
