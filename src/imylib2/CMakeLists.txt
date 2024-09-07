@@ -47,48 +47,6 @@ message(STATUS "Packaging Resources: ${PACKAGE_RESOURCES}")
 set(IMLIB2_EXTERN ${CMAKE_CURRENT_SOURCE_DIR}/imlib2/)
 message(STATUS "Imlib2 should be in ${IMLIB2_EXTERN}")
 
-if(WIN32)
-    set(CROSS_COMPILING "--host=x86_64-pc-linux-gnu")
-else()
-    set(CROSS_COMPILING "")
-endif()
-
-# Set to ON to manually add imlib2 yourself
-set(MANUAL_IMLIB2 OFF)
-set(MANUAL_IMLIB2 ON)
-
-if(NOT MANUAL_IMLIB2)
-    #
-    # Downloads Imlib2 v1.12.2 and takes the loader files we want
-    #
-    include(ExternalProject)
-    ExternalProject_Add(
-        imlib2_loaders URL https://sourceforge.net/projects/enlightenment/files/imlib2-src/1.12.2/imlib2-1.12.2.tar.gz/download
-        URL_MD5 15e080e450b8bf3709292cc3efc986e3
-        CONFIGURE_COMMAND <SOURCE_DIR>/configure --disable-text --without-x ${CROSS_COMPILING}
-        BUILD_COMMAND ${CMAKE_COMMAND} -E make_directory ${IMLIB2_EXTERN} &&
-        ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/src/modules/loaders ${IMLIB2_EXTERN}/loaders &&
-        ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/src/lib/Imlib2_Loader.h ${IMLIB2_EXTERN} &&
-        ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/config.h ${IMLIB2_EXTERN}/loaders
-        INSTALL_COMMAND ""
-        BUILD_IN_SOURCE 1
-    )
-
-    add_custom_command(
-        OUTPUT ${IMLIB2_EXTERN}/Imlib2_Loader.h
-        ${IMLIB2_EXTERN}/loaders/exif.c
-        DEPENDS imlib2_loaders
-        COMMAND ${CMAKE_COMMAND} -E echo "Generated Imlib2_Loader.h"
-    )
-
-    add_custom_target(ensure_imlib2_loaders
-        DEPENDS ${IMLIB2_EXTERN}/Imlib2_Loader.h
-        ${IMLIB2_EXTERN}/loaders/exif.c
-    )
-
-endif()
-
-
 set(IMYLIB2 imylib2)
 
 project(${IMYLIB2}
@@ -300,14 +258,6 @@ endif()
 
 
 add_library(${IMYLIB2} STATIC ${IMYLIB2_SOURCES})
-
-if(NOT MANUAL_IMLIB2)
-
-    add_dependencies(${IMYLIB2} imlib2_loaders)
-    add_dependencies(${IMYLIB2} ensure_imlib2_loaders)
-    target_include_directories(${IMYLIB2} PUBLIC ${IMLIB2_EXTERN})
-
-endif()
 
 target_include_directories(${IMYLIB2} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${IMYLIB2} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imlib2)

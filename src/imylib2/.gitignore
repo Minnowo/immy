@@ -1,7 +1,4 @@
 
-# Don't include the imlib2 source
-imlib2
-
 # CMake build dir
 build
 
