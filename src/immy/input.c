@@ -22,12 +22,6 @@
         return;                                                                                                        \
     }
 
-#define I_X(i) (i)->selected_image->dstPos.x
-#define I_Y(i) (i)->selected_image->dstPos.y
-#define I_WIDTH(i) (i)->selected_image->srcRect.width
-#define I_HEIGHT(i) (i)->selected_image->srcRect.height
-#define I_SCALE(i) (i)->selected_image->scale
-
 void kb_Zoom_In_Center_Image(ImmyControl_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
@@ -224,17 +218,27 @@ void kb_Fit_Center_Image(ImmyControl_t* ctrl) {
     uiFitCenterImage(ctrl->selected_image);
 }
 
+void kb_Rotate_Image_Left(ImmyControl_t* ctrl){
+    _NO_IMAGE_WARN(ctrl);
+
+    ctrl->selected_image->rotation -= 15;
+}
+
+void kb_Rotate_Image_Right(ImmyControl_t* ctrl){
+    _NO_IMAGE_WARN(ctrl);
+    
+    ctrl->selected_image->rotation += 15;
+}
+
 void kb_Flip_Vertical(ImmyControl_t* ctrl) {
 
     _NO_IMAGE_WARN(ctrl);
 
     float hh = GetScreenHeight() / 2.0;
 
-    I_Y(ctrl) = hh + (hh - I_Y(ctrl)) - (I_SCALE(ctrl) * I_HEIGHT(ctrl));
+    ctrl->selected_image->dstPos.y = hh + (hh - ctrl->selected_image->dstPos.y);
 
-    ImageFlipVertical(&ctrl->selected_image->rayim);
-
-    ctrl->selected_image->rebuildBuff = 1;
+    ctrl->selected_image->flipY = !ctrl->selected_image->flipY;
 }
 
 void kb_Flip_Horizontal(ImmyControl_t* ctrl) {
@@ -243,11 +247,9 @@ void kb_Flip_Horizontal(ImmyControl_t* ctrl) {
 
     float hw = GetScreenWidth() / 2.0;
 
-    I_X(ctrl) = hw + (hw - I_X(ctrl)) - (I_SCALE(ctrl) * I_WIDTH(ctrl));
+    ctrl->selected_image->dstPos.x = hw + (hw - ctrl->selected_image->dstPos.x);
 
-    ImageFlipHorizontal(&ctrl->selected_image->rayim);
-
-    ctrl->selected_image->rebuildBuff = 1;
+    ctrl->selected_image->flipX = !ctrl->selected_image->flipX;
 }
 
 void kb_Color_Invert(ImmyControl_t* ctrl) {

@@ -100,4 +100,6 @@ void kb_Thumb_Page_Right(ImmyControl_t* ctrl);
 
 void kb_Quit(ImmyControl_t* ctrl);
 
+void kb_Rotate_Image_Left(ImmyControl_t* ctrl);
+void kb_Rotate_Image_Right(ImmyControl_t* ctrl);
 #endif

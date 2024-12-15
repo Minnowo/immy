@@ -13,7 +13,7 @@ extern InputMapping mousebinds[];
 extern const size_t KEYBIND_COUNT;
 extern const size_t MOUSEBIND_COUNT;
 
-extern const double ZOOM_LEVELS[];
+extern const float  ZOOM_LEVELS[];
 extern const size_t ZOOM_LEVELS_SIZE;
 // Do Not Change
 //////////////////////
@@ -244,14 +244,14 @@ extern const size_t ZOOM_LEVELS_SIZE;
 #define SEARCH_DIRS_RECURSIVE true
 
 // The smallest scale value in the ZOOM_LEVELS array
-#define SMALLEST_SCALE_VALUE 0.01
+#define SMALLEST_SCALE_VALUE 0.01f
 
 // Different scale values which provide a decent default experience.
 // This MUST be sorted.
 // The first value must be equal to SMALLEST_SCALE_VALUE
 #ifdef ZOOM_LEVELS_IMPLEMENTATION
 
-const double ZOOM_LEVELS[] = {
+const float ZOOM_LEVELS[] = {
     SMALLEST_SCALE_VALUE,
     0.04, 0.07, 0.10, 0.15,
     0.20, 0.25, 0.30, 0.50,
@@ -402,7 +402,8 @@ InputMapping keybinds[] = {
     // ###########################
     // ##### image view page #####
     // ###########################
-    //
+    BIND(KEY_W                ,kb_Rotate_Image_Left         , SCREEN_IMAGE, DELAY_FAST),
+    BIND(KEY_E                ,kb_Rotate_Image_Right        , SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_V | CONTROL_MASK ,kb_Paste_Image_From_Clipboard, SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_NINE             , kb_Dither                   , SCREEN_IMAGE, DELAY_FAST),
     BIND(KEY_K                , kb_Move_Image_Up            , SCREEN_IMAGE, DELAY_FAST),

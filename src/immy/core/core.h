@@ -175,8 +175,8 @@ typedef struct ImmyImage {
         Rectangle         srcRect;
         Vector2           dstPos;
 
-        double scale;
-        double rotation;
+        float scale;
+        float rotation;
 
         TextureFilter interpolation;
 
@@ -184,6 +184,8 @@ typedef struct ImmyImage {
         bool updateShaders;
         bool applyGrayscaleShader;
         bool applyInvertShader;
+        bool flipX;
+        bool flipY;
         bool isLoadingForThumbOnly;
         bool panels[1];
 

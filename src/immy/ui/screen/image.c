@@ -4,6 +4,7 @@
 #include "../ui.h"
 #include <math.h>
 #include <string.h>
+#include <float.h>
 
 #define ImageViewWidth (GetScreenWidth() - screenPadding.width)
 #define ImageViewHeight (GetScreenHeight() - screenPadding.height)
@@ -27,23 +28,60 @@ void uiImagePageClearState() {
 
 void uiRenderPixelGrid(const ImmyImage_t* image) {
 
-    float x = image->dstPos.y;
-    float y = image->dstPos.x;
-    float w = GetScreenWidth();
-    float h = GetScreenHeight();
+    float viewportMinX = 0.0f;
+    float viewportMinY = 0.0f;
+    float viewportMaxX = GetScreenWidth();
+    float viewportMaxY = GetScreenHeight();
 
-    for (float i = x, j = y; i <= h || j <= w;) {
-        DrawLine(0, i, w, i, g_pixelGridColor);
-        DrawLine(j, 0, j, h, g_pixelGridColor);
-        i += image->scale;
-        j += image->scale;
+    float rotation = image->rotation * M_PI / 180.0f;
+    float cosTheta = cosf(rotation);
+    float sinTheta = sinf(rotation);
+
+    float scale = image->scale;
+
+    float w = image->rayim.width * scale;
+    float h = image->rayim.height * scale;
+
+    float localMinX = -w / 2.0f;
+    float localMaxX = w / 2.0f;
+    float localMinY = -h / 2.0f;
+    float localMaxY = h / 2.0f;
+
+    float mx = image->dstPos.x;
+    float my = image->dstPos.y;
+
+    for (float x = localMinX; x <= localMaxX; x += scale) {
+
+        float startX = (cosTheta * x - sinTheta * localMinY) + mx;
+        float endX   = (cosTheta * x - sinTheta * localMaxY) + mx;
+        float startY = (sinTheta * x + cosTheta * localMinY) + my;
+        float endY   = (sinTheta * x + cosTheta * localMaxY) + my;
+
+        if ((startX < viewportMinX && endX < viewportMinX) ||
+            (startX > viewportMaxX && endX > viewportMaxX) ||
+            (startY < viewportMinY && endY < viewportMinY) ||
+            (startY > viewportMaxY && endY > viewportMaxY)) {
+            continue;
+        }
+
+        DrawLine(startX, startY, endX, endY, g_pixelGridColor);
     }
 
-    for (float i = x, j = y; i > 0 || j > 0;) {
-        DrawLine(0, i, w, i, g_pixelGridColor);
-        DrawLine(j, 0, j, h, g_pixelGridColor);
-        i -= image->scale;
-        j -= image->scale;
+    for (float y = localMinY; y <= localMaxY; y += scale) {
+
+        float startX = (cosTheta * localMinX - sinTheta * y) + mx;
+        float endX   = (cosTheta * localMaxX - sinTheta * y) + mx;
+        float startY = (sinTheta * localMinX + cosTheta * y) + my;
+        float endY   = (sinTheta * localMaxX + cosTheta * y) + my;
+
+        if ((startX < viewportMinX && endX < viewportMinX) ||
+            (startX > viewportMaxX && endX > viewportMaxX) ||
+            (startY < viewportMinY && endY < viewportMinY) ||
+            (startY > viewportMaxY && endY > viewportMaxY)) {
+            continue;
+        }
+
+        DrawLine(startX, startY, endX, endY, g_pixelGridColor);
     }
 }
 
@@ -167,7 +205,26 @@ void uiRenderImage(ImmyControl_t* ctrl, ImmyImage_t* im) {
 
     SetTextureFilter(imageBuf, im->interpolation);
 
-    DrawTextureEx(imageBuf, im->dstPos, im->rotation, im->scale, WHITE);
+    Rectangle source = {
+        0.0f,
+        0.0f,
+        imageBuf.width * (im->flipX ? -1 : 1),
+        imageBuf.height * (im->flipY ? -1 : 1)
+    };
+
+    Rectangle dest = {
+        im->dstPos.x,
+        im->dstPos.y,
+        imageBuf.width * im->scale,
+        imageBuf.height * im->scale
+    };
+
+    Vector2 origin = {
+        dest.width / 2.0f,
+        dest.height / 2.0f,
+    };
+
+    DrawTexturePro(imageBuf, source, dest, origin, im->rotation, WHITE);
 
 #if ENABLE_SHADERS
 
@@ -238,62 +295,86 @@ void uiFitCenterImage(ImmyImage_t* image) {
 
     int sw = ImageViewWidth - screenPadding.x;
     int sh = ImageViewHeight - screenPadding.y;
-    int iw = image->srcRect.width;
-    int ih = image->srcRect.height;
+    float iw = image->srcRect.width;
+    float ih = image->srcRect.height;
 
-    image->scale = fmin((double)sw / iw, (double)sh / ih);
+    image->scale = fminf(sw / iw, sh / ih);
 
-    image->dstPos.x = screenPadding.x + (sw / 2.0) - (iw * image->scale) / 2.0;
-    image->dstPos.y = screenPadding.y + (sh / 2.0) - (ih * image->scale) / 2.0;
+    image->dstPos.x = screenPadding.x + (sw / 2.0f);
+    image->dstPos.y = screenPadding.y + (sh / 2.0f);
 }
 
 void uiCenterImage(ImmyImage_t* image) {
 
     int sw = ImageViewWidth - screenPadding.x;
     int sh = ImageViewHeight - screenPadding.y;
-    int iw = image->srcRect.width;
-    int ih = image->srcRect.height;
+    float iw = image->srcRect.width;
+    float ih = image->srcRect.height;
 
-    image->dstPos.x = screenPadding.x + (sw / 2.0) - (iw * image->scale) / 2.0;
-    image->dstPos.y = screenPadding.y + (sh / 2.0) - (ih * image->scale) / 2.0;
+    image->dstPos.x = screenPadding.x + (sw / 2.0f);
+    image->dstPos.y = screenPadding.y + (sh / 2.0f);
 }
 
 void uiEnsureImageNotLost(ImmyImage_t* image) {
 
-    int   sw = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;
-    int   sh = ImageViewHeight - IMAGE_INVERSE_MARGIN_Y;
-    float iw = (screenPadding.x + IMAGE_INVERSE_MARGIN_X) - (image->srcRect.width * image->scale);
-    float ih = (screenPadding.y + IMAGE_INVERSE_MARGIN_Y) - (image->srcRect.height * image->scale);
+    float rotation = image->rotation * M_PI / 180.0f;
+    float cosTheta = cosf(rotation);
+    float sinTheta = sinf(rotation);
 
-    if (image->dstPos.x > sw) {
+    float corners[] = {-1, -1, 1, -1, 1, 1, -1, 1};
 
-        image->dstPos.x = sw;
+    float minX = FLT_MAX;
+    float maxX = -FLT_MAX;
+    float minY = FLT_MAX;
+    float maxY = -FLT_MAX;
 
-    } else if (image->dstPos.x < iw) {
+    float ihw = (image->srcRect.width * image->scale) / 2.0f;
+    float ihh = (image->srcRect.height * image->scale) / 2.0f;
 
-        image->dstPos.x = iw;
+    for (int i = 0; i < 4; ++i) {
+        float localX = ihw * corners[i * 2];
+        float localY = ihh * corners[i * 2 + 1];
+
+        float rotatedX = cosTheta * localX - sinTheta * localY;
+        float rotatedY = sinTheta * localX + cosTheta * localY;
+
+        rotatedX += image->dstPos.x;
+        rotatedY += image->dstPos.y;
+
+        if (rotatedX < minX) minX = rotatedX;
+        if (rotatedX > maxX) maxX = rotatedX;
+        if (rotatedY < minY) minY = rotatedY;
+        if (rotatedY > maxY) maxY = rotatedY;
     }
 
-    if (image->dstPos.y > sh) {
+    float viewportMinX = screenPadding.x + IMAGE_INVERSE_MARGIN_X;
+    float viewportMinY = screenPadding.y + IMAGE_INVERSE_MARGIN_Y;
+    float viewportMaxX = ImageViewWidth - IMAGE_INVERSE_MARGIN_X;
+    float viewportMaxY = ImageViewHeight - IMAGE_INVERSE_MARGIN_Y;
 
-        image->dstPos.y = sh;
+    if (maxX < viewportMinX) {
+        image->dstPos.x += (viewportMinX - maxX);
+    } else if (minX > viewportMaxX) {
+        image->dstPos.x -= (minX - viewportMaxX);
+    }
 
-    } else if (image->dstPos.y < ih) {
-
-        image->dstPos.y = ih;
+    if (maxY < viewportMinY) {
+        image->dstPos.y += (viewportMinY - maxY);
+    } else if (minY > viewportMaxY) {
+        image->dstPos.y -= (minY - viewportMaxY);
     }
 }
 
-void uiMoveScrFracImage(ImmyImage_t* im, double xFrac, double yFrac) {
+void uiMoveScrFracImage(ImmyImage_t* im, float xFrac, float yFrac) {
 
     im->dstPos.x += (ImageViewWidth - screenPadding.x) * xFrac;
     im->dstPos.y += (ImageViewHeight - screenPadding.y) * yFrac;
     uiEnsureImageNotLost(im);
 }
 
-void uiZoomImageCenter(ImmyImage_t* im, double afterZoom) {
+void uiZoomImageCenter(ImmyImage_t* im, float afterZoom) {
 
-    double beforeZoom = im->scale;
+    float beforeZoom = im->scale;
 
     if (afterZoom < 0) {
         afterZoom = SMALLEST_SCALE_VALUE;
@@ -307,21 +388,37 @@ void uiZoomImageCenter(ImmyImage_t* im, double afterZoom) {
     uiEnsureImageNotLost(im);
 }
 
-void uiZoomImageOnPoint(ImmyImage_t* im, double afterZoom, int x, int y) {
 
-    double beforeZoom = im->scale;
+void uiZoomImageOnPoint(ImmyImage_t* im, float afterZoom, int x, int y) {
+
+    float beforeZoom = im->scale;
 
     if (afterZoom < 0) {
         afterZoom = SMALLEST_SCALE_VALUE;
     }
 
-    double scaleRatio = (im->srcRect.width * beforeZoom) / (im->srcRect.width * afterZoom);
+    float rotation = im->rotation * M_PI / 180;
 
-    double mouseOffsetX = x - im->dstPos.x;
-    double mouseOffsetY = y - im->dstPos.y;
+    float cosTheta = cosf(rotation);
+    float sinTheta = sinf(rotation);
 
-    im->dstPos.x -= (int)((mouseOffsetX / scaleRatio) - mouseOffsetX);
-    im->dstPos.y -= (int)((mouseOffsetY / scaleRatio) - mouseOffsetY);
+    float mouseOffsetX = x - im->dstPos.x;
+    float mouseOffsetY = y - im->dstPos.y;
+
+    float scaleRatio = (im->srcRect.width * beforeZoom) / (im->srcRect.width * afterZoom);
+
+    float localMouseX =  cosTheta * mouseOffsetX + sinTheta * mouseOffsetY;
+    float localMouseY = -sinTheta * mouseOffsetX + cosTheta * mouseOffsetY;
+
+    float adjustedLocalMouseX = localMouseX / scaleRatio;
+    float adjustedLocalMouseY = localMouseY / scaleRatio;
+
+    float finalMouseOffsetX = cosTheta * adjustedLocalMouseX - sinTheta * adjustedLocalMouseY;
+    float finalMouseOffsetY = sinTheta * adjustedLocalMouseX + cosTheta * adjustedLocalMouseY;
+
+    im->dstPos.x += (mouseOffsetX - finalMouseOffsetX);
+    im->dstPos.y += (mouseOffsetY - finalMouseOffsetY);
+
     im->scale = afterZoom;
 
     uiEnsureImageNotLost(im);
@@ -392,3 +489,4 @@ void uiSetScreenPaddingLeft(float x) {
 void uiSetScreenPaddingTop(float y) {
     screenPadding.y = y;
 }
+

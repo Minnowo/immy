@@ -100,9 +100,9 @@ void uiRenderInfoBar(const ImmyImage_t* image);                                 
 void uiFitCenterImage(ImmyImage_t* image);                                      // fit the image & center the image
 void uiCenterImage(ImmyImage_t* image);                                         // center the image at current size
 void uiEnsureImageNotLost(ImmyImage_t* image);                                  // makes sure the image is partially on screen
-void uiMoveScrFracImage(ImmyImage_t* im, double xFrac, double yFrac);           // moves image by screen frac
-void uiZoomImageCenter(ImmyImage_t* im, double afterZoom);                      // zoom in on center
-void uiZoomImageOnPoint(ImmyImage_t* im, double afterZoom, int x, int y);       // zoom in on point
+void uiMoveScrFracImage(ImmyImage_t* im, float xFrac, float yFrac);             // moves image by screen frac
+void uiZoomImageCenter(ImmyImage_t* im, float afterZoom);                       // zoom in on center
+void uiZoomImageOnPoint(ImmyImage_t* im, float  afterZoom, int x, int y);       // zoom in on point
 void uiZoomImageCenterFromClosest(ImmyImage_t* im, bool zoomIn);                // zoom in on center but lock to ZOOM_LEVELS
 void uiZoomImageOnPointFromClosest(ImmyImage_t* im, bool zoomIn, int x, int y); // zoom in on point but lock to ZOOM_LEVELS
 Rectangle uiGetScreenPadding();                                                 // get the image viewport
